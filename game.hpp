@@ -1,11 +1,25 @@
 /*game.hpp*/
+#include <vector>
+#include "player.hpp"
+#include <iostream>
 
+using namespace std;
 class Game
 {
 private:
-    int gameboard [6*4];
+    vector<int> gameboard{24, 0}; // creates a vector of size 24 with values intialized to 0.
+    int turn;
 
 public:
-    //constructor
-    Game(int player){};
+    // constructor
+    Game(int player);
+
+    // populates the gameboard with appropriate number of pieces for each player
+    void populateBoard();
+
+    // accessor and mutator methods.
+    void setTurn(int turn);
+    int getTurn();
+
+    vector<int> getGame();
 };
