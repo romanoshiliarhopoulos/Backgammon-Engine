@@ -24,5 +24,5 @@ void Game::setTurn(int player)
 
 int Game::getTurn()
 {
-    return this->turn;
+    return this->turn;//interesting...
 }
