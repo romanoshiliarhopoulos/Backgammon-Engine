@@ -21,8 +21,23 @@ void Game::setTurn(int player)
     cout << "PLAYER: " << player << endl;
 }
 
+/// @brief Mutates the gameBoard to correctly populate board. Player 1 positive, Player2 negative
+void Game::populateBoard()
+{
+    /*
+        5   0   0   0   -3   0 | -5   0   0   0   0   2
 
+
+        -5   0   0   0   3   0 | 5   0   0   0   0   -2
+
+    */
+    cout << "this->gameboard " << endl;
+    this->gameboard = {2, 0, 0, 0, 0, -5, 0, -3, 0, 0, 0, 5, -5, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, -2};
+}
+
+/// @brief
+/// @return the player whose turn it is
 int Game::getTurn()
 {
-    return this->turn;//interesting.
+    return this->turn; // interesting.
 }
