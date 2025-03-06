@@ -1,4 +1,5 @@
-/*player.h*/
+/*player.hppcle*/
+#pragma once
 
 class Player
 {

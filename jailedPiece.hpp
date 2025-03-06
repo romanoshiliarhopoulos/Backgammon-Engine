@@ -1,5 +1,5 @@
 /*jailedPiece.hpp*/
-
+#pragma once
 #include "player.hpp"
 
 class JailedPieces

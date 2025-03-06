@@ -12,6 +12,8 @@ Game::Game(int player)
     {
         setTurn(Player::PLAYER2);
     }
+    this->pieces = JailedPieces(); // initializes jailedpieces to be equal to zero
+    cout << this->pieces.hasJailedPiece(0) << endl;
 }
 
 /// @brief
@@ -31,7 +33,7 @@ void Game::populateBoard()
         -5   0   0   0   3   0 | 5   0   0   0   0   -2
 
     */
-    cout << "this->gameboard " << endl;
+
     this->gameboard = {2, 0, 0, 0, 0, -5, 0, -3, 0, 0, 0, 5, -5, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, -2};
 }
 
