@@ -12,7 +12,7 @@ Game::Game(int player)
     {
         setTurn(Player::PLAYER2);
     }
-    this->pieces = JailedPieces(); // initializes jailedpieces to be equal to zero
+    this->pieces = Pieces(); // initializes jailedpieces to be equal to zero
     cout << this->pieces.hasJailedPiece(0) << endl;
 }
 

@@ -2,14 +2,14 @@
 #include <vector>
 #include "player.hpp"
 #include <iostream>
-#include "jailedPiece.hpp"
+#include "Pieces.hpp"
 
 using namespace std;
 class Game
 {
 private:
     vector<int> gameboard{24, 0}; // creates a vector of size 24 with values intialized to 0.
-    JailedPieces pieces;
+    Pieces pieces; //holds the number of jailed and freedPieces of each player
 
     int turn;
 
