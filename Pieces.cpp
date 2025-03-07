@@ -58,7 +58,7 @@ void Pieces::removeJailedPiece(int player)
 /// @return returns the number of freed pieces based on given player
 int Pieces::numFreed(int player)
 {
-    if (player == Player)
+    if (player == Player::PLAYER1)
     {
         return this->freedPieces_p1;
     }

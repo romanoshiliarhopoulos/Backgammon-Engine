@@ -25,4 +25,7 @@ public:
     int getTurn();
 
     vector<int> getGame();
+
+    /// @brief prints the gameboard of the current game instance
+    void printGameBoard();
 };
