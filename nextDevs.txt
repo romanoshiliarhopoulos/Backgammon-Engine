@@ -1,0 +1,7 @@
+NEXT DEVELOPMENTS
+
+- make printGameBoard() show number of jailed and freed pieces
+
+- display dice rolling. 
+
+- make a game loop, where two players actually play. 

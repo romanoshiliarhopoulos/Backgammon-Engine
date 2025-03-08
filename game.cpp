@@ -13,7 +13,6 @@ Game::Game(int player)
         setTurn(Player::PLAYER2);
     }
     this->pieces = Pieces(); // initializes jailedpieces to be equal to zero
-    cout << this->pieces.hasJailedPiece(0) << endl;
     populateBoard();
 }
 
@@ -21,7 +20,7 @@ Game::Game(int player)
 /// @param player is an enum of which players turn it is
 void Game::setTurn(int player)
 {
-    cout << "PLAYER: " << player << endl;
+   // cout << "PLAYER: " << player << endl;
 }
 
 /// @brief Mutates the gameBoard to correctly populate board. Player 1 positive, Player2 negative
@@ -162,26 +161,12 @@ void Game::printGameBoard()
 
 void Game::clearGameboard()
 {
+
     int gameboardLines = 21;
-    if (gameboardLines > 0)
-    {
-        // Move cursor up to the beginning of the gameboard
-        std::cout << "\033[" << gameboardLines << "F";
 
-        // Clear all lines
-        for (int i = 0; i < gameboardLines; i++)
-        {
-            // Clear the entire line
-            std::cout << "\033[2K";
+    // Move cursor up by exact number of lines in the board
+    std::cout << "\033[" << gameboardLines << "A";
 
-            // Move to the next line (except for the last iteration)
-            if (i < gameboardLines - 1)
-            {
-                std::cout << "\n";
-            }
-        }
-
-        // Return cursor to beginning of the first line
-        std::cout << "\r" << std::flush;
-    }
+    // Move cursor to beginning of that line
+    std::cout << "\r" << std::flush;
 }
