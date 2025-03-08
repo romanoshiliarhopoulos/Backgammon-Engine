@@ -14,6 +14,7 @@ Game::Game(int player)
     }
     this->pieces = Pieces(); // initializes jailedpieces to be equal to zero
     cout << this->pieces.hasJailedPiece(0) << endl;
+    populateBoard();
 }
 
 /// @brief
@@ -58,7 +59,7 @@ void Game::printGameBoard()
        |                    |                    |
        |                    |                    |
        |                    |                    |
-       |                    |  ◉                 |
+       |                    |                    |
        |  ◯                 |  ◉                 |
        |  ◯                 |  ◉                 |
        |  ◯           ◉     |  ◉                 |
@@ -67,6 +68,52 @@ void Game::printGameBoard()
        * ----------------------------------------*
          13 14  15 16 17 18 | 19 20  21 22 23 24 |
 
+        info: total Lines: 20 (16 game lines and 4 of decors/indeces)
     */
     int totalLines = 20;
+
+    vector<int> board = this->gameboard;
+
+    for (int i = 0; i < 24; i++)
+    {
+        cout << board[i] << endl;
+    }
+    cout << "|  12 11 10 9  8  7     6  5  4  3  2  1" << endl;
+    cout << "*-----------------------------------------*" << endl;
+    // for the top half. first iteration
+    for (int i = 0; i < 8; i++)
+    {
+        cout << "|  ";
+        for (int j = 11; j > -1; j--)
+        {
+            if (j == 5)
+            {
+                cout << "|  ";
+            }
+            if (i == 0 && board[j] == 0)
+            {
+                // for the first iteration, print ' if equal to zero
+                cout << "'";
+            }
+            else if (board[j] > 0)
+            {
+                // player 1 has something there
+                cout << "◉";
+                board[j] -= 1; // reduce the number by 1
+            }
+            else if (board[j] < 0)
+            {
+                // player 2 has something there
+                cout << "◯";
+                board[j] += 1;
+            }
+            else
+            {
+                // print empty space if its zero and not the first line
+                cout << " ";
+            }
+            cout << "  "; // add two empty spaces after the piece
+        }
+        cout << "|" << endl;
+    }
 }

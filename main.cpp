@@ -38,11 +38,6 @@ int main()
     cout << "Hello" << endl;
     Game game1 = Game(4);
     game1.printGameBoard();
-    cout << "◉ ◯" << endl;
-    /*
-    cout << "Leon" << endl;
-    cout << "HAHA" << endl;
-    clearGameboard(2);
-    */
+
     return 0;
 }
