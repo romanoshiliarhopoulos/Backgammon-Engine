@@ -8,36 +8,12 @@ using namespace std;
 
 #include <iostream>
 
-void clearGameboard(int gameboardLines)
-{
-    if (gameboardLines > 0)
-    {
-        // Move cursor up to the beginning of the gameboard
-        std::cout << "\033[" << gameboardLines << "F";
-
-        // Clear all lines
-        for (int i = 0; i < gameboardLines; i++)
-        {
-            // Clear the entire line
-            std::cout << "\033[2K";
-
-            // Move to the next line (except for the last iteration)
-            if (i < gameboardLines - 1)
-            {
-                std::cout << "\n";
-            }
-        }
-
-        // Return cursor to beginning of the first line
-        std::cout << "\r" << std::flush;
-    }
-}
-
 int main()
 {
     cout << "Hello" << endl;
     Game game1 = Game(4);
     game1.printGameBoard();
-
+    game1.clearGameboard(); // works!
+    game1.printGameBoard();
     return 0;
 }

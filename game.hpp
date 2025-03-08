@@ -28,4 +28,7 @@ public:
 
     /// @brief prints the gameboard of the current game instance
     void printGameBoard();
+
+    /// @brief erases the current gameboard from the terminal
+    void clearGameboard();
 };

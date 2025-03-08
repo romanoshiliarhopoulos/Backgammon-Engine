@@ -74,11 +74,7 @@ void Game::printGameBoard()
 
     vector<int> board = this->gameboard;
 
-    for (int i = 0; i < 24; i++)
-    {
-        cout << board[i] << endl;
-    }
-    cout << "|  12 11 10 9  8  7     6  5  4  3  2  1" << endl;
+    cout << "   12 11 10 9  8  7     6  5  4  3  2  1" << endl;
     cout << "*-----------------------------------------*" << endl;
     // for the top half. first iteration
     for (int i = 0; i < 8; i++)
@@ -115,5 +111,77 @@ void Game::printGameBoard()
             cout << "  "; // add two empty spaces after the piece
         }
         cout << "|" << endl;
+    }
+
+    // to print the bottom half of the board
+    for (int i = 8; i > 0; i--)
+    {
+        cout << "|  ";
+        for (int j = 12; j < 24; j++)
+        {
+            if (j == 18)
+            {
+                cout << "|  ";
+            }
+
+            if (abs(board[j]) == i)
+            {
+                // need to paint a piece
+                if (board[j] > 0)
+                {
+                    // paint player 1 piece
+                    cout << "◉";
+                    board[j] -= 1;
+                }
+                else if (board[j] < 0)
+                {
+                    // paint a player 2 piece
+                    cout << "◯";
+                    board[j] += 1;
+                }
+            }
+            else
+            {
+                if (i == 1)
+                {
+                    cout << "'";
+                }
+                else
+                {
+                    cout << " ";
+                }
+            }
+            cout << "  ";
+        }
+        cout << "|" << endl;
+    }
+    cout << "* ----------------------------------------*" << endl;
+    cout << "  13 14  15 16 17 18 | 19 20  21 22 23 24 " << endl;
+    cout << endl;
+}
+
+void Game::clearGameboard()
+{
+    int gameboardLines = 21;
+    if (gameboardLines > 0)
+    {
+        // Move cursor up to the beginning of the gameboard
+        std::cout << "\033[" << gameboardLines << "F";
+
+        // Clear all lines
+        for (int i = 0; i < gameboardLines; i++)
+        {
+            // Clear the entire line
+            std::cout << "\033[2K";
+
+            // Move to the next line (except for the last iteration)
+            if (i < gameboardLines - 1)
+            {
+                std::cout << "\n";
+            }
+        }
+
+        // Return cursor to beginning of the first line
+        std::cout << "\r" << std::flush;
     }
 }
