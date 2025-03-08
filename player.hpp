@@ -1,8 +1,13 @@
 /*player.hppcle*/
 #pragma once
+#include <string>
 
+using namespace std;
 class Player
 {
+private:
+    string name;
+
 public:
     // Player 1 represented as zero and player2 represented as
     enum PLAYERS

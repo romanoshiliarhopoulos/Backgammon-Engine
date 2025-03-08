@@ -22,9 +22,15 @@ void printBanner()
 
 int main()
 {
+    
     printBanner();
-    cout << "Hello" << endl;
     Game game1 = Game(4);
+
+    // for the main game loop
+    string input;
+    cout << "enter a num" << endl;
+    cin >> input;
+    cout << input << endl;
     game1.printGameBoard();
     game1.clearGameboard(); // works!
     game1.printGameBoard();
