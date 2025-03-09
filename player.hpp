@@ -15,4 +15,10 @@ public:
         PLAYER1 = 0,
         PLAYER2
     };
+
+    // constructor
+    Player(string name);
+
+    //returns the player's name
+    string getName();
 };
