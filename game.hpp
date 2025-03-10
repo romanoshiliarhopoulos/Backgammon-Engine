@@ -31,4 +31,7 @@ public:
 
     /// @brief erases the current gameboard from the terminal
     void clearGameboard();
+
+    //assesses wether a player has won and the game is over
+    bool over();
 };

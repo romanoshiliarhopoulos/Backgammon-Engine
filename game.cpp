@@ -20,7 +20,8 @@ Game::Game(int player)
 /// @param player is an enum of which players turn it is
 void Game::setTurn(int player)
 {
-   // cout << "PLAYER: " << player << endl;
+    // cout << "PLAYER: " << player << endl;
+    this->turn = player;
 }
 
 /// @brief Mutates the gameBoard to correctly populate board. Player 1 positive, Player2 negative
@@ -169,4 +170,24 @@ void Game::clearGameboard()
 
     // Move cursor to beginning of that line
     std::cout << "\r" << std::flush;
+}
+
+// assesses wether a player has won and the game is over...
+bool Game::over()
+{
+    Pieces pieces = this->pieces;
+
+    // evaluating if player 1 has won. Condition: all their pieces are freed
+    if (pieces.numFreed(0) == 15)
+    {
+        return true; // player 1 wins
+    }
+    else if (pieces.numFreed(1) == 15)
+    {
+        return true; // player 2 wins
+    }
+    else
+    {
+        return false;
+    }
 }

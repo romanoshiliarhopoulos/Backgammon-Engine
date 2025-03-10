@@ -20,11 +20,16 @@ void printBanner()
 )" << std::endl;
 }
 
+int rollDice()
+{
+    // returns a number between 1 and 6
+    return (rand() % 6) + 1;
+}
+
 int main()
 {
-
     printBanner();
-    Game game1 = Game(4);
+    Game game = Game(4);
     std::cout << "⚀ ⚁ ⚂ ⚃ ⚄ ⚅" << std::endl;
 
     // for the main game loop
@@ -36,11 +41,22 @@ int main()
         cin >> p1_name;
         cout << "Enter a name for Player 2: ";
         cin >> p2_name;
+        while (p1_name == p2_name)
+        {
+            cout << "Names must be different: ";
+            cin >> p2_name;
+        }
         cout << endl;
 
         // create the player objects
-        Player p1(p1_name);
-        Player p2(p2_name);
+        Player p1(p1_name, 0);
+        Player p2(p2_name, 1);
+
+        // starting the mechanics of the game
+        Player *p1_addr = &p1;
+        Player *p2_addr = &p2;
+
+        Player *current_player;
 
         // Rolling the dice to determin who goes first
         string response = "o";
@@ -49,12 +65,54 @@ int main()
             cout << "Press r for both to roll a dice: ";
             cin >> response;
         }
-        
+        int p1_dice = rollDice();
+        int p2_dice = rollDice();
+        while (p2_dice == p1_dice)
+        {
+            // roll again,
+            p1_dice = rollDice();
+            p2_dice = rollDice();
+        }
+        cout << p1.getName() << " rolled a: " << p1_dice << ", " << p2.getName() << " rolled a: " << p2_dice << endl;
+
+        if (p1_dice > p2_dice)
+        {
+            // p1 goes first
+            cout << p1.getName() << " goes first!" << endl;
+            game.setTurn(Player::PLAYER1);
+            current_player = p1_addr;
+        }
+        else
+        {
+            // p2 goes first
+            cout << p1.getName() << " goes first!" << endl;
+            game.setTurn(Player::PLAYER2);
+            current_player = p2_addr;
+        }
+        string responseStrart;
+        cout << "Press s to start or q to quit ... \n";
+        cin >> responseStrart;
+        while (responseStrart != "s" && responseStrart != "q")
+        {
+            cout << "Press s to start or q to quit ...";
+            cin >> responseStrart;
+        }
+        if (responseStrart == "q")
+        {
+            return 0;
+        }
+
+        cout << "\n*-------------------------------------------------*" << endl;
+        // for the game mechanics . . .
+
+        while(!game.over())
+        {
+        }
 
         break;
     }
-    game1.printGameBoard();
-    game1.clearGameboard(); // works!
-    game1.printGameBoard();
+    game.printGameBoard();
+    game.clearGameboard(); // works!
+    game.printGameBoard();
     return 0;
 }

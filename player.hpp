@@ -7,6 +7,7 @@ class Player
 {
 private:
     string name;
+    int player_num;
 
 public:
     // Player 1 represented as zero and player2 represented as
@@ -17,8 +18,11 @@ public:
     };
 
     // constructor
-    Player(string name);
+    Player(string name, int num);
 
     //returns the player's name
     string getName();
+
+    //returns the player's num 0 for p1 or 1 for p2
+    int Player::getNum();
 };
