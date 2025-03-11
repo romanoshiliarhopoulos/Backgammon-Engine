@@ -2,6 +2,8 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <stdint.h>
+
 #include "game.hpp"
 
 using namespace std;
@@ -23,14 +25,14 @@ void printBanner()
 int rollDice()
 {
     // returns a number between 1 and 6
-    return (rand() % 6) + 1;
+
+    return arc4random_uniform(5) + 1;
 }
 
 int main()
 {
     printBanner();
     Game game = Game(4);
-    std::cout << "⚀ ⚁ ⚂ ⚃ ⚄ ⚅" << std::endl;
 
     // for the main game loop
     while (true)
@@ -73,7 +75,7 @@ int main()
             p1_dice = rollDice();
             p2_dice = rollDice();
         }
-        cout << p1.getName() << " rolled a: " << p1_dice << ", " << p2.getName() << " rolled a: " << p2_dice << endl;
+        cout << p1.getName() << " rolled a: " << p1_dice << ", " << p2.getName() << " rolled a: " << p2_dice << ". ";
 
         if (p1_dice > p2_dice)
         {
@@ -105,8 +107,20 @@ int main()
         cout << "\n*-------------------------------------------------*" << endl;
         // for the game mechanics . . .
 
-        while(!game.over())
+        while (!game.over())
         {
+            cout << "Turn: " << current_player->getName() << endl;
+            // player rolls both dice first
+
+            if (current_player == p1_addr)
+            {
+                // next player must be p2
+                current_player = p2_addr;
+            }
+            else
+            {
+                current_player = p1_addr;
+            }
         }
 
         break;

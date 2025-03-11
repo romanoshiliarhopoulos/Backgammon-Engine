@@ -1,10 +1,10 @@
-Start testing: Mar 11 00:05 CDT
+Start testing: Mar 11 10:59 CDT
 ----------------------------------------------------------
 1/1 Testing: Player_functionality.newplayer
 1/1 Test: Player_functionality.newplayer
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=Player_functionality.newplayer" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"Player_functionality.newplayer" start time: Mar 11 00:05 CDT
+"Player_functionality.newplayer" start time: Mar 11 10:59 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -20,11 +20,11 @@ Note: Google Test filter = Player_functionality.newplayer
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.02 sec
+Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"Player_functionality.newplayer" end time: Mar 11 00:05 CDT
+"Player_functionality.newplayer" end time: Mar 11 10:59 CDT
 "Player_functionality.newplayer" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 11 00:05 CDT
+End testing: Mar 11 10:59 CDT

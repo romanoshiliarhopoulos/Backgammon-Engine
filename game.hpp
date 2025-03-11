@@ -2,13 +2,14 @@
 #include <vector>
 #include "player.hpp"
 #include <iostream>
+#include <string>
 #include "Pieces.hpp"
 
 using namespace std;
 class Game
 {
 private:
-    vector<int> gameboard = vector<int> (24, 0); // creates a vector of size 24 with values intialized to 0.
+    vector<int> gameboard = vector<int>(24, 0); // creates a vector of size 24 with values intialized to 0.
     Pieces pieces;                              // holds the number of jailed and freedPieces of each player
 
     int turn;
@@ -34,4 +35,6 @@ public:
 
     // assesses wether a player has won and the game is over
     bool over();
+
+    
 };

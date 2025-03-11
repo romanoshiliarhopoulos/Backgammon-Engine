@@ -11,3 +11,5 @@ TEST(Player_functionality, newplayer)
 
     ASSERT_EQ(p1.getName(), "romanos");
 };
+
+TEST()
