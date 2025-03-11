@@ -24,5 +24,5 @@ public:
     string getName();
 
     //returns the player's num 0 for p1 or 1 for p2
-    int Player::getNum();
+    int getNum();
 };
