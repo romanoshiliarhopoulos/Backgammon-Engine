@@ -4,6 +4,4 @@ run:
 	clear
 	./a.out
 tests:
-	g++ -std=c++17 -o my_test tests.cpp game.cpp Pieces.cpp player.cpp -lgtest -lgtest_main -pthread -lm -Wno-unused-variable -Wno-unused-function
-
-	
+	c++ -std=c++17 tests.cpp game.cpp Pieces.cpp player.cpp -o tests -I/opt/homebrew/include -L/opt/homebrew/lib -lgtest -lgtest_main -pthread
