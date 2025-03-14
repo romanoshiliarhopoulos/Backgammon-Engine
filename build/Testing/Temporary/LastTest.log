@@ -1,10 +1,10 @@
-Start testing: Mar 11 10:59 CDT
+Start testing: Mar 13 23:56 CDT
 ----------------------------------------------------------
-1/1 Testing: Player_functionality.newplayer
-1/1 Test: Player_functionality.newplayer
+1/3 Testing: Player_functionality.newplayer
+1/3 Test: Player_functionality.newplayer
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=Player_functionality.newplayer" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"Player_functionality.newplayer" start time: Mar 11 10:59 CDT
+"Player_functionality.newplayer" start time: Mar 13 23:56 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -23,8 +23,62 @@ Note: Google Test filter = Player_functionality.newplayer
 Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"Player_functionality.newplayer" end time: Mar 11 10:59 CDT
+"Player_functionality.newplayer" end time: Mar 13 23:56 CDT
 "Player_functionality.newplayer" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 11 10:59 CDT
+2/3 Testing: ValidOrigin.test_orginin_boolean
+2/3 Test: ValidOrigin.test_orginin_boolean
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_orginin_boolean" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"ValidOrigin.test_orginin_boolean" start time: Mar 13 23:56 CDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ValidOrigin.test_orginin_boolean
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ValidOrigin
+[ RUN      ] ValidOrigin.test_orginin_boolean
+[       OK ] ValidOrigin.test_orginin_boolean (0 ms)
+[----------] 1 test from ValidOrigin (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"ValidOrigin.test_orginin_boolean" end time: Mar 13 23:56 CDT
+"ValidOrigin.test_orginin_boolean" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/3 Testing: ValidOrigin.test_orginin_boolean_p2
+3/3 Test: ValidOrigin.test_orginin_boolean_p2
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_orginin_boolean_p2" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"ValidOrigin.test_orginin_boolean_p2" start time: Mar 13 23:56 CDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = ValidOrigin.test_orginin_boolean_p2
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ValidOrigin
+[ RUN      ] ValidOrigin.test_orginin_boolean_p2
+[       OK ] ValidOrigin.test_orginin_boolean_p2 (0 ms)
+[----------] 1 test from ValidOrigin (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"ValidOrigin.test_orginin_boolean_p2" end time: Mar 13 23:56 CDT
+"ValidOrigin.test_orginin_boolean_p2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Mar 13 23:56 CDT

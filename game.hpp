@@ -12,6 +12,8 @@ private:
     vector<int> gameboard = vector<int>(24, 0); // creates a vector of size 24 with values intialized to 0.
     Pieces pieces;                              // holds the number of jailed and freedPieces of each player
 
+    Player *p1;
+    Player *p2;
     int turn;
 
 public:
@@ -36,5 +38,11 @@ public:
     // assesses wether a player has won and the game is over
     bool over();
 
-    
+    // sets the current players
+    void setPlayers(Player p1, Player p2);
+
+    // called within the game loop, to make a move on the pieces....
+    void movePieces(Player *currentPlayer, int dice1, int dice2);
+    // helper functions for movePieces
+    bool isValidOrigin(int multi, int idx);
 };

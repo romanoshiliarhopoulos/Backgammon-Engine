@@ -5,4 +5,4 @@ run:
 	clear
 	./a.out
 tests:
-	cd build && ctest
+	cd build && cmake --build . && ctest

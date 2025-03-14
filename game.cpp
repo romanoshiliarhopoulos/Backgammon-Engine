@@ -193,3 +193,47 @@ bool Game::over()
     }
 }
 
+void Game::setPlayers(Player p1, Player p2)
+{
+    this->p1 = &p1;
+    this->p2 = &p2;
+};
+
+// helper function to determing if an index is a valid origin (move pieces from that index to somewhere else)
+bool Game::isValidOrigin(int multi, int idx)
+{
+    if (this->gameboard[idx - 1] * multi > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
+{
+    int multi = 1; // used to convert all pieces in array to the same sign for operations.
+    // first we want to determine wether its player one or player two thats playing.
+    if (currentPlayer == this->p2)
+    {
+        // if the pointers point to the same address
+        multi = -1;
+    }
+
+    // if you have not rolled a "double"
+    if (dice1 != dice2)
+    {
+        cout << "Move: ";
+        int index_before_move;
+        cin >> index_before_move;
+
+        bool valid = isValidOrigin(multi, index_before_move);
+        while (!valid)
+        {
+            // this player has no pieces there!!!
+            cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
+            cin >> index_before_move;
+        }
+    }
+};

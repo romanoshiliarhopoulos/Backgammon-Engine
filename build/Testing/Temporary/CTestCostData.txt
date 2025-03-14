@@ -1,2 +1,4 @@
-Player_functionality.newplayer 5 0.00174591
+Player_functionality.newplayer 10 0.000565033
+ValidOrigin.test_orginin_boolean 2 0.00256856
+ValidOrigin.test_orginin_boolean_p2 1 0.00504767
 ---

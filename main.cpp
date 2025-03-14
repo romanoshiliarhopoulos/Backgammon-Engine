@@ -53,6 +53,7 @@ int main()
         // create the player objects
         Player p1(p1_name, 0);
         Player p2(p2_name, 1);
+        game.setPlayers(p1, p2); // pass the players onto the game class
 
         // starting the mechanics of the game
         Player *p1_addr = &p1;
@@ -80,16 +81,16 @@ int main()
         if (p1_dice > p2_dice)
         {
             // p1 goes first
-            cout << p1.getName() << " goes first!" << endl;
-            game.setTurn(Player::PLAYER1);
             current_player = p1_addr;
+            cout << current_player->getName() << " goes first!" << endl;
+            game.setTurn(Player::PLAYER1);
         }
         else
         {
             // p2 goes first
-            cout << p1.getName() << " goes first!" << endl;
-            game.setTurn(Player::PLAYER2);
             current_player = p2_addr;
+            cout << current_player->getName() << " goes first!" << endl;
+            game.setTurn(Player::PLAYER2);
         }
         string responseStrart;
         cout << "Press s to start or q to quit ... \n";
@@ -109,8 +110,22 @@ int main()
 
         while (!game.over())
         {
-            cout << "Turn: " << current_player->getName() << endl;
+            game.printGameBoard();
+            cout << "Turn: " << current_player->getName() << ". Press r to roll: ";
+            string input;
+            cin >> input;
+            while (input != "r")
+            {
+                cout << "\nPress r to roll:";
+                cin >> input;
+            }
+            int dice1 = rollDice();
+            int dice2 = rollDice();
             // player rolls both dice first
+
+            // output the roll:
+            cout << "Dice: " << dice1 << ", Dice: " << dice2 << endl;
+            game.movePieces(current_player, dice1, dice2);
 
             if (current_player == p1_addr)
             {
