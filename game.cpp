@@ -258,5 +258,7 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
             cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
             cin >> index_to_move_to;
         }
+
+        //by this point we have correct origin and destination indeces
     }
 };

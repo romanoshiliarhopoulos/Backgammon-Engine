@@ -4,3 +4,4 @@ NEXT DEVELOPMENTS
 
 - make a game loop, where two players actually play. 
 
+- make movepieces() to support freeing a piece
