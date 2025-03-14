@@ -13,6 +13,7 @@ TEST(Player_functionality, newplayer)
     ASSERT_EQ(p1.getName(), "romanos");
 };
 
+// Test Suite for ValidOrigin with many cases
 TEST(ValidOrigin, test_orginin_boolean)
 {
     Game game(0); // populates initial gameboard
@@ -24,4 +25,12 @@ TEST(ValidOrigin, test_orginin_boolean_p2)
     Game game(0); // populates initial gameboard
     ASSERT_FALSE(game.isValidOrigin(1, 6));
     ASSERT_TRUE(game.isValidOrigin(-1, 6));
+}
+TEST(ValidOrigin, gameboard_with_no_pieces)
+{
+    Game game(0); // populates initial gameboard
+    ASSERT_FALSE(game.isValidOrigin(1, 2));
+    ASSERT_FALSE(game.isValidOrigin(-1, 2));
+
+    ASSERT_FALSE(game.isValidOrigin(-1, 7));
 }

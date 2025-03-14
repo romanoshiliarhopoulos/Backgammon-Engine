@@ -4,4 +4,6 @@ add_test([=[ValidOrigin.test_orginin_boolean]=]  /Users/romanos/Backgammon_Engin
 set_tests_properties([=[ValidOrigin.test_orginin_boolean]=]  PROPERTIES WORKING_DIRECTORY /Users/romanos/Backgammon_Engine/build SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
 add_test([=[ValidOrigin.test_orginin_boolean_p2]=]  /Users/romanos/Backgammon_Engine/build/backgammon_tests [==[--gtest_filter=ValidOrigin.test_orginin_boolean_p2]==] --gtest_also_run_disabled_tests)
 set_tests_properties([=[ValidOrigin.test_orginin_boolean_p2]=]  PROPERTIES WORKING_DIRECTORY /Users/romanos/Backgammon_Engine/build SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
-set(  backgammon_tests_TESTS Player_functionality.newplayer ValidOrigin.test_orginin_boolean ValidOrigin.test_orginin_boolean_p2)
+add_test([=[ValidOrigin.gameboard_with_no_pieces]=]  /Users/romanos/Backgammon_Engine/build/backgammon_tests [==[--gtest_filter=ValidOrigin.gameboard_with_no_pieces]==] --gtest_also_run_disabled_tests)
+set_tests_properties([=[ValidOrigin.gameboard_with_no_pieces]=]  PROPERTIES WORKING_DIRECTORY /Users/romanos/Backgammon_Engine/build SKIP_REGULAR_EXPRESSION [==[\[  SKIPPED \]]==])
+set(  backgammon_tests_TESTS Player_functionality.newplayer ValidOrigin.test_orginin_boolean ValidOrigin.test_orginin_boolean_p2 ValidOrigin.gameboard_with_no_pieces)

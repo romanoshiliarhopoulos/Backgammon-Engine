@@ -1,4 +1,5 @@
-Player_functionality.newplayer 10 0.000565033
-ValidOrigin.test_orginin_boolean 2 0.00256856
-ValidOrigin.test_orginin_boolean_p2 1 0.00504767
+Player_functionality.newplayer 12 0.000457451
+ValidOrigin.test_orginin_boolean 4 0.00148357
+ValidOrigin.test_orginin_boolean_p2 3 0.00173406
+ValidOrigin.gameboard_with_no_pieces 2 0.00314496
 ---
