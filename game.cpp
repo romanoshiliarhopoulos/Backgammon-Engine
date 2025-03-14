@@ -211,6 +211,18 @@ bool Game::isValidOrigin(int multi, int idx)
         return false;
     }
 }
+// helper function to see if a player can move a piece there
+bool Game::isValidDestination(int multi, int idx)
+{
+    if (this->gameboard[idx - 1] * multi >= 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
 {
     int multi = 1; // used to convert all pieces in array to the same sign for operations.
@@ -228,12 +240,23 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
         int index_before_move;
         cin >> index_before_move;
 
-        bool valid = isValidOrigin(multi, index_before_move);
-        while (!valid)
+        bool validO = isValidOrigin(multi, index_before_move);
+        while (!validO)
         {
             // this player has no pieces there!!!
             cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
             cin >> index_before_move;
+        }
+        cout << "To: ";
+        int index_to_move_to;
+        cin >> index_to_move_to;
+
+        bool validD = isValidDestination(multi, index_to_move_to);
+        while (!validD)
+        {
+            // this player has no pieces there!!!
+            cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
+            cin >> index_to_move_to;
         }
     }
 };

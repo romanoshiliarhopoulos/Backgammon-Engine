@@ -34,3 +34,32 @@ TEST(ValidOrigin, gameboard_with_no_pieces)
 
     ASSERT_FALSE(game.isValidOrigin(-1, 7));
 }
+
+// to test about valid destination
+TEST(ValidDestination, test_destination_with_friendly_piece)
+{
+    Game game(1);
+    ASSERT_TRUE(game.isValidDestination(1, 1));
+    ASSERT_TRUE(game.isValidDestination(1, 12));
+
+    ASSERT_TRUE(game.isValidDestination(-1, 6));
+    ASSERT_TRUE(game.isValidDestination(-1, 13));
+}
+TEST(ValidDestination, test_destination_with_no_piece)
+{
+    Game game(1);
+    ASSERT_TRUE(game.isValidDestination(1, 2));
+    ASSERT_TRUE(game.isValidDestination(1, 11));
+
+    ASSERT_TRUE(game.isValidDestination(-1, 2));
+    ASSERT_TRUE(game.isValidDestination(-1, 22));
+}
+TEST(ValidDestination, test_destination_with_enemy_piece)
+{
+    Game game(0);
+    ASSERT_FALSE(game.isValidDestination(1, 6));
+    ASSERT_FALSE(game.isValidDestination(1, 8));
+
+    ASSERT_FALSE(game.isValidDestination(-1, 19));
+    ASSERT_FALSE(game.isValidDestination(-1, 17));
+}

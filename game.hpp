@@ -45,4 +45,5 @@ public:
     void movePieces(Player *currentPlayer, int dice1, int dice2);
     // helper functions for movePieces
     bool isValidOrigin(int multi, int idx);
+    bool isValidDestination(int multi, int idx);
 };
