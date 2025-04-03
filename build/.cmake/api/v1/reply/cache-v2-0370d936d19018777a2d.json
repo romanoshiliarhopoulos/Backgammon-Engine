@@ -1091,7 +1091,7 @@
 				}
 			],
 			"type" : "STRING",
-			"value" : ""
+			"value" : "15.3"
 		},
 		{
 			"name" : "CMAKE_OSX_SYSROOT",
@@ -1103,7 +1103,7 @@
 				}
 			],
 			"type" : "PATH",
-			"value" : "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk"
+			"value" : "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk"
 		},
 		{
 			"name" : "CMAKE_PLATFORM_INFO_INITIALIZED",

@@ -6,7 +6,7 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/include -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest
 
-CXX_FLAGSarm64 = -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk  -DGTEST_HAS_PTHREAD=1  
+CXX_FLAGSarm64 = -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3  -DGTEST_HAS_PTHREAD=1  
 
-CXX_FLAGS = -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk  -DGTEST_HAS_PTHREAD=1  
+CXX_FLAGS = -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3  -DGTEST_HAS_PTHREAD=1  
 

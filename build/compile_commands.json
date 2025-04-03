@@ -1,49 +1,49 @@
 [
 {
   "directory": "/Users/romanos/Backgammon_Engine/build",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/Backgammon-Engine.dir/Pieces.cpp.o -c /Users/romanos/Backgammon_Engine/Pieces.cpp",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3 -o CMakeFiles/Backgammon-Engine.dir/Pieces.cpp.o -c /Users/romanos/Backgammon_Engine/Pieces.cpp",
   "file": "/Users/romanos/Backgammon_Engine/Pieces.cpp",
   "output": "CMakeFiles/Backgammon-Engine.dir/Pieces.cpp.o"
 },
 {
   "directory": "/Users/romanos/Backgammon_Engine/build",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/Backgammon-Engine.dir/game.cpp.o -c /Users/romanos/Backgammon_Engine/game.cpp",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3 -o CMakeFiles/Backgammon-Engine.dir/game.cpp.o -c /Users/romanos/Backgammon_Engine/game.cpp",
   "file": "/Users/romanos/Backgammon_Engine/game.cpp",
   "output": "CMakeFiles/Backgammon-Engine.dir/game.cpp.o"
 },
 {
   "directory": "/Users/romanos/Backgammon_Engine/build",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/Backgammon-Engine.dir/player.cpp.o -c /Users/romanos/Backgammon_Engine/player.cpp",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++   -g -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3 -o CMakeFiles/Backgammon-Engine.dir/player.cpp.o -c /Users/romanos/Backgammon_Engine/player.cpp",
   "file": "/Users/romanos/Backgammon_Engine/player.cpp",
   "output": "CMakeFiles/Backgammon-Engine.dir/player.cpp.o"
 },
 {
   "directory": "/Users/romanos/Backgammon_Engine/build",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk -o CMakeFiles/backgammon_tests.dir/tests.cpp.o -c /Users/romanos/Backgammon_Engine/tests.cpp",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=gnu++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3 -o CMakeFiles/backgammon_tests.dir/tests.cpp.o -c /Users/romanos/Backgammon_Engine/tests.cpp",
   "file": "/Users/romanos/Backgammon_Engine/tests.cpp",
   "output": "CMakeFiles/backgammon_tests.dir/tests.cpp.o"
 },
 {
   "directory": "/Users/romanos/Backgammon_Engine/build/_deps/googletest-build/googlemock",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/include -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/src/gmock-all.cc",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/include -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/src/gmock-all.cc",
   "file": "/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/src/gmock-all.cc",
   "output": "_deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o"
 },
 {
   "directory": "/Users/romanos/Backgammon_Engine/build/_deps/googletest-build/googlemock",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/src/gmock_main.cc",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/src/gmock_main.cc",
   "file": "/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/src/gmock_main.cc",
   "output": "_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
 },
 {
   "directory": "/Users/romanos/Backgammon_Engine/build/_deps/googletest-build/googletest",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest-all.cc",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -I/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest-all.cc",
   "file": "/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest-all.cc",
   "output": "_deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
 },
 {
   "directory": "/Users/romanos/Backgammon_Engine/build/_deps/googletest-build/googletest",
-  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest -g -std=c++14 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.4.sdk -mmacosx-version-min=15.3  -DGTEST_HAS_PTHREAD=1   -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc",
   "file": "/Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc",
   "output": "_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
 }
