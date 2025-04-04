@@ -243,7 +243,7 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
         bool validO = isValidOrigin(multi, index_before_move);
         while (!validO)
         {
-            // this player has no pieces there!!!!
+            // this player has no pieces there!!!
             cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
             cin >> index_before_move;
         }
