@@ -547,7 +547,7 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Details about finding Python
-FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11][cfound components: Interpreter ][v3.11.3()]
+FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/Users/romanos/miniconda3/bin/python3.12][cfound components: Interpreter ][v3.12.9()]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //CMAKE_INSTALL_PREFIX during last run
@@ -557,10 +557,10 @@ _Python_Compiler_REASON_FAILURE:INTERNAL=
 //Development reason failure
 _Python_Development_REASON_FAILURE:INTERNAL=
 //Path to a program.
-_Python_EXECUTABLE:INTERNAL=/Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11
+_Python_EXECUTABLE:INTERNAL=/Users/romanos/miniconda3/bin/python3.12
 //Python Properties
-_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;11;3;64;32;<none>;cpython-311-darwin;abi3;/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11;/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11;/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages;/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/site-packages
-_Python_INTERPRETER_SIGNATURE:INTERNAL=3c97c57b8547b5d225a4131cf48fc285
+_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;12;9;64;32;<none>;cpython-312-darwin;abi3;/Users/romanos/miniconda3/lib/python3.12;/Users/romanos/miniconda3/lib/python3.12;/Users/romanos/miniconda3/lib/python3.12/site-packages;/Users/romanos/miniconda3/lib/python3.12/site-packages
+_Python_INTERPRETER_SIGNATURE:INTERNAL=4d8139d694733aabae42ab080170bb22
 //NumPy reason failure
 _Python_NumPy_REASON_FAILURE:INTERNAL=
 cmake_package_name:INTERNAL=GTest

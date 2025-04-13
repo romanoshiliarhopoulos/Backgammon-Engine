@@ -233,7 +233,7 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
         multi = -1;
     }
 
-    // if you have not rolled a doubl
+    // if you have not rolled a dou
     if (dice1 != dice2)
     {
         cout << "Move: ";
