@@ -34,7 +34,7 @@ int main()
     printBanner();
     Game game = Game(4);
 
-    // for the main game loop
+    // for the main game loppy loop
     while (true)
     {
         string p1_name;

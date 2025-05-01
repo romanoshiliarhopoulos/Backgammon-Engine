@@ -1,8 +1,8 @@
-Player_functionality.newplayer 14 0.000402723
-ValidOrigin.test_orginin_boolean 6 0.000906715
-ValidOrigin.test_orginin_boolean_p2 5 0.00115749
-ValidOrigin.gameboard_with_no_pieces 4 0.00128716
-ValidDestination.test_destination_with_friendly_piece 2 0.00313838
-ValidDestination.test_destination_with_no_piece 2 0.00298263
-ValidDestination.test_destination_with_enemy_piece 2 0.0025719
+Player_functionality.newplayer 15 0.000240861
+ValidOrigin.test_orginin_boolean 7 0.000536881
+ValidOrigin.test_orginin_boolean_p2 6 0.0005515
+ValidOrigin.gameboard_with_no_pieces 5 0.000663225
+ValidDestination.test_destination_with_friendly_piece 3 0.00106731
+ValidDestination.test_destination_with_no_piece 3 0.0010036
+ValidDestination.test_destination_with_enemy_piece 3 0.00104265
 ---

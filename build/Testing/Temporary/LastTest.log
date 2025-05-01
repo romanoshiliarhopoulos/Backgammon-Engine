@@ -1,10 +1,10 @@
-Start testing: Mar 14 00:46 CDT
+Start testing: Apr 28 18:21 CDT
 ----------------------------------------------------------
 1/7 Testing: Player_functionality.newplayer
 1/7 Test: Player_functionality.newplayer
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=Player_functionality.newplayer" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"Player_functionality.newplayer" start time: Mar 14 00:46 CDT
+"Player_functionality.newplayer" start time: Apr 28 18:21 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -20,10 +20,10 @@ Note: Google Test filter = Player_functionality.newplayer
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"Player_functionality.newplayer" end time: Mar 14 00:46 CDT
+"Player_functionality.newplayer" end time: Apr 28 18:21 CDT
 "Player_functionality.newplayer" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -31,7 +31,7 @@ Test Passed.
 2/7 Test: ValidOrigin.test_orginin_boolean
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_orginin_boolean" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.test_orginin_boolean" start time: Mar 14 00:46 CDT
+"ValidOrigin.test_orginin_boolean" start time: Apr 28 18:21 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -47,10 +47,10 @@ Note: Google Test filter = ValidOrigin.test_orginin_boolean
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.test_orginin_boolean" end time: Mar 14 00:46 CDT
+"ValidOrigin.test_orginin_boolean" end time: Apr 28 18:21 CDT
 "ValidOrigin.test_orginin_boolean" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -58,7 +58,7 @@ Test Passed.
 3/7 Test: ValidOrigin.test_orginin_boolean_p2
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_orginin_boolean_p2" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.test_orginin_boolean_p2" start time: Mar 14 00:46 CDT
+"ValidOrigin.test_orginin_boolean_p2" start time: Apr 28 18:21 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -74,10 +74,10 @@ Note: Google Test filter = ValidOrigin.test_orginin_boolean_p2
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.test_orginin_boolean_p2" end time: Mar 14 00:46 CDT
+"ValidOrigin.test_orginin_boolean_p2" end time: Apr 28 18:21 CDT
 "ValidOrigin.test_orginin_boolean_p2" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -85,7 +85,7 @@ Test Passed.
 4/7 Test: ValidOrigin.gameboard_with_no_pieces
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.gameboard_with_no_pieces" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.gameboard_with_no_pieces" start time: Mar 14 00:46 CDT
+"ValidOrigin.gameboard_with_no_pieces" start time: Apr 28 18:21 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -101,10 +101,10 @@ Note: Google Test filter = ValidOrigin.gameboard_with_no_pieces
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.gameboard_with_no_pieces" end time: Mar 14 00:46 CDT
+"ValidOrigin.gameboard_with_no_pieces" end time: Apr 28 18:21 CDT
 "ValidOrigin.gameboard_with_no_pieces" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -112,7 +112,7 @@ Test Passed.
 5/7 Test: ValidDestination.test_destination_with_friendly_piece
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.test_destination_with_friendly_piece" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.test_destination_with_friendly_piece" start time: Mar 14 00:46 CDT
+"ValidDestination.test_destination_with_friendly_piece" start time: Apr 28 18:21 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -128,10 +128,10 @@ Note: Google Test filter = ValidDestination.test_destination_with_friendly_piece
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.test_destination_with_friendly_piece" end time: Mar 14 00:46 CDT
+"ValidDestination.test_destination_with_friendly_piece" end time: Apr 28 18:21 CDT
 "ValidDestination.test_destination_with_friendly_piece" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -139,7 +139,7 @@ Test Passed.
 6/7 Test: ValidDestination.test_destination_with_no_piece
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.test_destination_with_no_piece" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.test_destination_with_no_piece" start time: Mar 14 00:46 CDT
+"ValidDestination.test_destination_with_no_piece" start time: Apr 28 18:21 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -155,10 +155,10 @@ Note: Google Test filter = ValidDestination.test_destination_with_no_piece
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.test_destination_with_no_piece" end time: Mar 14 00:46 CDT
+"ValidDestination.test_destination_with_no_piece" end time: Apr 28 18:21 CDT
 "ValidDestination.test_destination_with_no_piece" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -166,7 +166,7 @@ Test Passed.
 7/7 Test: ValidDestination.test_destination_with_enemy_piece
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.test_destination_with_enemy_piece" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.test_destination_with_enemy_piece" start time: Mar 14 00:46 CDT
+"ValidDestination.test_destination_with_enemy_piece" start time: Apr 28 18:21 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -182,11 +182,11 @@ Note: Google Test filter = ValidDestination.test_destination_with_enemy_piece
 [==========] 1 test from 1 test suite ran. (0 ms total)
 [  PASSED  ] 1 test.
 <end of output>
-Test time =   0.01 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.test_destination_with_enemy_piece" end time: Mar 14 00:46 CDT
+"ValidDestination.test_destination_with_enemy_piece" end time: Apr 28 18:21 CDT
 "ValidDestination.test_destination_with_enemy_piece" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 14 00:46 CDT
+End testing: Apr 28 18:21 CDT
