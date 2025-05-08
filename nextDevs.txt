@@ -2,6 +2,4 @@ NEXT DEVELOPMENTS
 
 - make printGameBoard() show number of jailed and freed pieces
 
-- make a game loop, where two players actually play. 
-
 - make movepieces() to support freeing a piece
