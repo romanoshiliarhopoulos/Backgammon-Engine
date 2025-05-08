@@ -279,8 +279,6 @@ void Game::moveOne(Player *currentPlayer, int dice)
         // update the gameboard!!!!
         index_before_move--;
         index_to_move_to--;
-        cout << this->gameboard[index_before_move] << endl;
-        cout << this->gameboard[index_to_move_to] << endl;
         // move the peices by changing the gameboard values
         this->gameboard[index_before_move] -= multi;
         this->gameboard[index_to_move_to] += multi;
@@ -292,15 +290,43 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
 {
     if (dice1 != dice2)
     {
-        moveOne(currentPlayer, dice1);
+        // ask the user which die to use first
+        cout << "Choose which die to play first (" << dice1 << " or " << dice2 << "): ";
+        int choice;
+        cin >> choice;
+
+        int firstDice, secondDice;
+        if (choice == dice1)
+        {
+            firstDice = dice1;
+            secondDice = dice2;
+        }
+        else if (choice == dice2)
+        {
+            firstDice = dice2;
+            secondDice = dice1;
+        }
+        else
+        {
+            cout << "Invalid choice; defaulting to " << dice1
+                 << " then " << dice2 << ".\n";
+            firstDice = dice1;
+            secondDice = dice2;
+        }
+
+        // perform the two moves in the chosen order
+        moveOne(currentPlayer, firstDice);
         printGameBoard();
-        moveOne(currentPlayer, dice2);
+        moveOne(currentPlayer, secondDice);
+        printGameBoard();
     }
     else
     {
         // doubles: four moves of `dice1`
         for (int k = 0; k < 4; k++)
+        {
             moveOne(currentPlayer, dice1);
-        printGameBoard();
+            printGameBoard();
+        }
     }
 }
