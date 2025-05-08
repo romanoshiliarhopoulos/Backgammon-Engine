@@ -24,7 +24,7 @@ void printBanner()
 
 int rollDice()
 {
-    // returns a number between 1 and 6...
+    // returns a number between 1 and 6
 
     return arc4random_uniform(5) + 1;
 }
