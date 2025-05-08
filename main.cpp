@@ -34,7 +34,7 @@ int main()
     printBanner();
     Game game = Game(4);
 
-    // for the main game loppy loop
+    // for the main game loop
     while (true)
     {
         string p1_name;
@@ -53,7 +53,7 @@ int main()
         // create the player objects
         Player p1(p1_name, 0);
         Player p2(p2_name, 1);
-        game.setPlayers(p1, p2); // pass the players onto the game class
+        game.setPlayers(&p1, &p2); // pass the players onto the game class
 
         // starting the mechanics of the game
         Player *p1_addr = &p1;
@@ -61,7 +61,7 @@ int main()
 
         Player *current_player;
 
-        // Rolling the dice to determin who goes first
+        // Rolling the dice to determine who goes first
         string response = "o";
         while (response != "r")
         {

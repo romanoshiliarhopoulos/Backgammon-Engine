@@ -4,6 +4,9 @@
 #include <iostream>
 #include <string>
 #include "Pieces.hpp"
+#include <cmath>
+#include <cstdlib>
+#include <unordered_set>
 
 using namespace std;
 class Game
@@ -39,7 +42,7 @@ public:
     bool over();
 
     // sets the current players
-    void setPlayers(Player p1, Player p2);
+    void setPlayers(Player *p1, Player *p2);
 
     // called within the game loop, to make a move on the pieces....
     void movePieces(Player *currentPlayer, int dice1, int dice2);

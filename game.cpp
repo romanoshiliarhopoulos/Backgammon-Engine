@@ -197,10 +197,10 @@ bool Game::over()
     }
 }
 
-void Game::setPlayers(Player p1, Player p2)
+void Game::setPlayers(Player *p1, Player *p2)
 {
-    this->p1 = &p1;
-    this->p2 = &p2;
+    this->p1 = p1;
+    this->p2 = p2;
 };
 
 // helper function to determing if an index is a valid origin (move pieces from that index to somewhere else)
@@ -237,7 +237,7 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
         multi = -1;
     }
 
-    // if you have not rolled a dou
+    // if you have not rolled a double
     if (dice1 != dice2)
     {
         cout << "Move: ";
@@ -250,10 +250,20 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
             // this player has no pieces there!!!
             cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
             cin >> index_before_move;
+            validO = isValidOrigin(multi, index_before_move);
         }
         cout << "To: ";
         int index_to_move_to;
         cin >> index_to_move_to;
+        int difference = abs(index_before_move - index_to_move_to);
+
+        unordered_set<int> possible_moves;
+        possible_moves.insert(dice1);
+        possible_moves.insert(dice2);
+        possible_moves.insert(dice1 + dice2);
+        while(!possible_moves.count(difference)){
+            cout << "Player: " << currentPlayer->getName() << " ENTER A MOVE ACCORDING TO UR DIE";
+        }
 
         bool validD = isValidDestination(multi, index_to_move_to);
         while (!validD)
@@ -261,8 +271,20 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
             // this player has no pieces there!!!
             cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
             cin >> index_to_move_to;
+            validD = isValidDestination(multi, index_to_move_to);
         }
 
         // by this point we have correct origin and destination indeces
+
+        // update the gameboard!!!!
+        index_before_move--;
+        index_to_move_to--;
+        cout << this->gameboard[index_before_move] << endl;
+        cout << this->gameboard[index_to_move_to] << endl;
+        // move the peices by changing the gameboard values
+        this->gameboard[index_before_move] -= multi;
+        this->gameboard[index_to_move_to] += multi;
+
+        // calculate wether the function should return based on the difference of the two indeces
     }
 };

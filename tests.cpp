@@ -34,6 +34,12 @@ TEST(ValidOrigin, gameboard_with_no_pieces)
 
     ASSERT_FALSE(game.isValidOrigin(-1, 7));
 }
+TEST(ValidOrigin, test_p2_first_origin)
+{
+    Game game(1);
+    ASSERT_FALSE(game.isValidOrigin(1, 6));
+    ASSERT_TRUE(game.isValidOrigin(-1, 6));
+}
 
 // to test about valid destination
 TEST(ValidDestination, test_destination_with_friendly_piece)
