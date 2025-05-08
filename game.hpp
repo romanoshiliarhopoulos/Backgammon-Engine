@@ -46,6 +46,8 @@ public:
 
     // called within the game loop, to make a move on the pieces....
     void movePieces(Player *currentPlayer, int dice1, int dice2);
+
+    void moveOne(Player *currentPlayer, int dice);
     // helper functions for movePieces
     bool isValidOrigin(int multi, int idx);
     bool isValidDestination(int multi, int idx);

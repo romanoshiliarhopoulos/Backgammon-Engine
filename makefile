@@ -1,12 +1,19 @@
-.PHONY: build tests run
-run: 
-	rm -f ./a.out
-	g++ -std=c++17 -g -Wall main.cpp game.hpp game.cpp Pieces.cpp Pieces.hpp player.cpp player.hpp -lm -Wno-unused-variable -Wno-unused-function
-	clear
-	./a.out
-tests:
-	cd build && cmake --build . && ctest
+.PHONY: clean all run
 
-build: 
-	rm -f ./a.out
-	g++ -std=c++17 -g -Wall main.cpp game.hpp game.cpp Pieces.cpp Pieces.hpp player.cpp player.hpp -lm -Wno-unused-variable -Wno-unused-function
+CXX      := g++
+CXXFLAGS := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function
+
+SRCS     := main.cpp game.cpp Pieces.cpp player.cpp
+TARGET   := a.out
+
+all: $(TARGET)
+
+$(TARGET): $(SRCS)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+run: all
+	clear
+	./$(TARGET)
+
+clean:
+	rm -f $(TARGET) *.o

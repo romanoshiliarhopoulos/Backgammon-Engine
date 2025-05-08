@@ -227,7 +227,7 @@ bool Game::isValidDestination(int multi, int idx)
         return false;
     }
 }
-void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
+void Game::moveOne(Player *currentPlayer, int dice)
 {
     int multi = 1; // used to convert all pieces in array to the same sign for operations.
     // first we want to determine wether its player one or player two thats playing.
@@ -236,42 +236,42 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
         // if the pointers point to the same address
         multi = -1;
     }
-
-    // if you have not rolled a double
-    if (dice1 != dice2)
+    while (true)
     {
-        cout << "Move: ";
+
+        cout << "Origin (" << dice << "): ";
         int index_before_move;
         cin >> index_before_move;
 
         bool validO = isValidOrigin(multi, index_before_move);
-        while (!validO)
+        if (!validO)
         {
             // this player has no pieces there!!!
-            cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
-            cin >> index_before_move;
-            validO = isValidOrigin(multi, index_before_move);
+            cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: \n";
+            continue;
         }
-        cout << "To: ";
+        cout << "Destination: ";
         int index_to_move_to;
         cin >> index_to_move_to;
-        int difference = abs(index_before_move - index_to_move_to);
+        int difference = index_before_move - index_to_move_to;
 
-        unordered_set<int> possible_moves;
-        possible_moves.insert(dice1);
-        possible_moves.insert(dice2);
-        possible_moves.insert(dice1 + dice2);
-        while(!possible_moves.count(difference)){
-            cout << "Player: " << currentPlayer->getName() << " ENTER A MOVE ACCORDING TO UR DIE";
+        if (difference * (-multi) < 0)
+        {
+            cout << "Player: " << currentPlayer->getName() << " CANNOT MOVE IN THAT DIRECTION: \n";
+            continue;
+        }
+        if (dice != (abs(difference)))
+        {
+            cout << "Player: " << currentPlayer->getName() << " ENTER A MOVE ACCORDING TO UR DIE: \n";
+            continue;
         }
 
         bool validD = isValidDestination(multi, index_to_move_to);
-        while (!validD)
+        if (!validD)
         {
             // this player has no pieces there!!!
-            cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: ";
-            cin >> index_to_move_to;
-            validD = isValidDestination(multi, index_to_move_to);
+            cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index:\n";
+            continue;
         }
 
         // by this point we have correct origin and destination indeces
@@ -284,7 +284,23 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
         // move the peices by changing the gameboard values
         this->gameboard[index_before_move] -= multi;
         this->gameboard[index_to_move_to] += multi;
-
-        // calculate wether the function should return based on the difference of the two indeces
+        return;
     }
-};
+}
+
+void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
+{
+    if (dice1 != dice2)
+    {
+        moveOne(currentPlayer, dice1);
+        printGameBoard();
+        moveOne(currentPlayer, dice2);
+    }
+    else
+    {
+        // doubles: four moves of `dice1`
+        for (int k = 0; k < 4; k++)
+            moveOne(currentPlayer, dice1);
+        printGameBoard();
+    }
+}

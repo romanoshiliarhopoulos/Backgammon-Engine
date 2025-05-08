@@ -69,3 +69,4 @@ TEST(ValidDestination, test_destination_with_enemy_piece)
     ASSERT_FALSE(game.isValidDestination(-1, 19));
     ASSERT_FALSE(game.isValidDestination(-1, 17));
 }
+ 
