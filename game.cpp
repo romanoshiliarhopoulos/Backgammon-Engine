@@ -75,6 +75,10 @@ void Game::printGameBoard()
 
     vector<int> board = this->gameboard;
 
+    // before this point, I want to print the symbol for each player...
+    cout << this->p1->getName() << ": " << "◉    |      ";
+    cout << this->p2->getName() << ": " << "◯" << endl;
+
     cout << "   12 11 10 9  8  7     6  5  4  3  2  1" << endl;
     cout << "*-----------------------------------------*" << endl;
     // for the top half. first iteration
@@ -259,6 +263,6 @@ void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
             cin >> index_to_move_to;
         }
 
-        //by this point we have correct origin and destination indeces
+        // by this point we have correct origin and destination indeces
     }
 };
