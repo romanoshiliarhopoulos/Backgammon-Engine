@@ -76,8 +76,9 @@ void Game::printGameBoard()
     vector<int> board = this->gameboard;
 
     // before this point, I want to print the symbol for each player...
-    cout << this->p1->getName() << ": " << "◉    |      ";
+    cout << "'n"<<this->p1->getName() << ": " << "◉    |      ";
     cout << this->p2->getName() << ": " << "◯" << endl;
+    cout << "\n\n";
 
     cout << "   12 11 10 9  8  7     6  5  4  3  2  1" << endl;
     cout << "*-----------------------------------------*" << endl;
@@ -163,6 +164,9 @@ void Game::printGameBoard()
     cout << "* ----------------------------------------*" << endl;
     cout << "  13 14  15 16 17 18 | 19 20  21 22 23 24 " << endl;
     cout << endl;
+    cout << "         Jail: ◉ x" << pieces.numFreed(0) << "  |  ◯ x" << pieces.numJailed(1) << endl;
+    cout << "\n\n"
+         << endl;
 }
 
 void Game::clearGameboard()

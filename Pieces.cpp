@@ -64,6 +64,18 @@ int Pieces::numFreed(int player)
     }
     else
     {
+        return this->freedPieces_p2;
+    }
+}
+
+int Pieces::numJailed(int player)
+{
+    if (player == Player::PLAYER1)
+    {
+        return this->numPieces_p1;
+    }
+    else
+    {
         return this->numPieces_p2;
     }
 }

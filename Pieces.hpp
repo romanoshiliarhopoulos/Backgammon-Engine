@@ -30,10 +30,15 @@ public:
     /// @param player player 1 or player 0
     void removeJailedPiece(int player);
 
-    /// @brief 
+    /// @brief
     /// @param player enum (either 1 or 0)
     /// @return returns the number of freed pieces based on given player
     int numFreed(int player);
+
+    /// @brief
+    /// @param player enum (either 1 or 0)
+    /// @return returns the number of jailed pieces based on given player
+    int numJailed(int player);
 
     /// @brief Adds one more to the number of freed pieces to the given player
     /// @param player enum, either 0 or 1
