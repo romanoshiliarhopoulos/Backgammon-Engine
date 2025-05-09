@@ -4,7 +4,7 @@
 
 class Pieces
 {
-private:
+public:
     int numPieces_p1;
     int numPieces_p2;
 

@@ -1,3 +1,7 @@
 NEXT DEVELOPMENTS
 
-- make movepieces() to support freeing a piece
+- add moving out of jail functionality....
+
+- only have an origin and not destination based on the selected dice...
+
+- reminder to switch shit back to public after testing is done. Game.hpp and pieces.hpp

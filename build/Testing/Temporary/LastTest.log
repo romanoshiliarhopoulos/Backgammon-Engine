@@ -1,10 +1,10 @@
-Start testing: May 08 20:12 CDT
+Start testing: May 08 20:41 CDT
 ----------------------------------------------------------
-1/10 Testing: Player_functionality.newplayer
-1/10 Test: Player_functionality.newplayer
+1/11 Testing: Player_functionality.newplayer
+1/11 Test: Player_functionality.newplayer
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=Player_functionality.newplayer" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"Player_functionality.newplayer" start time: May 08 20:12 CDT
+"Player_functionality.newplayer" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -23,15 +23,15 @@ Note: Google Test filter = Player_functionality.newplayer
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"Player_functionality.newplayer" end time: May 08 20:12 CDT
+"Player_functionality.newplayer" end time: May 08 20:41 CDT
 "Player_functionality.newplayer" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-2/10 Testing: ValidOrigin.test_orginin_boolean
-2/10 Test: ValidOrigin.test_orginin_boolean
+2/11 Testing: ValidOrigin.test_orginin_boolean
+2/11 Test: ValidOrigin.test_orginin_boolean
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_orginin_boolean" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.test_orginin_boolean" start time: May 08 20:12 CDT
+"ValidOrigin.test_orginin_boolean" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -50,15 +50,15 @@ Note: Google Test filter = ValidOrigin.test_orginin_boolean
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.test_orginin_boolean" end time: May 08 20:12 CDT
+"ValidOrigin.test_orginin_boolean" end time: May 08 20:41 CDT
 "ValidOrigin.test_orginin_boolean" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-3/10 Testing: ValidOrigin.test_orginin_boolean_p2
-3/10 Test: ValidOrigin.test_orginin_boolean_p2
+3/11 Testing: ValidOrigin.test_orginin_boolean_p2
+3/11 Test: ValidOrigin.test_orginin_boolean_p2
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_orginin_boolean_p2" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.test_orginin_boolean_p2" start time: May 08 20:12 CDT
+"ValidOrigin.test_orginin_boolean_p2" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -77,15 +77,15 @@ Note: Google Test filter = ValidOrigin.test_orginin_boolean_p2
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.test_orginin_boolean_p2" end time: May 08 20:12 CDT
+"ValidOrigin.test_orginin_boolean_p2" end time: May 08 20:41 CDT
 "ValidOrigin.test_orginin_boolean_p2" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-4/10 Testing: ValidOrigin.gameboard_with_no_pieces
-4/10 Test: ValidOrigin.gameboard_with_no_pieces
+4/11 Testing: ValidOrigin.gameboard_with_no_pieces
+4/11 Test: ValidOrigin.gameboard_with_no_pieces
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.gameboard_with_no_pieces" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.gameboard_with_no_pieces" start time: May 08 20:12 CDT
+"ValidOrigin.gameboard_with_no_pieces" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -104,15 +104,15 @@ Note: Google Test filter = ValidOrigin.gameboard_with_no_pieces
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.gameboard_with_no_pieces" end time: May 08 20:12 CDT
+"ValidOrigin.gameboard_with_no_pieces" end time: May 08 20:41 CDT
 "ValidOrigin.gameboard_with_no_pieces" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-5/10 Testing: ValidOrigin.test_p2_first_origin
-5/10 Test: ValidOrigin.test_p2_first_origin
+5/11 Testing: ValidOrigin.test_p2_first_origin
+5/11 Test: ValidOrigin.test_p2_first_origin
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_p2_first_origin" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.test_p2_first_origin" start time: May 08 20:12 CDT
+"ValidOrigin.test_p2_first_origin" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -131,15 +131,15 @@ Note: Google Test filter = ValidOrigin.test_p2_first_origin
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.test_p2_first_origin" end time: May 08 20:12 CDT
+"ValidOrigin.test_p2_first_origin" end time: May 08 20:41 CDT
 "ValidOrigin.test_p2_first_origin" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-6/10 Testing: ValidDestination.test_destination_with_friendly_piece
-6/10 Test: ValidDestination.test_destination_with_friendly_piece
+6/11 Testing: ValidDestination.test_destination_with_friendly_piece
+6/11 Test: ValidDestination.test_destination_with_friendly_piece
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.test_destination_with_friendly_piece" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.test_destination_with_friendly_piece" start time: May 08 20:12 CDT
+"ValidDestination.test_destination_with_friendly_piece" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -158,15 +158,15 @@ Note: Google Test filter = ValidDestination.test_destination_with_friendly_piece
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.test_destination_with_friendly_piece" end time: May 08 20:12 CDT
+"ValidDestination.test_destination_with_friendly_piece" end time: May 08 20:41 CDT
 "ValidDestination.test_destination_with_friendly_piece" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-7/10 Testing: ValidDestination.test_destination_with_no_piece
-7/10 Test: ValidDestination.test_destination_with_no_piece
+7/11 Testing: ValidDestination.test_destination_with_no_piece
+7/11 Test: ValidDestination.test_destination_with_no_piece
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.test_destination_with_no_piece" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.test_destination_with_no_piece" start time: May 08 20:12 CDT
+"ValidDestination.test_destination_with_no_piece" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -185,15 +185,15 @@ Note: Google Test filter = ValidDestination.test_destination_with_no_piece
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.test_destination_with_no_piece" end time: May 08 20:12 CDT
+"ValidDestination.test_destination_with_no_piece" end time: May 08 20:41 CDT
 "ValidDestination.test_destination_with_no_piece" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-8/10 Testing: ValidDestination.test_destination_with_enemy_piece
-8/10 Test: ValidDestination.test_destination_with_enemy_piece
+8/11 Testing: ValidDestination.test_destination_with_enemy_piece
+8/11 Test: ValidDestination.test_destination_with_enemy_piece
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.test_destination_with_enemy_piece" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.test_destination_with_enemy_piece" start time: May 08 20:12 CDT
+"ValidDestination.test_destination_with_enemy_piece" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -212,15 +212,15 @@ Note: Google Test filter = ValidDestination.test_destination_with_enemy_piece
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.test_destination_with_enemy_piece" end time: May 08 20:12 CDT
+"ValidDestination.test_destination_with_enemy_piece" end time: May 08 20:41 CDT
 "ValidDestination.test_destination_with_enemy_piece" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-9/10 Testing: CapturePiece.singleBlotIsTakenAndJailed
-9/10 Test: CapturePiece.singleBlotIsTakenAndJailed
+9/11 Testing: CapturePiece.singleBlotIsTakenAndJailed
+9/11 Test: CapturePiece.singleBlotIsTakenAndJailed
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=CapturePiece.singleBlotIsTakenAndJailed" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"CapturePiece.singleBlotIsTakenAndJailed" start time: May 08 20:12 CDT
+"CapturePiece.singleBlotIsTakenAndJailed" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -239,15 +239,15 @@ Note: Google Test filter = CapturePiece.singleBlotIsTakenAndJailed
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"CapturePiece.singleBlotIsTakenAndJailed" end time: May 08 20:12 CDT
+"CapturePiece.singleBlotIsTakenAndJailed" end time: May 08 20:41 CDT
 "CapturePiece.singleBlotIsTakenAndJailed" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-10/10 Testing: CapturePiece.cannotCaptureTwoOrMore
-10/10 Test: CapturePiece.cannotCaptureTwoOrMore
+10/11 Testing: CapturePiece.cannotCaptureTwoOrMore
+10/11 Test: CapturePiece.cannotCaptureTwoOrMore
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=CapturePiece.cannotCaptureTwoOrMore" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"CapturePiece.cannotCaptureTwoOrMore" start time: May 08 20:12 CDT
+"CapturePiece.cannotCaptureTwoOrMore" start time: May 08 20:41 CDT
 Output:
 ----------------------------------------------------------
 Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
@@ -266,8 +266,36 @@ Note: Google Test filter = CapturePiece.cannotCaptureTwoOrMore
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"CapturePiece.cannotCaptureTwoOrMore" end time: May 08 20:12 CDT
+"CapturePiece.cannotCaptureTwoOrMore" end time: May 08 20:41 CDT
 "CapturePiece.cannotCaptureTwoOrMore" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: May 08 20:12 CDT
+11/11 Testing: CapturePiece.invalidOrigin_with_jailed_piece
+11/11 Test: CapturePiece.invalidOrigin_with_jailed_piece
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=CapturePiece.invalidOrigin_with_jailed_piece" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"CapturePiece.invalidOrigin_with_jailed_piece" start time: May 08 20:41 CDT
+Output:
+----------------------------------------------------------
+Running main() from /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/src/gtest_main.cc
+Note: Google Test filter = CapturePiece.invalidOrigin_with_jailed_piece
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from CapturePiece
+[ RUN      ] CapturePiece.invalidOrigin_with_jailed_piece
+ has a jailed piece, origin must be 0!
+[       OK ] CapturePiece.invalidOrigin_with_jailed_piece (0 ms)
+[----------] 1 test from CapturePiece (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"CapturePiece.invalidOrigin_with_jailed_piece" end time: May 08 20:41 CDT
+"CapturePiece.invalidOrigin_with_jailed_piece" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: May 08 20:41 CDT

@@ -102,3 +102,13 @@ TEST(CapturePiece, cannotCaptureTwoOrMore)
     // point 6 starts with five P2 checkers, so you can’t capture there
     ASSERT_FALSE(game.isValidDestination(+1, 6));
 }
+
+//
+TEST(CapturePiece, invalidOrigin_with_jailed_piece)
+{
+    Game game(0);
+    game.pieces.addJailedPiece(Player::PLAYER1); // add a jailed piece to player 1...
+    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER1), 1);
+    ASSERT_FALSE(game.isValidOrigin(1, 12));
+    ASSERT_TRUE(game.isValidOrigin(1, 0));
+}

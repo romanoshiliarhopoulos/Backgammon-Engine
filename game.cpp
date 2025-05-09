@@ -76,7 +76,8 @@ void Game::printGameBoard()
     vector<int> board = this->gameboard;
 
     // before this point, I want to print the symbol for each player...
-    cout << "'n" << this->p1->getName() << ": " << "◉    |      ";
+    cout << "\n"
+         << this->p1->getName() << ": " << "◉    |      ";
     cout << this->p2->getName() << ": " << "◯" << endl;
     cout << "\n\n";
 
@@ -210,6 +211,34 @@ void Game::setPlayers(Player *p1, Player *p2)
 // helper function to determing if an index is a valid origin (move pieces from that index to somewhere else)
 bool Game::isValidOrigin(int multi, int idx)
 {
+    // check for jailed pieces first
+    if (multi == -1)
+    {
+        // it is player 2's move
+        if (pieces.numJailed(Player::PLAYER2) > 0 && idx != 0)
+        {
+            cout << p2->getName() << " has a jailed piece, origin must be 0!" << endl;
+            return false;
+        }
+        else if (pieces.numJailed(Player::PLAYER2) > 0 && idx == 0)
+        {
+            return true;
+        }
+    }
+    else if (multi == 1)
+    {
+        // it is player 1's move
+        if (pieces.numJailed(Player::PLAYER1) > 0 && idx != 0)
+        {
+            cout << p1->getName() << " has a jailed piece, origin must be 0!" << endl;
+            return false;
+        }
+        else if (pieces.numJailed(Player::PLAYER1) > 0 && idx == 0)
+        {
+            return true;
+        }
+    }
+
     if (this->gameboard[idx - 1] * multi > 0)
     {
         return true;

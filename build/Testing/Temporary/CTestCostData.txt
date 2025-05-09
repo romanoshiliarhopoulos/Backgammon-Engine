@@ -1,11 +1,12 @@
-Player_functionality.newplayer 20 0.000160504
-ValidOrigin.test_orginin_boolean 12 0.000258035
-ValidOrigin.test_orginin_boolean_p2 11 0.000290034
-ValidOrigin.gameboard_with_no_pieces 10 0.000325704
-ValidDestination.test_destination_with_friendly_piece 8 0.000376922
-ValidDestination.test_destination_with_no_piece 8 0.000386912
-ValidDestination.test_destination_with_enemy_piece 8 0.000384427
-ValidOrigin.test_p2_first_origin 5 0.000630858
-CapturePiece.singleBlotIsTakenAndJailed 1 0.00306296
-CapturePiece.cannotCaptureTwoOrMore 3 0.00101218
+Player_functionality.newplayer 26 0.000138795
+ValidOrigin.test_orginin_boolean 17 0.000187056
+ValidOrigin.test_orginin_boolean_p2 16 0.000188362
+ValidOrigin.gameboard_with_no_pieces 16 0.000187557
+ValidDestination.test_destination_with_friendly_piece 14 0.000218539
+ValidDestination.test_destination_with_no_piece 14 0.000213354
+ValidDestination.test_destination_with_enemy_piece 14 0.000210247
+ValidOrigin.test_p2_first_origin 10 0.000300763
+CapturePiece.singleBlotIsTakenAndJailed 7 0.000427381
+CapturePiece.cannotCaptureTwoOrMore 9 0.000324495
+CapturePiece.invalidOrigin_with_jailed_piece 2 0.00149965
 ---
