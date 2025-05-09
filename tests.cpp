@@ -69,4 +69,36 @@ TEST(ValidDestination, test_destination_with_enemy_piece)
     ASSERT_FALSE(game.isValidDestination(-1, 19));
     ASSERT_FALSE(game.isValidDestination(-1, 17));
 }
- 
+
+TEST(CapturePiece, singleBlotIsTakenAndJailed)
+{
+    Game game(0);           // Player1 start
+    game.gameboard[1] = -1; // p2 is at 1
+
+    // sanity‐check initial jail counts are both zero
+    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER2), 0);
+    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
+
+    // Now P1 tries to move there
+    bool ok = game.isValidDestination(/*multi=*/+1, /*idx=*/2);
+    ASSERT_TRUE(ok);
+    // make the move:
+    ASSERT_EQ(game.gameboard[1], 0); // isValidDestination should remove the p2 piece
+
+    game.gameboard[1] = 1; // simulates the rest of the moveOne function
+
+    // the single P2 blot should be removed
+    EXPECT_EQ(game.gameboard[1], /*P1’s checker now there*/ +1);
+
+    // and one piece should have gone into P2’s jail
+    EXPECT_EQ(game.pieces.numJailed(Player::PLAYER2), 1);
+    EXPECT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
+}
+
+// You could also test that landing on a “too many” stack still fails:
+TEST(CapturePiece, cannotCaptureTwoOrMore)
+{
+    Game game(0);
+    // point 6 starts with five P2 checkers, so you can’t capture there
+    ASSERT_FALSE(game.isValidDestination(+1, 6));
+}

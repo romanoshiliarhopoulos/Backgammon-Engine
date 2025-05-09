@@ -76,7 +76,7 @@ void Game::printGameBoard()
     vector<int> board = this->gameboard;
 
     // before this point, I want to print the symbol for each player...
-    cout << "'n"<<this->p1->getName() << ": " << "◉    |      ";
+    cout << "'n" << this->p1->getName() << ": " << "◉    |      ";
     cout << this->p2->getName() << ": " << "◯" << endl;
     cout << "\n\n";
 
@@ -164,7 +164,7 @@ void Game::printGameBoard()
     cout << "* ----------------------------------------*" << endl;
     cout << "  13 14  15 16 17 18 | 19 20  21 22 23 24 " << endl;
     cout << endl;
-    cout << "         Jail: ◉ x" << pieces.numFreed(0) << "  |  ◯ x" << pieces.numJailed(1) << endl;
+    cout << "         Jail: ◉ x" << pieces.numJailed(0) << "  |  ◯ x" << pieces.numJailed(1) << endl;
     cout << "\n\n"
          << endl;
 }
@@ -224,6 +224,21 @@ bool Game::isValidDestination(int multi, int idx)
 {
     if (this->gameboard[idx - 1] * multi >= 0)
     {
+        return true;
+    }
+    else if (this->gameboard[idx - 1] * multi == -1)
+    {
+        // oponent has a single open piece there....
+        this->gameboard[idx - 1] += multi; // removes oponent piece
+        // adds oponent piece to jail
+        if (multi == -1)
+        {
+            pieces.addJailedPiece(Player::PLAYER1);
+        }
+        else
+        {
+            pieces.addJailedPiece(Player::PLAYER2);
+        }
         return true;
     }
     else

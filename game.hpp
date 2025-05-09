@@ -11,7 +11,11 @@
 using namespace std;
 class Game
 {
-private:
+
+    // in game.hpp
+
+public:
+public:
     vector<int> gameboard = vector<int>(24, 0); // creates a vector of size 24 with values intialized to 0.
     Pieces pieces;                              // holds the number of jailed and freedPieces of each player
 
@@ -20,6 +24,7 @@ private:
     int turn;
 
 public:
+    
     // constructor
     Game(int player);
 

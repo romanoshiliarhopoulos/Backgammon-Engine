@@ -1,5 +1,3 @@
 NEXT DEVELOPMENTS
 
-- make printGameBoard() show number of jailed and freed pieces
-
 - make movepieces() to support freeing a piece
