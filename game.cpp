@@ -281,7 +281,7 @@ void Game::moveOne(Player *currentPlayer, int dice)
     // first we want to determine wether its player one or player two thats playing.
     if (currentPlayer == this->p2)
     {
-        // if the pointers point to the same address
+        // if the pointers are same
         multi = -1;
     }
     while (true)
