@@ -278,7 +278,7 @@ bool Game::isValidDestination(int multi, int idx)
 void Game::moveOne(Player *currentPlayer, int dice)
 {
     int multi = 1; // used to convert all pieces in array to the same sign for operations.
-    // first we want to determine wether its player one or player two thats playing.
+    // first we want to determine wether its player one or player two  playing.
     if (currentPlayer == this->p2)
     {
         // if the pointers are same
