@@ -1,6 +1,6 @@
 NEXT DEVELOPMENTS
 
-- add moving out of jail functionality...
+- add moving out of jail functionality..
 
 - only have an origin and not destination based on the selected dice...
 
