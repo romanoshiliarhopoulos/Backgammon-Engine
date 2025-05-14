@@ -5,3 +5,5 @@ NEXT DEVELOPMENTS
 - only have an origin and not destination based on the selected dice...
 
 - reminder to switch shit back to public after testing is done. Game.hpp and pieces.hpp
+
+gi
