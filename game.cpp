@@ -278,7 +278,7 @@ bool Game::isValidDestination(int multi, int idx)
 void Game::moveOne(Player *currentPlayer, int dice)
 {
     int multi = 1; // used to convert all pieces in array to the same sign for operations.
-    // first we want to determine wether its player one or player two  
+    // first we want to determine wether its player one or player two
     if (currentPlayer == this->p2)
     {
         // if the pointers are same
@@ -301,6 +301,7 @@ void Game::moveOne(Player *currentPlayer, int dice)
         cout << "Destination: ";
         int index_to_move_to;
         cin >> index_to_move_to;
+
         int difference = index_before_move - index_to_move_to;
 
         if (difference * (-multi) < 0)
@@ -320,6 +321,23 @@ void Game::moveOne(Player *currentPlayer, int dice)
             // this player has no pieces there!!!
             cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index:\n";
             continue;
+        }
+
+        // add support to jailed piece freeing... also need to account for case where piece cannot be freed
+        if (index_before_move == 0)
+        {
+            // exiting from jail: remove from the correct player's jail
+            if (multi == +1)
+            {
+                pieces.removeJailedPiece(Player::PLAYER1);
+            }
+            else
+            {
+                pieces.removeJailedPiece(Player::PLAYER2);
+            }
+            // place that checker on the board
+            this->gameboard[index_to_move_to - 1] += multi;
+            return;
         }
 
         // by this point we have correct origin and destination indeces
