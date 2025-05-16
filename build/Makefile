@@ -249,101 +249,125 @@ gtest_main/fast:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build
 .PHONY : gtest_main/fast
 
-Pieces.o: Pieces.cpp.o
-.PHONY : Pieces.o
+cppsrc/Pieces.o: cppsrc/Pieces.cpp.o
+.PHONY : cppsrc/Pieces.o
 
 # target to build an object file
-Pieces.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/Pieces.cpp.o
-.PHONY : Pieces.cpp.o
+cppsrc/Pieces.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.o
+.PHONY : cppsrc/Pieces.cpp.o
 
-Pieces.i: Pieces.cpp.i
-.PHONY : Pieces.i
+cppsrc/Pieces.i: cppsrc/Pieces.cpp.i
+.PHONY : cppsrc/Pieces.i
 
 # target to preprocess a source file
-Pieces.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/Pieces.cpp.i
-.PHONY : Pieces.cpp.i
+cppsrc/Pieces.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.i
+.PHONY : cppsrc/Pieces.cpp.i
 
-Pieces.s: Pieces.cpp.s
-.PHONY : Pieces.s
+cppsrc/Pieces.s: cppsrc/Pieces.cpp.s
+.PHONY : cppsrc/Pieces.s
 
 # target to generate assembly for a file
-Pieces.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/Pieces.cpp.s
-.PHONY : Pieces.cpp.s
+cppsrc/Pieces.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.s
+.PHONY : cppsrc/Pieces.cpp.s
 
-game.o: game.cpp.o
-.PHONY : game.o
+cppsrc/game.o: cppsrc/game.cpp.o
+.PHONY : cppsrc/game.o
 
 # target to build an object file
-game.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/game.cpp.o
-.PHONY : game.cpp.o
+cppsrc/game.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.o
+.PHONY : cppsrc/game.cpp.o
 
-game.i: game.cpp.i
-.PHONY : game.i
+cppsrc/game.i: cppsrc/game.cpp.i
+.PHONY : cppsrc/game.i
 
 # target to preprocess a source file
-game.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/game.cpp.i
-.PHONY : game.cpp.i
+cppsrc/game.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.i
+.PHONY : cppsrc/game.cpp.i
 
-game.s: game.cpp.s
-.PHONY : game.s
+cppsrc/game.s: cppsrc/game.cpp.s
+.PHONY : cppsrc/game.s
 
 # target to generate assembly for a file
-game.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/game.cpp.s
-.PHONY : game.cpp.s
+cppsrc/game.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.s
+.PHONY : cppsrc/game.cpp.s
 
-player.o: player.cpp.o
-.PHONY : player.o
+cppsrc/main.o: cppsrc/main.cpp.o
+.PHONY : cppsrc/main.o
 
 # target to build an object file
-player.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/player.cpp.o
-.PHONY : player.cpp.o
+cppsrc/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o
+.PHONY : cppsrc/main.cpp.o
 
-player.i: player.cpp.i
-.PHONY : player.i
+cppsrc/main.i: cppsrc/main.cpp.i
+.PHONY : cppsrc/main.i
 
 # target to preprocess a source file
-player.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/player.cpp.i
-.PHONY : player.cpp.i
+cppsrc/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.i
+.PHONY : cppsrc/main.cpp.i
 
-player.s: player.cpp.s
-.PHONY : player.s
+cppsrc/main.s: cppsrc/main.cpp.s
+.PHONY : cppsrc/main.s
 
 # target to generate assembly for a file
-player.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/player.cpp.s
-.PHONY : player.cpp.s
+cppsrc/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.s
+.PHONY : cppsrc/main.cpp.s
 
-tests.o: tests.cpp.o
-.PHONY : tests.o
+cppsrc/player.o: cppsrc/player.cpp.o
+.PHONY : cppsrc/player.o
 
 # target to build an object file
-tests.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/tests.cpp.o
-.PHONY : tests.cpp.o
+cppsrc/player.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o
+.PHONY : cppsrc/player.cpp.o
 
-tests.i: tests.cpp.i
-.PHONY : tests.i
+cppsrc/player.i: cppsrc/player.cpp.i
+.PHONY : cppsrc/player.i
 
 # target to preprocess a source file
-tests.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/tests.cpp.i
-.PHONY : tests.cpp.i
+cppsrc/player.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.i
+.PHONY : cppsrc/player.cpp.i
 
-tests.s: tests.cpp.s
-.PHONY : tests.s
+cppsrc/player.s: cppsrc/player.cpp.s
+.PHONY : cppsrc/player.s
 
 # target to generate assembly for a file
-tests.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/tests.cpp.s
-.PHONY : tests.cpp.s
+cppsrc/player.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.s
+.PHONY : cppsrc/player.cpp.s
+
+cppsrc/tests.o: cppsrc/tests.cpp.o
+.PHONY : cppsrc/tests.o
+
+# target to build an object file
+cppsrc/tests.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o
+.PHONY : cppsrc/tests.cpp.o
+
+cppsrc/tests.i: cppsrc/tests.cpp.i
+.PHONY : cppsrc/tests.i
+
+# target to preprocess a source file
+cppsrc/tests.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.i
+.PHONY : cppsrc/tests.cpp.i
+
+cppsrc/tests.s: cppsrc/tests.cpp.s
+.PHONY : cppsrc/tests.s
+
+# target to generate assembly for a file
+cppsrc/tests.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.s
+.PHONY : cppsrc/tests.cpp.s
 
 # Help Target
 help:
@@ -364,18 +388,21 @@ help:
 	@echo "... gmock_main"
 	@echo "... gtest"
 	@echo "... gtest_main"
-	@echo "... Pieces.o"
-	@echo "... Pieces.i"
-	@echo "... Pieces.s"
-	@echo "... game.o"
-	@echo "... game.i"
-	@echo "... game.s"
-	@echo "... player.o"
-	@echo "... player.i"
-	@echo "... player.s"
-	@echo "... tests.o"
-	@echo "... tests.i"
-	@echo "... tests.s"
+	@echo "... cppsrc/Pieces.o"
+	@echo "... cppsrc/Pieces.i"
+	@echo "... cppsrc/Pieces.s"
+	@echo "... cppsrc/game.o"
+	@echo "... cppsrc/game.i"
+	@echo "... cppsrc/game.s"
+	@echo "... cppsrc/main.o"
+	@echo "... cppsrc/main.i"
+	@echo "... cppsrc/main.s"
+	@echo "... cppsrc/player.o"
+	@echo "... cppsrc/player.i"
+	@echo "... cppsrc/player.s"
+	@echo "... cppsrc/tests.o"
+	@echo "... cppsrc/tests.i"
+	@echo "... cppsrc/tests.s"
 .PHONY : help
 
 

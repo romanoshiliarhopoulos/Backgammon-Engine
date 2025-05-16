@@ -1,17 +1,20 @@
-# Makefile for both direct CLI build and CMake+CTest
+# --- Source directory (where all your .cpp/.hpp now live) ---
+SRCDIR       := cppsrc
 
-# --- Direct CLI build variables ---
-CXX       := g++
-CXXFLAGS  := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function
+# --- Compiler settings ---
+CXX          := g++
+CXXFLAGS     := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function \
+                 -I$(SRCDIR)
 
-SRCS      := main.cpp game.cpp Pieces.cpp player.cpp
-TARGET    := a.out
+# --- Collect all .cpp files under cppsrc/ ---
+SRCS         := $(wildcard $(SRCDIR)/*.cpp)
+TARGET       := a.out
 
 # --- CMake build variables ---
 BUILD_DIR    := build
 CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug
 
-.PHONY: all       run     build   test    clean cmake_configure cmake_build
+.PHONY: all run build test clean cmake_configure cmake_build
 
 # Default: build both the CLI app and the CMake project
 all: $(TARGET) build

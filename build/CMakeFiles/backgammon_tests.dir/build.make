@@ -72,28 +72,28 @@ include CMakeFiles/backgammon_tests.dir/flags.make
 CMakeFiles/backgammon_tests.dir/codegen:
 .PHONY : CMakeFiles/backgammon_tests.dir/codegen
 
-CMakeFiles/backgammon_tests.dir/tests.cpp.o: CMakeFiles/backgammon_tests.dir/flags.make
-CMakeFiles/backgammon_tests.dir/tests.cpp.o: /Users/romanos/Backgammon_Engine/tests.cpp
-CMakeFiles/backgammon_tests.dir/tests.cpp.o: CMakeFiles/backgammon_tests.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/backgammon_tests.dir/tests.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/backgammon_tests.dir/tests.cpp.o -MF CMakeFiles/backgammon_tests.dir/tests.cpp.o.d -o CMakeFiles/backgammon_tests.dir/tests.cpp.o -c /Users/romanos/Backgammon_Engine/tests.cpp
+CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o: CMakeFiles/backgammon_tests.dir/flags.make
+CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o: /Users/romanos/Backgammon_Engine/cppsrc/tests.cpp
+CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o: CMakeFiles/backgammon_tests.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o -MF CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o.d -o CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o -c /Users/romanos/Backgammon_Engine/cppsrc/tests.cpp
 
-CMakeFiles/backgammon_tests.dir/tests.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/backgammon_tests.dir/tests.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/romanos/Backgammon_Engine/tests.cpp > CMakeFiles/backgammon_tests.dir/tests.cpp.i
+CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/romanos/Backgammon_Engine/cppsrc/tests.cpp > CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.i
 
-CMakeFiles/backgammon_tests.dir/tests.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/backgammon_tests.dir/tests.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/romanos/Backgammon_Engine/tests.cpp -o CMakeFiles/backgammon_tests.dir/tests.cpp.s
+CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/romanos/Backgammon_Engine/cppsrc/tests.cpp -o CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.s
 
 # Object files for target backgammon_tests
 backgammon_tests_OBJECTS = \
-"CMakeFiles/backgammon_tests.dir/tests.cpp.o"
+"CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o"
 
 # External object files for target backgammon_tests
 backgammon_tests_EXTERNAL_OBJECTS =
 
-backgammon_tests: CMakeFiles/backgammon_tests.dir/tests.cpp.o
+backgammon_tests: CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o
 backgammon_tests: CMakeFiles/backgammon_tests.dir/build.make
 backgammon_tests: lib/libgtest_main.a
 backgammon_tests: libBackgammon-Engine.a

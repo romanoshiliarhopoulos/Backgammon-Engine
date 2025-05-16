@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/backgammon_tests.dir/tests.cpp.o"
-  "CMakeFiles/backgammon_tests.dir/tests.cpp.o.d"
+  "CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o"
+  "CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o.d"
   "backgammon_tests"
   "backgammon_tests.pdb"
   "backgammon_tests[1]_tests.cmake"

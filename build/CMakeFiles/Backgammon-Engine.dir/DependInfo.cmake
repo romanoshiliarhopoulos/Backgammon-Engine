@@ -8,9 +8,10 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/romanos/Backgammon_Engine/Pieces.cpp" "CMakeFiles/Backgammon-Engine.dir/Pieces.cpp.o" "gcc" "CMakeFiles/Backgammon-Engine.dir/Pieces.cpp.o.d"
-  "/Users/romanos/Backgammon_Engine/game.cpp" "CMakeFiles/Backgammon-Engine.dir/game.cpp.o" "gcc" "CMakeFiles/Backgammon-Engine.dir/game.cpp.o.d"
-  "/Users/romanos/Backgammon_Engine/player.cpp" "CMakeFiles/Backgammon-Engine.dir/player.cpp.o" "gcc" "CMakeFiles/Backgammon-Engine.dir/player.cpp.o.d"
+  "/Users/romanos/Backgammon_Engine/cppsrc/Pieces.cpp" "CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.o" "gcc" "CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.o.d"
+  "/Users/romanos/Backgammon_Engine/cppsrc/game.cpp" "CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.o" "gcc" "CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.o.d"
+  "/Users/romanos/Backgammon_Engine/cppsrc/main.cpp" "CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o" "gcc" "CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o.d"
+  "/Users/romanos/Backgammon_Engine/cppsrc/player.cpp" "CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o" "gcc" "CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.

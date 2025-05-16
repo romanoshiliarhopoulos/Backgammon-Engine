@@ -157,12 +157,12 @@ _deps/googletest-build/googletest/clean: _deps/googletest-build/googletest/CMake
 CMakeFiles/Backgammon-Engine.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=1,2,3,4 "Built target Backgammon-Engine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=1,2,3,4,5 "Built target Backgammon-Engine"
 .PHONY : CMakeFiles/Backgammon-Engine.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/Backgammon-Engine.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/romanos/Backgammon_Engine/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/romanos/Backgammon_Engine/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/Backgammon-Engine.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/romanos/Backgammon_Engine/build/CMakeFiles 0
 .PHONY : CMakeFiles/Backgammon-Engine.dir/rule
@@ -174,7 +174,7 @@ Backgammon-Engine: CMakeFiles/Backgammon-Engine.dir/rule
 # codegen rule for target.
 CMakeFiles/Backgammon-Engine.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=1,2,3,4 "Finished codegen for target Backgammon-Engine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=1,2,3,4,5 "Finished codegen for target Backgammon-Engine"
 .PHONY : CMakeFiles/Backgammon-Engine.dir/codegen
 
 # clean rule for target.
@@ -191,12 +191,12 @@ CMakeFiles/backgammon_tests.dir/all: _deps/googletest-build/googletest/CMakeFile
 CMakeFiles/backgammon_tests.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=5,6 "Built target backgammon_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=6,7 "Built target backgammon_tests"
 .PHONY : CMakeFiles/backgammon_tests.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/backgammon_tests.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/romanos/Backgammon_Engine/build/CMakeFiles 10
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/romanos/Backgammon_Engine/build/CMakeFiles 11
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/backgammon_tests.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/romanos/Backgammon_Engine/build/CMakeFiles 0
 .PHONY : CMakeFiles/backgammon_tests.dir/rule
@@ -208,7 +208,7 @@ backgammon_tests: CMakeFiles/backgammon_tests.dir/rule
 # codegen rule for target.
 CMakeFiles/backgammon_tests.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=5,6 "Finished codegen for target backgammon_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=6,7 "Finished codegen for target backgammon_tests"
 .PHONY : CMakeFiles/backgammon_tests.dir/codegen
 
 # clean rule for target.
@@ -223,7 +223,7 @@ CMakeFiles/backgammon_tests.dir/clean:
 _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=7,8 "Built target gmock"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=8,9 "Built target gmock"
 .PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all
 
 # Build rule for subdir invocation for target.
@@ -240,7 +240,7 @@ gmock: _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/rule
 # codegen rule for target.
 _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=7,8 "Finished codegen for target gmock"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=8,9 "Finished codegen for target gmock"
 .PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/codegen
 
 # clean rule for target.
@@ -256,7 +256,7 @@ _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletes
 _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=9,10 "Built target gmock_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=10,11 "Built target gmock_main"
 .PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all
 
 # Build rule for subdir invocation for target.
@@ -273,7 +273,7 @@ gmock_main: _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/rule
 # codegen rule for target.
 _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=9,10 "Finished codegen for target gmock_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=10,11 "Finished codegen for target gmock_main"
 .PHONY : _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/codegen
 
 # clean rule for target.
@@ -288,7 +288,7 @@ _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/clean:
 _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=11,12 "Built target gtest"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=12,13 "Built target gtest"
 .PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 
 # Build rule for subdir invocation for target.
@@ -305,7 +305,7 @@ gtest: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/rule
 # codegen rule for target.
 _deps/googletest-build/googletest/CMakeFiles/gtest.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=11,12 "Finished codegen for target gtest"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=12,13 "Finished codegen for target gtest"
 .PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest.dir/codegen
 
 # clean rule for target.
@@ -320,7 +320,7 @@ _deps/googletest-build/googletest/CMakeFiles/gtest.dir/clean:
 _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=13,14 "Built target gtest_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=14,15 "Built target gtest_main"
 .PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
 
 # Build rule for subdir invocation for target.
@@ -337,7 +337,7 @@ gtest_main: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/rule
 # codegen rule for target.
 _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/build.make _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=13,14 "Finished codegen for target gtest_main"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=14,15 "Finished codegen for target gtest_main"
 .PHONY : _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/codegen
 
 # clean rule for target.

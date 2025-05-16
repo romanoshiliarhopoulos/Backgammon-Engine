@@ -4,9 +4,9 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = 
+CXX_INCLUDES = -I/Users/romanos/Backgammon_Engine/cppsrc
 
-CXX_FLAGSarm64 = -g -std=gnu++14 -arch arm64
+CXX_FLAGSarm64 = -g -std=gnu++17 -arch arm64
 
-CXX_FLAGS = -g -std=gnu++14 -arch arm64
+CXX_FLAGS = -g -std=gnu++17 -arch arm64
 

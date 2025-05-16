@@ -8,7 +8,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/Users/romanos/Backgammon_Engine/tests.cpp" "CMakeFiles/backgammon_tests.dir/tests.cpp.o" "gcc" "CMakeFiles/backgammon_tests.dir/tests.cpp.o.d"
+  "/Users/romanos/Backgammon_Engine/cppsrc/tests.cpp" "CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o" "gcc" "CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o.d"
   )
 
 # Targets to which this target links which contain Fortran sources.
