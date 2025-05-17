@@ -68,6 +68,7 @@ int main()
             cout << "Press r for both to roll a dice: ";
             cin >> response;
         }
+        char c;
         int p1_dice = rollDice();
         int p2_dice = rollDice();
         while (p2_dice == p1_dice)
@@ -110,38 +111,60 @@ int main()
 
         while (!game.over())
         {
-            game.printGameBoard();
-            cout << "Turn: " << current_player->getName() << ". Press r to roll: ";
-            string input;
-            cin >> input;
-            while (input != "r")
-            {
-                cout << "\nPress r to roll:";
-                cin >> input;
-            }
-            int dice1 = rollDice();
-            int dice2 = rollDice();
-            // player rolls both dice first
+            std::cout << game.renderBoard();
 
-            // output the roll:
-            cout << "Dice: " << dice1 << ", Dice: " << dice2 << endl;
-            game.movePieces(current_player, dice1, dice2);
+            std::cout << "Press r to roll: ";
+            while (std::cin >> c && c != 'r')
+                std::cout << "Press r: ";
+            int dice1 = rollDice(), dice2 = rollDice();
+            std::cout << "Rolled " << dice1 << "," << dice2 << "\n";
 
-            if (current_player == p1_addr)
+            // Build moves and choice logic (replicates prior interactive flows)
+            std::vector<std::pair<int, int>> moves;
+            bool firstDiceFirst = true;
+            if (dice1 != dice2)
             {
-                // next player must be p2
-                current_player = p2_addr;
+                int choice;
+                std::cout << "Choose die first (" << dice1 << " or " << dice2 << "): ";
+                std::cin >> choice;
+                firstDiceFirst = (choice == dice1);
+                // then read two origin/dest pairs
+                for (int i = 0; i < 2; i++)
+                {
+                    int o, d;
+                    std::cout << "Origin (" << (i == 0 ? (firstDiceFirst ? dice1 : dice2) : (firstDiceFirst ? dice2 : dice1)) << "): ";
+                    std::cin >> o;
+                    std::cout << "Destination: ";
+                    std::cin >> d;
+                    moves.emplace_back(o, d);
+                }
             }
             else
             {
-                current_player = p1_addr;
+                for (int i = 0; i < 4; i++)
+                {
+                    int o, d;
+                    std::cout << "Origin (" << dice1 << "): ";
+                    std::cin >> o;
+                    std::cout << "Destination: ";
+                    std::cin >> d;
+                    moves.emplace_back(o, d);
+                }
             }
+            std::string err;
+            if (!game.movePieces((game.getTurn() == Player::PLAYER1 ? &p1 : &p2),
+                                 dice1, dice2, moves,
+                                 firstDiceFirst, err))
+            {
+                std::cout << "Error: " << err << "\n";
+                continue; // retry same player
+            }
+            // switch turn
+            game.setTurn(game.getTurn() == Player::PLAYER1 ? Player::PLAYER2 : Player::PLAYER1);
         }
 
         break;
     }
-    game.printGameBoard();
-    game.clearGameboard(); // works!
-    game.printGameBoard();
+
     return 0;
 }

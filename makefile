@@ -6,8 +6,8 @@ CXX          := g++
 CXXFLAGS     := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function \
                  -I$(SRCDIR)
 
-# --- Collect all .cpp files under cppsrc/ ---
-SRCS         := $(wildcard $(SRCDIR)/*.cpp)
+# --- Collect all .cpp files under cppsrc/ except tests.cpp ---
+SRCS         := $(filter-out $(SRCDIR)/tests.cpp,$(wildcard $(SRCDIR)/*.cpp))
 TARGET       := a.out
 
 # --- CMake build variables ---
@@ -19,7 +19,7 @@ CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug
 # Default: build both the CLI app and the CMake project
 all: $(TARGET) build
 
-# 1) Direct build of your CLI executable
+# 1) Direct build of your CLI executable (excludes tests.cpp)
 $(TARGET): $(SRCS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 

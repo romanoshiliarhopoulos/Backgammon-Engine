@@ -6,6 +6,8 @@
 #include "Pieces.hpp"
 #include <cmath>
 #include <cstdlib>
+#include <utility>
+#include <sstream>
 #include <unordered_set>
 
 using namespace std;
@@ -24,7 +26,6 @@ public:
     int turn;
 
 public:
-    
     // constructor
     Game(int player);
 
@@ -50,10 +51,12 @@ public:
     void setPlayers(Player *p1, Player *p2);
 
     // called within the game loop, to make a move on the pieces....
-    void movePieces(Player *currentPlayer, int dice1, int dice2);
+    void movePieces(Player *currentPlayer, int dice1, int dice2, vector<pair<int,int>> moves);
 
     void moveOne(Player *currentPlayer, int dice);
     // helper functions for movePieces
     bool isValidOrigin(int multi, int idx);
     bool isValidDestination(int multi, int idx);
+
+    string renderBoard();
 };
