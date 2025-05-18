@@ -36,7 +36,6 @@ cmake_configure:
 cmake_build: cmake_configure
 	cmake --build $(BUILD_DIR)
 
-# make build is an alias for cmake_build
 build: cmake_build
 
 # 4) Run all GoogleTest cases via CTest
