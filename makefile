@@ -42,6 +42,6 @@ build: cmake_build
 test: build
 	cd $(BUILD_DIR) && ctest --output-on-failure
 
-# Cleans both the direct build artifacts and the CMake tree
+# Cleans both the direct build artifacts and the CMake 
 clean:
 	rm -rf $(TARGET) *.o $(BUILD_DIR)
