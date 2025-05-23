@@ -16,7 +16,7 @@ CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug
 
 .PHONY: all run build test clean cmake_configure cmake_build
 
-# Default: build both the CLI app and the CMake 
+# Default: build both the CLI app  the CMake 
 all: $(TARGET) build
 
 # 1) Direct build of your CLI executable (excludes tests.cpp)
