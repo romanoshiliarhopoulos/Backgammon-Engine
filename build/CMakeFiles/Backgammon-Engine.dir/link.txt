@@ -1,0 +1,2 @@
+/usr/bin/ar qc libBackgammon-Engine.a "CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.o" "CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.o" "CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o" "CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o"
+/usr/bin/ranlib libBackgammon-Engine.a

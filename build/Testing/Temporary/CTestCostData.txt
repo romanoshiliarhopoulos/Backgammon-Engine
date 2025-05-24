@@ -1,0 +1,15 @@
+Player_functionality.newplayer 1 0.00481425
+ValidOrigin.test_orginin_boolean 1 0.00329792
+ValidOrigin.test_orginin_boolean_p2 1 0.00334529
+ValidOrigin.gameboard_with_no_pieces 1 0.00332396
+ValidOrigin.test_p2_first_origin 1 0.00334667
+ValidDestination.test_destination_with_friendly_piece 1 0.00341204
+ValidDestination.test_destination_with_no_piece 1 0.00339696
+ValidDestination.test_destination_with_enemy_piece 1 0.00350271
+CapturePiece.singleBlotIsTakenAndJailed 1 0.00349633
+CapturePiece.cannotCaptureTwoOrMore 1 0.003692
+CapturePiece.invalidOrigin_with_jailed_piece 1 0.00372225
+MoveOne.FreesJailedPieceAndPlacesOnBoard 1 0.00350067
+MoveOne.RejectsNonZeroOriginWhenJailed 1 0.00343067
+MoveOne.NormalMoveWhenNoJail 1 0.00339279
+---
