@@ -3,8 +3,8 @@ NEXT DEVELOPMENTS
 
 - reminder to switch shit back to public after testing is done. Game.hpp and pieces.hpp
 
-- Code Freeing peices functionlauty!!! game.over already implemented
-
 - move over tests.cpp to work with new API
+
+- when exaporto skip the other player's turn
 
  - START ML!!!!!

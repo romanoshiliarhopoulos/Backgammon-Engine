@@ -210,12 +210,12 @@ bool Game::isValidOrigin(int multi, int idx)
     if (multi == -1)
     {
         // it is player 2's move
-        if (pieces.numJailed(Player::PLAYER2) > 0 && idx != 0)
+        if (pieces.numJailed(Player::PLAYER2) > 0 && idx != 25)
         {
-            cout << p2->getName() << " has a jailed piece, origin must be 0!" << endl;
+            cout << p2->getName() << " has a jailed piece, origin must be 25!" << endl;
             return false;
         }
-        else if (pieces.numJailed(Player::PLAYER2) > 0 && idx == 0)
+        else if (pieces.numJailed(Player::PLAYER2) > 0 && idx == 25)
         {
             return true;
         }
@@ -246,6 +246,11 @@ bool Game::isValidOrigin(int multi, int idx)
 // helper function to see if a player can move a piece there
 bool Game::isValidDestination(int multi, int idx)
 {
+    if (idx == 0 || idx == 25)
+    {
+        // if player want to "free" a piece.
+        return canFreePiece(multi);
+    }
     if (this->gameboard[idx - 1] * multi >= 0)
     {
         return true;
@@ -269,6 +274,42 @@ bool Game::isValidDestination(int multi, int idx)
     {
         return false;
     }
+}
+
+// helper function to see if a player can free a piece!
+bool Game::canFreePiece(int multi)
+{
+    int player = (multi == +1) ? Player::PLAYER1  // enum value 0
+                               : Player::PLAYER2; // enum value 1
+    if (pieces.numJailed(player) != 0)
+    {
+        return false;
+    }
+    else
+    {
+        // need to check that all player's pieces on the game board are where they should be. (idx 19-24 for p1 and 1-6 for p2)
+        for (int i = 1; i <= 24; i++)
+        {
+            if (player == Player::PLAYER1)
+            {
+                // ensure that p1 has all their pieces in the last 5 slots
+                if (i < 19 && this->gameboard[i-1] > 0)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                // ensure that p2 has all their peices in their last 5 slots
+                if (i > 6 && this->gameboard[i-1] < 0)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    pieces.freePiece(player);
+    return true;
 }
 
 bool Game::movePieces(Player *currentPlayer,
@@ -296,7 +337,7 @@ bool Game::tryMove(Player *currentPlayer,
     // jailed‑piece checks:
     if (!isValidOrigin(multi, origin))
     {
-        err = "You have a jailed piece; origin must be 0.";
+        err = "Invalid origin";
         return false;
     }
 
@@ -313,12 +354,12 @@ bool Game::tryMove(Player *currentPlayer,
     }
     if (!isValidDestination(multi, destination))
     {
-        err = "Destination blocked by opponent.";
+        err = "Invalid destination.";
         return false;
     }
 
     // perform the move
-    if (origin == 0)
+    if (origin == 0 || origin == 25)
     {
         // freeing from jail
         pieces.removeJailedPiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);

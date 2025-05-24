@@ -1,221 +1,271 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
-#include "player.hpp"
+// tests.cpp
+#include <gtest/gtest.h>
 #include "game.hpp"
-#include "gtest/gtest.h"
+#include "player.hpp"
+
+// Note: these tests assume that Game::gameboard is accessible for setup.
+// If it's private, you'll need to add a setter or make it protected for testing.
 
 TEST(Player_functionality, newplayer)
 {
-    Player p1("romanos", 1);
-
+    Player p1("romanos", Player::PLAYER1);
     ASSERT_EQ(p1.getName(), "romanos");
-};
+}
 
-// Test Suite for ValidOrigin with many cases
-TEST(ValidOrigin, test_orginin_boolean)
+// ------ ValidOrigin tests ------
+
+TEST(ValidOrigin, test_origin_boolean)
 {
-    Game game(0); // populates initial gameboard
-    ASSERT_TRUE(game.isValidOrigin(1, 1));
+    Game game(0);
+    ASSERT_TRUE(game.isValidOrigin(+1, 1));
     ASSERT_FALSE(game.isValidOrigin(-1, 1));
 }
-TEST(ValidOrigin, test_orginin_boolean_p2)
+
+TEST(ValidOrigin, test_origin_for_player2)
 {
-    Game game(0); // populates initial gameboard
-    ASSERT_FALSE(game.isValidOrigin(1, 6));
+    Game game(0);
+    ASSERT_FALSE(game.isValidOrigin(+1, 6));
     ASSERT_TRUE(game.isValidOrigin(-1, 6));
 }
+
 TEST(ValidOrigin, gameboard_with_no_pieces)
 {
-    Game game(0); // populates initial gameboard
-    ASSERT_FALSE(game.isValidOrigin(1, 2));
+    Game game(0);
+    ASSERT_FALSE(game.isValidOrigin(+1, 2));
     ASSERT_FALSE(game.isValidOrigin(-1, 2));
-
     ASSERT_FALSE(game.isValidOrigin(-1, 7));
 }
+
 TEST(ValidOrigin, test_p2_first_origin)
 {
     Game game(1);
-    ASSERT_FALSE(game.isValidOrigin(1, 6));
+    ASSERT_FALSE(game.isValidOrigin(+1, 6));
     ASSERT_TRUE(game.isValidOrigin(-1, 6));
 }
 
-// to test about valid destination
-TEST(ValidDestination, test_destination_with_friendly_piece)
+// ------ ValidDestination tests ------
+
+TEST(ValidDestination, with_friendly_piece)
 {
     Game game(1);
-    ASSERT_TRUE(game.isValidDestination(1, 1));
-    ASSERT_TRUE(game.isValidDestination(1, 12));
-
+    ASSERT_TRUE(game.isValidDestination(+1, 1));
+    ASSERT_TRUE(game.isValidDestination(+1, 12));
     ASSERT_TRUE(game.isValidDestination(-1, 6));
     ASSERT_TRUE(game.isValidDestination(-1, 13));
 }
-TEST(ValidDestination, test_destination_with_no_piece)
+
+TEST(ValidDestination, with_no_piece)
 {
     Game game(1);
-    ASSERT_TRUE(game.isValidDestination(1, 2));
-    ASSERT_TRUE(game.isValidDestination(1, 11));
-
+    ASSERT_TRUE(game.isValidDestination(+1, 2));
+    ASSERT_TRUE(game.isValidDestination(+1, 11));
     ASSERT_TRUE(game.isValidDestination(-1, 2));
     ASSERT_TRUE(game.isValidDestination(-1, 22));
 }
-TEST(ValidDestination, test_destination_with_enemy_piece)
+
+TEST(ValidDestination, with_enemy_blockade)
 {
     Game game(0);
-    ASSERT_FALSE(game.isValidDestination(1, 6));
-    ASSERT_FALSE(game.isValidDestination(1, 8));
-
+    ASSERT_FALSE(game.isValidDestination(+1, 6));
+    ASSERT_FALSE(game.isValidDestination(+1, 8));
     ASSERT_FALSE(game.isValidDestination(-1, 19));
     ASSERT_FALSE(game.isValidDestination(-1, 17));
 }
 
-TEST(CapturePiece, singleBlotIsTakenAndJailed)
+// ------ CapturePiece via tryMove tests ------
+
+TEST(CapturePiece, singleBlotIsTakenAndJailed_via_tryMove)
 {
-    Game game(0);           // Player1 start
-    game.gameboard[1] = -1; // p2 is at 1
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    Game game(0);
+    game.setPlayers(&p1, &p2);
 
-    // sanity‐check initial jail counts are both zero
-    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER2), 0);
-    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
+    // place a single P2 blot on point 2
+    game.gameboard[1] = -1;
+    std::string err;
 
-    // Now P1 tries to move there
-    bool ok = game.isValidDestination(/*multi=*/+1, /*idx=*/2);
-    ASSERT_TRUE(ok);
-    // make the move:
-    ASSERT_EQ(game.gameboard[1], 0); // isValidDestination should remove the p2 piece
+    // P1 rolls a 1 from 1→2
+    bool ok = game.tryMove(&p1, 1, 1, 2, err);
+    ASSERT_TRUE(ok) << "err=" << err;
 
-    game.gameboard[1] = 1; // simulates the rest of the moveOne function
-
-    // the single P2 blot should be removed
-    EXPECT_EQ(game.gameboard[1], /*P1’s checker now there*/ +1);
-
-    // and one piece should have gone into P2’s jail
+    // blot captured, P1 checker sits there
+    auto board = game.getGameBoard();
+    EXPECT_EQ(board[1], +1);
+    // P2 jailed one
     EXPECT_EQ(game.pieces.numJailed(Player::PLAYER2), 1);
-    EXPECT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
 }
 
-// You could also test that landing on a “too many” stack still fails:
-TEST(CapturePiece, cannotCaptureTwoOrMore)
+TEST(CapturePiece, cannotCaptureTwoOrMore_via_tryMove)
 {
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
     Game game(0);
-    // point 6 starts with five P2 checkers, so you can’t capture there
-    ASSERT_FALSE(game.isValidDestination(+1, 6));
-}
-
-//
-TEST(CapturePiece, invalidOrigin_with_jailed_piece)
-{
-    Game game(0);
-    game.pieces.addJailedPiece(Player::PLAYER1); // add a jailed piece to player 1...
-    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER1), 1);
-    ASSERT_FALSE(game.isValidOrigin(1, 12));
-    ASSERT_TRUE(game.isValidOrigin(1, 0));
-}
-
-// Helper to restore cin after redirect
-struct CinGuard
-{
-    std::streambuf *old;
-    CinGuard(std::istream &in, std::istringstream &fake)
-    {
-        old = in.rdbuf(fake.rdbuf());
-    }
-    ~CinGuard()
-    {
-        std::cin.rdbuf(old);
-    }
-};
-
-// Test that moveOne actually takes you out of jail (origin 0) and places a checker
-TEST(MoveOne, FreesJailedPieceAndPlacesOnBoard)
-{
-    // set up two players
-    Player p1("Alice", 1), p2("Bob", 2);
-    Game game(1); // start as player 2, but we don't care
     game.setPlayers(&p1, &p2);
+    std::string err;
 
-    // put one piece in jail for PLAYER1
+    // Attempt P1 moving 5 spaces onto point 6 (blocked)
+    bool ok = game.tryMove(&p1, 5, 1, 6, err);
+    EXPECT_FALSE(ok);
+    EXPECT_EQ(err, "Invalid destination.");
+}
+
+TEST(CapturePiece, invalidOrigin_with_jailed_piece_via_tryMove)
+{
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    Game game(0);
+    game.setPlayers(&p1, &p2);
     game.pieces.addJailedPiece(Player::PLAYER1);
-    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER1), 1);
 
-    // pick a destination point that is empty: e.g. point index 2 (gameboard[1])
+    std::string err;
+    // wrong origin
+    EXPECT_FALSE(game.tryMove(&p1, 5, 12, 7, err));
+    EXPECT_EQ(err, "Invalid origin");
+
+    // correct jail exit (dice=5, origin=0→dest=5)
+    // clear point 5 first
+    game.gameboard[4] = 0;
+    EXPECT_TRUE(game.tryMove(&p1, 5, 0, 5, err)) << err;
+}
+
+// ------ tryMove tests for moveOne behaviors ------
+
+TEST(TryMove, FreesJailedPieceAndPlacesOnBoard)
+{
+    Player p1("Alice", Player::PLAYER1), p2("Bob", Player::PLAYER2);
+    Game game(1);
+    game.setPlayers(&p1, &p2);
+    game.pieces.addJailedPiece(Player::PLAYER1);
+
+    // clear point 2
     game.gameboard[1] = 0;
-    ASSERT_TRUE(game.isValidOrigin(+1, /*idx=*/0));
-    ASSERT_TRUE(game.isValidDestination(+1, /*idx=*/2));
 
-    // fake the two lines of console input: "0" (origin) then "2" (dest)
-    std::istringstream fakeIn("0\n2\n");
-    CinGuard guard(std::cin, fakeIn);
-
-    // perform the move
-    game.moveOne(&p1, /*dice=*/2);
-
-    // after moveOne, jail count should have decreased
-    EXPECT_EQ(game.pieces.numJailed(Player::PLAYER1), 0)
-        << "Expected the jailed count to go down by one";
-
-    // and exactly one checker should now sit on point 2
-    EXPECT_EQ(game.gameboard[1], +1)
-        << "Expected a single P1 checker at board index 1";
-}
-
-// Test that moveOne will reject a non‑zero origin when you still have a jailed piece
-TEST(MoveOne, RejectsNonZeroOriginWhenJailed)
-{
-    Player p1("Alice", 1), p2("Bob", 2);
-    Game game(0);
-    game.setPlayers(&p1, &p2);
-
-    // jail one piece for P1
-    game.pieces.addJailedPiece(Player::PLAYER1);
-    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER1), 1);
-
-    // try to move from origin=5 (illegal), then from origin=0 (legal), then dest=7
-    // dest=7 must match dice roll 7
-    std::istringstream fakeIn(
-        "5\n" // first origin attempt → invalid
-        "0\n" // second origin attempt → valid (jail)
-        "7\n" // dest
-    );
-    CinGuard guard(std::cin, fakeIn);
-
-    // point 7 is empty initially
-    game.gameboard[6] = 0;
-    game.moveOne(&p1, /*dice=*/7);
-
-    // after a valid jail‐exit, jail count is zero
+    std::string err;
+    bool ok = game.tryMove(&p1, 2, 0, 2, err);
+    EXPECT_TRUE(ok) << err;
     EXPECT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
-
-    // and the checker wound up on point 7
-    EXPECT_EQ(game.gameboard[6], +1);
+    EXPECT_EQ(game.getGameBoard()[1], +1);
 }
 
-// Test that if you have no jailed pieces, moveOne behaves like a normal move
-TEST(MoveOne, NormalMoveWhenNoJail)
+TEST(TryMove, RejectsNonZeroOriginWhenJailed)
 {
-    Player p1("Alice", 1), p2("Bob", 2);
+    Player p1("Alice", Player::PLAYER1), p2("Bob", Player::PLAYER2);
+    Game game(0);
+    game.setPlayers(&p1, &p2);
+    game.pieces.addJailedPiece(Player::PLAYER1);
+
+    std::string err;
+    // wrong origin
+    EXPECT_FALSE(game.tryMove(&p1, 7, 5, 7, err));
+    EXPECT_EQ(err, "Invalid origin");
+
+    // correct exit to point 7
+    game.gameboard[6] = 0;
+    EXPECT_TRUE(game.tryMove(&p1, 7, 0, 7, err)) << err;
+    EXPECT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
+    EXPECT_EQ(game.getGameBoard()[6], +1);
+}
+
+TEST(TryMove, NormalMoveWhenNoJail)
+{
+    Player p1("Alice", Player::PLAYER1), p2("Bob", Player::PLAYER2);
     Game game(0);
     game.setPlayers(&p1, &p2);
 
-    // ensure P1 has no jail
-    ASSERT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
-
-    // place two P1 checkers on point 3 (so valid origin) and leave point 5 empty
+    // place 2 on point 3, clear point 5
     game.gameboard[2] = +2;
     game.gameboard[4] = 0;
 
-    // simulate origin=3, dest=5 with dice=2
-    std::istringstream fakeIn("3\n5\n");
-    CinGuard guard(std::cin, fakeIn);
+    std::string err;
+    bool ok = game.tryMove(&p1, 2, 3, 5, err);
+    EXPECT_TRUE(ok) << err;
 
-    game.moveOne(&p1, /*dice=*/2);
-
-    // moved one checker off point 3 → should now have 1 left
-    EXPECT_EQ(game.gameboard[2], +1);
-    // one arrives at point 5
-    EXPECT_EQ(game.gameboard[4], +1);
-    // jail count stays zero
+    auto b = game.getGameBoard();
+    EXPECT_EQ(b[2], +1);
+    EXPECT_EQ(b[4], +1);
     EXPECT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
 }
 
+// ------ over(&winner) test ------
+
+TEST(GameOver, detects_winner)
+{
+    Game game(0);
+    Player p1("Roma", Player::PLAYER1), p2("Romanos", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+
+    // free 15 pieces for P2
+    for (int i = 0; i < 15; ++i)
+        game.pieces.freePiece(Player::PLAYER2);
+
+    int winner = -1;
+    EXPECT_TRUE(game.over(&winner));
+    EXPECT_EQ(winner, Player::PLAYER2);
+}
+// Test that freeing a piece requires no jailed pieces and all are in home
+TEST(FreeingPiece, CannotFreeWhenNotInHomeOrJailed)
+{
+    Game game(4);
+    Player p1("Alice", Player::PLAYER1), p2("Bob", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+
+    // Initially, P1 has no jailed pieces but pieces are not all in home
+    // Attempt to free from origin=0
+    EXPECT_FALSE(game.isValidDestination(+1, 0));
+    EXPECT_EQ(game.pieces.numFreed(Player::PLAYER1), 0);
+
+    // Now simulate a jailed piece and attempt free
+    game.pieces.addJailedPiece(Player::PLAYER1);
+    EXPECT_FALSE(game.isValidDestination(+1, 0));
+    EXPECT_EQ(game.pieces.numFreed(Player::PLAYER1), 0);
+}
+
+// Test that a single valid free increments numFreed
+TEST(FreeingPiece, CanFreeWhenEligible)
+{
+    Game game(4);
+    Player p1("Alice", Player::PLAYER1), p2("Bob", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+
+    // Clear board and place one P1 checker in home region at point 19 (index 18)
+    for (int i = 0; i < 24; ++i)
+        game.gameboard[i] = 0;
+    game.gameboard[18] = 1;
+
+    // No jailed pieces, and only home region occupied
+    EXPECT_TRUE(game.isValidDestination(+1, 0));
+    EXPECT_EQ(game.pieces.numFreed(Player::PLAYER1), 1);
+}
+
+// Test that Game::over detects winner by freed count
+TEST(GameOver, DetectsPlayer1Winner)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    // Simulate P1 has freed 15 pieces
+    for (int i = 0; i < 15; ++i)
+        game.pieces.freePiece(Player::PLAYER1);
+
+    int winner = -1;
+    EXPECT_TRUE(game.over(&winner));
+    EXPECT_EQ(winner, Player::PLAYER1);
+}
+
+TEST(GameOver, DetectsPlayer2Winner)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    // Simulate P2 has freed 15 pieces
+    for (int i = 0; i < 15; ++i)
+        game.pieces.freePiece(Player::PLAYER2);
+
+    int winner = -1;
+    EXPECT_TRUE(game.over(&winner));
+    EXPECT_EQ(winner, Player::PLAYER2);
+}
+
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}

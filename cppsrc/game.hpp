@@ -40,7 +40,7 @@ public:
     void printGameBoard();
 
     // assesses wether a player has won and the game is over
-    bool over(int * player);
+    bool over(int *player);
 
     // sets the current players
     void setPlayers(Player *p1, Player *p2);
@@ -59,4 +59,6 @@ public:
     // helper functions for movePieces
     bool isValidOrigin(int multi, int idx);
     bool isValidDestination(int multi, int idx);
+
+    bool canFreePiece(int player);
 };

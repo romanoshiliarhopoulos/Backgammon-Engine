@@ -1,8 +1,8 @@
-Player_functionality.newplayer 1 0.00481425
+Player_functionality.newplayer 10 0.0003354
 ValidOrigin.test_orginin_boolean 1 0.00329792
 ValidOrigin.test_orginin_boolean_p2 1 0.00334529
-ValidOrigin.gameboard_with_no_pieces 1 0.00332396
-ValidOrigin.test_p2_first_origin 1 0.00334667
+ValidOrigin.gameboard_with_no_pieces 10 0.000319258
+ValidOrigin.test_p2_first_origin 10 0.000322962
 ValidDestination.test_destination_with_friendly_piece 1 0.00341204
 ValidDestination.test_destination_with_no_piece 1 0.00339696
 ValidDestination.test_destination_with_enemy_piece 1 0.00350271
@@ -12,4 +12,20 @@ CapturePiece.invalidOrigin_with_jailed_piece 1 0.00372225
 MoveOne.FreesJailedPieceAndPlacesOnBoard 1 0.00350067
 MoveOne.RejectsNonZeroOriginWhenJailed 1 0.00343067
 MoveOne.NormalMoveWhenNoJail 1 0.00339279
+ValidOrigin.test_origin_boolean 9 0.000356583
+ValidOrigin.test_origin_for_player2 9 0.000340509
+ValidDestination.with_friendly_piece 9 0.00034463
+ValidDestination.with_no_piece 9 0.00034819
+ValidDestination.with_enemy_blockade 9 0.000350625
+CapturePiece.singleBlotIsTakenAndJailed_via_tryMove 9 0.000340282
+CapturePiece.cannotCaptureTwoOrMore_via_tryMove 7 0.000451333
+CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove 5 0.000658933
+TryMove.FreesJailedPieceAndPlacesOnBoard 9 0.000341995
+TryMove.RejectsNonZeroOriginWhenJailed 2 0.001507
+TryMove.NormalMoveWhenNoJail 9 0.000350588
+GameOver.detects_winner 9 0.000345685
+GameOver.DetectsPlayer1Winner 8 0.000383713
+GameOver.DetectsPlayer2Winner 8 0.000389276
+FreeingPiece.CannotFreeWhenNotInHomeOrJailed 8 0.00038374
+FreeingPiece.CanFreeWhenEligible 3 0.001015
 ---
