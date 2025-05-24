@@ -24,8 +24,9 @@ public:
     int turn;
 
 public:
-    // constructor
+    // constructors
     Game(int player);
+    Game();
 
     // populates the gameboard with appropriate number of pieces for each player
     void populateBoard();
@@ -35,6 +36,8 @@ public:
     int getTurn();
 
     vector<int> getGameBoard();
+
+    Pieces &getPieces();
 
     /// @brief prints the gameboard of the current game instance
     void printGameBoard();
@@ -61,4 +64,17 @@ public:
     bool isValidDestination(int multi, int idx);
 
     bool canFreePiece(int player);
+
+    // some more helper functions to expose game-state to RL model
+    int getJailedCount(int player);
+    int getBornOffCount(int player);
+    /// Deep‑copy the entire game (board, pieces, turn, RNG)
+    Game clone() const;
+
+    /// Returns all legal moves for this player and one die.
+    vector<pair<int, int>> legalMoves(int player, int die);
+
+    /// Returns all legal turn sequences for this player and the two dice.
+    /// Each element is a vector of (origin→dest) pairs in the order they must be played.
+    vector<vector<pair<int, int>>> legalTurnSequences(int player, int die1, int die2);
 };

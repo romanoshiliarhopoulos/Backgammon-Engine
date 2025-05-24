@@ -186,9 +186,9 @@ CMakeFiles/Backgammon-Engine.dir/clean:
 # Target rules for target CMakeFiles/backgammon_tests.dir
 
 # All Build rule for target.
-CMakeFiles/backgammon_tests.dir/all: CMakeFiles/Backgammon-Engine.dir/all
 CMakeFiles/backgammon_tests.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 CMakeFiles/backgammon_tests.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
+CMakeFiles/backgammon_tests.dir/all: CMakeFiles/Backgammon-Engine.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=6,7 "Built target backgammon_tests"
@@ -252,8 +252,8 @@ _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/clean:
 # Target rules for target _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir
 
 # All Build rule for target.
-_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all
 _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
+_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/all: _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/all
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build.make _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=10,11 "Built target gmock_main"

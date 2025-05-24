@@ -1,6 +1,11 @@
 /*game.cpp*/
 #include "game.hpp"
 
+// default constructor for copies
+Game::Game()
+{
+}
+
 // constructor
 Game::Game(int player)
 {
@@ -15,7 +20,10 @@ Game::Game(int player)
     this->pieces = Pieces(); // initializes jailedpieces to be equal to zero
     populateBoard();
 }
-
+Pieces &Game::getPieces()
+{
+    return this->pieces;
+}
 /// @brief
 /// @param player is an enum of which players turn it is
 void Game::setTurn(int player)
@@ -23,10 +31,117 @@ void Game::setTurn(int player)
     // cout << "PLAYER: " << player << endl;
     this->turn = player;
 }
+Game Game::clone() const
+{
+    Game copy;
+    copy.gameboard = this->gameboard;
+    copy.pieces = this->pieces; // Ensure deep copy
+    copy.turn = this->turn;
+    copy.p1 = this->p1; // Pointer copy is OK here
+    copy.p2 = this->p2; // Pointer copy is OK here
+    return copy;
+}
+
+// computes all possible moves given a die value. Returns a vector of pairs(origin,destination)
+vector<pair<int, int>> Game::legalMoves(int player, int die)
+{
+    vector<pair<int, int>> toReturn;
+    int multi = player == 0 ? 1 : -1;
+    for (int i = 0; i <= 25; i++)
+    {
+        bool validOrigin = isValidOrigin(multi, i);
+        if (validOrigin)
+        {
+            int dest = i + multi * die;
+            if (isValidDestination(multi, dest))
+            {
+                toReturn.emplace_back(i, dest);
+            }
+        }
+    }
+    return toReturn;
+}
+
+// faster way to collect all possible moves when rolling a double die:
+// You only generate as many branches as remain legal after each simulated move.
+void collectDoubles(Player *player,
+                    int die,
+                    int depth,
+                    Game &state,
+                    vector<pair<int, int>> &current,
+                    vector<vector<pair<int, int>>> &out)
+{
+    if (depth == 4)
+    {
+        out.push_back(current);
+        return;
+    }
+    for (auto m : state.legalMoves(player->getNum(), die))
+    {
+        Game next = state.clone();
+        string err;
+        next.tryMove(player, die, m.first, m.second, err);
+        current.push_back(m);
+        collectDoubles(player, die, depth + 1, next, current, out);
+        current.pop_back();
+    }
+}
+/// Returns all legal turn sequences for this player and the two dice.
+/// Each element is a vector of (origin→dest) pairs in the order they must be played.
+vector<vector<pair<int, int>>> Game::legalTurnSequences(int player, int die1, int die2)
+{
+    vector<vector<pair<int, int>>> sequences;
+    Player *curr_player = player == 0 ? this->p1 : this->p2;
+
+    if (die1 != die2)
+    {
+        // roll die1 then die2
+        for (auto m1 : legalMoves(player, die1))
+        {
+            Game g1 = this->clone();
+            string err;
+            g1.tryMove(curr_player, die1, m1.first, m1.second, err);
+
+            for (auto m2 : g1.legalMoves(player, die2))
+            {
+                sequences.push_back({m1, m2});
+            }
+        }
+        // calculate all possible moves when moving die 2 first
+        for (auto m1 : legalMoves(player, die2))
+        {
+            Game g1 = this->clone();
+            string err;
+            g1.tryMove(curr_player, die2, m1.first, m1.second, err); // make the move
+
+            for (auto m2 : g1.legalMoves(player, die1))
+            {
+                sequences.push_back({m1, m2});
+            }
+        }
+    }
+    else
+    {
+        // case where we have a double.
+        vector<pair<int, int>> curr;
+        collectDoubles(curr_player, die1, 0, *this, curr, sequences);
+    }
+    return sequences;
+}
 
 vector<int> Game::getGameBoard()
 {
     return this->gameboard;
+}
+
+int Game::getJailedCount(int player)
+{
+    return pieces.numJailed(player);
+}
+
+int Game::getBornOffCount(int player)
+{
+    return pieces.numFreed(player);
 }
 
 /// @brief Mutates the gameBoard to correctly populate board. Player 1 positive, Player2 negative
@@ -212,7 +327,6 @@ bool Game::isValidOrigin(int multi, int idx)
         // it is player 2's move
         if (pieces.numJailed(Player::PLAYER2) > 0 && idx != 25)
         {
-            cout << p2->getName() << " has a jailed piece, origin must be 25!" << endl;
             return false;
         }
         else if (pieces.numJailed(Player::PLAYER2) > 0 && idx == 25)
@@ -225,13 +339,17 @@ bool Game::isValidOrigin(int multi, int idx)
         // it is player 1's move
         if (pieces.numJailed(Player::PLAYER1) > 0 && idx != 0)
         {
-            cout << p1->getName() << " has a jailed piece, origin must be 0!" << endl;
             return false;
         }
         else if (pieces.numJailed(Player::PLAYER1) > 0 && idx == 0)
         {
             return true;
         }
+    }
+    // Check bounds for regular board positions
+    if (idx < 1 || idx > 24)
+    {
+        return false;
     }
 
     if (this->gameboard[idx - 1] * multi > 0)
@@ -251,23 +369,18 @@ bool Game::isValidDestination(int multi, int idx)
         // if player want to "free" a piece.
         return canFreePiece(multi);
     }
+    // Check bounds for regular board positions
+    if (idx < 1 || idx > 24)
+    {
+        return false;
+    }
     if (this->gameboard[idx - 1] * multi >= 0)
     {
         return true;
     }
     else if (this->gameboard[idx - 1] * multi == -1)
     {
-        // oponent has a single open piece there....
-        this->gameboard[idx - 1] += multi; // removes oponent piece
-        // adds oponent piece to jail
-        if (multi == -1)
-        {
-            pieces.addJailedPiece(Player::PLAYER1);
-        }
-        else
-        {
-            pieces.addJailedPiece(Player::PLAYER2);
-        }
+        // oponent has a single open piece there.... can capture
         return true;
     }
     else
@@ -293,7 +406,7 @@ bool Game::canFreePiece(int multi)
             if (player == Player::PLAYER1)
             {
                 // ensure that p1 has all their pieces in the last 5 slots
-                if (i < 19 && this->gameboard[i-1] > 0)
+                if (i < 19 && this->gameboard[i - 1] > 0)
                 {
                     return false;
                 }
@@ -301,14 +414,13 @@ bool Game::canFreePiece(int multi)
             else
             {
                 // ensure that p2 has all their peices in their last 5 slots
-                if (i > 6 && this->gameboard[i-1] < 0)
+                if (i > 6 && this->gameboard[i - 1] < 0)
                 {
                     return false;
                 }
             }
         }
     }
-    pieces.freePiece(player);
     return true;
 }
 
@@ -342,10 +454,20 @@ bool Game::tryMove(Player *currentPlayer,
     }
 
     int diff = origin - destination;
-    if (diff * (-multi) < 0)
+    // Special case: bearing off moves
+    if (destination == 0 || destination == 25)
     {
-        err = "Cannot move in that direction.";
-        return false;
+        // P1 bears off to 0, P2 bears off to 25
+        // Don't apply normal direction rules for bearing off
+    }
+    else
+    {
+        // Normal direction check for regular moves
+        if (diff * (-multi) < 0)
+        {
+            err = "Cannot move in that direction.";
+            return false;
+        }
     }
     if (dice != std::abs(diff))
     {
@@ -358,16 +480,33 @@ bool Game::tryMove(Player *currentPlayer,
         return false;
     }
 
-    // perform the move
+    // Handle move execution with captures
     if (origin == 0 || origin == 25)
     {
-        // freeing from jail
+        // Moving from jail
         pieces.removeJailedPiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);
-        this->gameboard[destination - 1] += multi;
     }
     else
     {
+        // Moving from regular point
         this->gameboard[origin - 1] -= multi;
+    }
+
+    if (destination == 0 || destination == 25)
+    {
+        // Bearing off
+        pieces.freePiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);
+    }
+    else
+    {
+        // Check for capture before placing piece
+        if (this->gameboard[destination - 1] * multi == -1)
+        {
+            // Capture opponent blot
+            this->gameboard[destination - 1] = 0; // Remove opponent piece
+            pieces.addJailedPiece(multi > 0 ? Player::PLAYER2 : Player::PLAYER1);
+        }
+        // Place piece
         this->gameboard[destination - 1] += multi;
     }
 

@@ -1,10 +1,10 @@
-Start testing: May 24 14:47 CDT
+Start testing: May 24 17:08 CDT
 ----------------------------------------------------------
-1/19 Testing: Player_functionality.newplayer
-1/19 Test: Player_functionality.newplayer
+1/28 Testing: Player_functionality.newplayer
+1/28 Test: Player_functionality.newplayer
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=Player_functionality.newplayer" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"Player_functionality.newplayer" start time: May 24 14:47 CDT
+"Player_functionality.newplayer" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = Player_functionality.newplayer
@@ -22,15 +22,15 @@ Note: Google Test filter = Player_functionality.newplayer
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"Player_functionality.newplayer" end time: May 24 14:47 CDT
+"Player_functionality.newplayer" end time: May 24 17:08 CDT
 "Player_functionality.newplayer" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-2/19 Testing: ValidOrigin.test_origin_boolean
-2/19 Test: ValidOrigin.test_origin_boolean
+2/28 Testing: ValidOrigin.test_origin_boolean
+2/28 Test: ValidOrigin.test_origin_boolean
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_origin_boolean" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.test_origin_boolean" start time: May 24 14:47 CDT
+"ValidOrigin.test_origin_boolean" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = ValidOrigin.test_origin_boolean
@@ -48,15 +48,15 @@ Note: Google Test filter = ValidOrigin.test_origin_boolean
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.test_origin_boolean" end time: May 24 14:47 CDT
+"ValidOrigin.test_origin_boolean" end time: May 24 17:08 CDT
 "ValidOrigin.test_origin_boolean" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-3/19 Testing: ValidOrigin.test_origin_for_player2
-3/19 Test: ValidOrigin.test_origin_for_player2
+3/28 Testing: ValidOrigin.test_origin_for_player2
+3/28 Test: ValidOrigin.test_origin_for_player2
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_origin_for_player2" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.test_origin_for_player2" start time: May 24 14:47 CDT
+"ValidOrigin.test_origin_for_player2" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = ValidOrigin.test_origin_for_player2
@@ -74,15 +74,15 @@ Note: Google Test filter = ValidOrigin.test_origin_for_player2
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.test_origin_for_player2" end time: May 24 14:47 CDT
+"ValidOrigin.test_origin_for_player2" end time: May 24 17:08 CDT
 "ValidOrigin.test_origin_for_player2" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-4/19 Testing: ValidOrigin.gameboard_with_no_pieces
-4/19 Test: ValidOrigin.gameboard_with_no_pieces
+4/28 Testing: ValidOrigin.gameboard_with_no_pieces
+4/28 Test: ValidOrigin.gameboard_with_no_pieces
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.gameboard_with_no_pieces" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.gameboard_with_no_pieces" start time: May 24 14:47 CDT
+"ValidOrigin.gameboard_with_no_pieces" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = ValidOrigin.gameboard_with_no_pieces
@@ -100,15 +100,15 @@ Note: Google Test filter = ValidOrigin.gameboard_with_no_pieces
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.gameboard_with_no_pieces" end time: May 24 14:47 CDT
+"ValidOrigin.gameboard_with_no_pieces" end time: May 24 17:08 CDT
 "ValidOrigin.gameboard_with_no_pieces" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-5/19 Testing: ValidOrigin.test_p2_first_origin
-5/19 Test: ValidOrigin.test_p2_first_origin
+5/28 Testing: ValidOrigin.test_p2_first_origin
+5/28 Test: ValidOrigin.test_p2_first_origin
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidOrigin.test_p2_first_origin" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidOrigin.test_p2_first_origin" start time: May 24 14:47 CDT
+"ValidOrigin.test_p2_first_origin" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = ValidOrigin.test_p2_first_origin
@@ -126,15 +126,15 @@ Note: Google Test filter = ValidOrigin.test_p2_first_origin
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidOrigin.test_p2_first_origin" end time: May 24 14:47 CDT
+"ValidOrigin.test_p2_first_origin" end time: May 24 17:08 CDT
 "ValidOrigin.test_p2_first_origin" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-6/19 Testing: ValidDestination.with_friendly_piece
-6/19 Test: ValidDestination.with_friendly_piece
+6/28 Testing: ValidDestination.with_friendly_piece
+6/28 Test: ValidDestination.with_friendly_piece
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.with_friendly_piece" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.with_friendly_piece" start time: May 24 14:47 CDT
+"ValidDestination.with_friendly_piece" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = ValidDestination.with_friendly_piece
@@ -152,15 +152,15 @@ Note: Google Test filter = ValidDestination.with_friendly_piece
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.with_friendly_piece" end time: May 24 14:47 CDT
+"ValidDestination.with_friendly_piece" end time: May 24 17:08 CDT
 "ValidDestination.with_friendly_piece" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-7/19 Testing: ValidDestination.with_no_piece
-7/19 Test: ValidDestination.with_no_piece
+7/28 Testing: ValidDestination.with_no_piece
+7/28 Test: ValidDestination.with_no_piece
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.with_no_piece" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.with_no_piece" start time: May 24 14:47 CDT
+"ValidDestination.with_no_piece" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = ValidDestination.with_no_piece
@@ -178,15 +178,15 @@ Note: Google Test filter = ValidDestination.with_no_piece
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.with_no_piece" end time: May 24 14:47 CDT
+"ValidDestination.with_no_piece" end time: May 24 17:08 CDT
 "ValidDestination.with_no_piece" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-8/19 Testing: ValidDestination.with_enemy_blockade
-8/19 Test: ValidDestination.with_enemy_blockade
+8/28 Testing: ValidDestination.with_enemy_blockade
+8/28 Test: ValidDestination.with_enemy_blockade
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=ValidDestination.with_enemy_blockade" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"ValidDestination.with_enemy_blockade" start time: May 24 14:47 CDT
+"ValidDestination.with_enemy_blockade" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = ValidDestination.with_enemy_blockade
@@ -204,15 +204,15 @@ Note: Google Test filter = ValidDestination.with_enemy_blockade
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"ValidDestination.with_enemy_blockade" end time: May 24 14:47 CDT
+"ValidDestination.with_enemy_blockade" end time: May 24 17:08 CDT
 "ValidDestination.with_enemy_blockade" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-9/19 Testing: CapturePiece.singleBlotIsTakenAndJailed_via_tryMove
-9/19 Test: CapturePiece.singleBlotIsTakenAndJailed_via_tryMove
+9/28 Testing: CapturePiece.singleBlotIsTakenAndJailed_via_tryMove
+9/28 Test: CapturePiece.singleBlotIsTakenAndJailed_via_tryMove
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=CapturePiece.singleBlotIsTakenAndJailed_via_tryMove" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"CapturePiece.singleBlotIsTakenAndJailed_via_tryMove" start time: May 24 14:47 CDT
+"CapturePiece.singleBlotIsTakenAndJailed_via_tryMove" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = CapturePiece.singleBlotIsTakenAndJailed_via_tryMove
@@ -230,15 +230,15 @@ Note: Google Test filter = CapturePiece.singleBlotIsTakenAndJailed_via_tryMove
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"CapturePiece.singleBlotIsTakenAndJailed_via_tryMove" end time: May 24 14:47 CDT
+"CapturePiece.singleBlotIsTakenAndJailed_via_tryMove" end time: May 24 17:08 CDT
 "CapturePiece.singleBlotIsTakenAndJailed_via_tryMove" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-10/19 Testing: CapturePiece.cannotCaptureTwoOrMore_via_tryMove
-10/19 Test: CapturePiece.cannotCaptureTwoOrMore_via_tryMove
+10/28 Testing: CapturePiece.cannotCaptureTwoOrMore_via_tryMove
+10/28 Test: CapturePiece.cannotCaptureTwoOrMore_via_tryMove
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=CapturePiece.cannotCaptureTwoOrMore_via_tryMove" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"CapturePiece.cannotCaptureTwoOrMore_via_tryMove" start time: May 24 14:47 CDT
+"CapturePiece.cannotCaptureTwoOrMore_via_tryMove" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = CapturePiece.cannotCaptureTwoOrMore_via_tryMove
@@ -256,15 +256,15 @@ Note: Google Test filter = CapturePiece.cannotCaptureTwoOrMore_via_tryMove
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"CapturePiece.cannotCaptureTwoOrMore_via_tryMove" end time: May 24 14:47 CDT
+"CapturePiece.cannotCaptureTwoOrMore_via_tryMove" end time: May 24 17:08 CDT
 "CapturePiece.cannotCaptureTwoOrMore_via_tryMove" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-11/19 Testing: CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove
-11/19 Test: CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove
+11/28 Testing: CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove
+11/28 Test: CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove" start time: May 24 14:47 CDT
+"CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove
@@ -272,7 +272,6 @@ Note: Google Test filter = CapturePiece.invalidOrigin_with_jailed_piece_via_tryM
 [----------] Global test environment set-up.
 [----------] 1 test from CapturePiece
 [ RUN      ] CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove
-A has a jailed piece, origin must be 0!
 [       OK ] CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove (0 ms)
 [----------] 1 test from CapturePiece (0 ms total)
 
@@ -283,15 +282,15 @@ A has a jailed piece, origin must be 0!
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove" end time: May 24 14:47 CDT
+"CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove" end time: May 24 17:08 CDT
 "CapturePiece.invalidOrigin_with_jailed_piece_via_tryMove" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-12/19 Testing: TryMove.FreesJailedPieceAndPlacesOnBoard
-12/19 Test: TryMove.FreesJailedPieceAndPlacesOnBoard
+12/28 Testing: TryMove.FreesJailedPieceAndPlacesOnBoard
+12/28 Test: TryMove.FreesJailedPieceAndPlacesOnBoard
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=TryMove.FreesJailedPieceAndPlacesOnBoard" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"TryMove.FreesJailedPieceAndPlacesOnBoard" start time: May 24 14:47 CDT
+"TryMove.FreesJailedPieceAndPlacesOnBoard" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = TryMove.FreesJailedPieceAndPlacesOnBoard
@@ -309,15 +308,15 @@ Note: Google Test filter = TryMove.FreesJailedPieceAndPlacesOnBoard
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"TryMove.FreesJailedPieceAndPlacesOnBoard" end time: May 24 14:47 CDT
+"TryMove.FreesJailedPieceAndPlacesOnBoard" end time: May 24 17:08 CDT
 "TryMove.FreesJailedPieceAndPlacesOnBoard" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-13/19 Testing: TryMove.RejectsNonZeroOriginWhenJailed
-13/19 Test: TryMove.RejectsNonZeroOriginWhenJailed
+13/28 Testing: TryMove.RejectsNonZeroOriginWhenJailed
+13/28 Test: TryMove.RejectsNonZeroOriginWhenJailed
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=TryMove.RejectsNonZeroOriginWhenJailed" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"TryMove.RejectsNonZeroOriginWhenJailed" start time: May 24 14:47 CDT
+"TryMove.RejectsNonZeroOriginWhenJailed" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = TryMove.RejectsNonZeroOriginWhenJailed
@@ -325,7 +324,6 @@ Note: Google Test filter = TryMove.RejectsNonZeroOriginWhenJailed
 [----------] Global test environment set-up.
 [----------] 1 test from TryMove
 [ RUN      ] TryMove.RejectsNonZeroOriginWhenJailed
-Alice has a jailed piece, origin must be 0!
 [       OK ] TryMove.RejectsNonZeroOriginWhenJailed (0 ms)
 [----------] 1 test from TryMove (0 ms total)
 
@@ -336,15 +334,15 @@ Alice has a jailed piece, origin must be 0!
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"TryMove.RejectsNonZeroOriginWhenJailed" end time: May 24 14:47 CDT
+"TryMove.RejectsNonZeroOriginWhenJailed" end time: May 24 17:08 CDT
 "TryMove.RejectsNonZeroOriginWhenJailed" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-14/19 Testing: TryMove.NormalMoveWhenNoJail
-14/19 Test: TryMove.NormalMoveWhenNoJail
+14/28 Testing: TryMove.NormalMoveWhenNoJail
+14/28 Test: TryMove.NormalMoveWhenNoJail
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=TryMove.NormalMoveWhenNoJail" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"TryMove.NormalMoveWhenNoJail" start time: May 24 14:47 CDT
+"TryMove.NormalMoveWhenNoJail" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = TryMove.NormalMoveWhenNoJail
@@ -362,15 +360,15 @@ Note: Google Test filter = TryMove.NormalMoveWhenNoJail
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"TryMove.NormalMoveWhenNoJail" end time: May 24 14:47 CDT
+"TryMove.NormalMoveWhenNoJail" end time: May 24 17:08 CDT
 "TryMove.NormalMoveWhenNoJail" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-15/19 Testing: GameOver.detects_winner
-15/19 Test: GameOver.detects_winner
+15/28 Testing: GameOver.detects_winner
+15/28 Test: GameOver.detects_winner
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=GameOver.detects_winner" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"GameOver.detects_winner" start time: May 24 14:47 CDT
+"GameOver.detects_winner" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = GameOver.detects_winner
@@ -388,15 +386,15 @@ Note: Google Test filter = GameOver.detects_winner
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"GameOver.detects_winner" end time: May 24 14:47 CDT
+"GameOver.detects_winner" end time: May 24 17:08 CDT
 "GameOver.detects_winner" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-16/19 Testing: GameOver.DetectsPlayer1Winner
-16/19 Test: GameOver.DetectsPlayer1Winner
+16/28 Testing: GameOver.DetectsPlayer1Winner
+16/28 Test: GameOver.DetectsPlayer1Winner
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=GameOver.DetectsPlayer1Winner" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"GameOver.DetectsPlayer1Winner" start time: May 24 14:47 CDT
+"GameOver.DetectsPlayer1Winner" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = GameOver.DetectsPlayer1Winner
@@ -414,15 +412,15 @@ Note: Google Test filter = GameOver.DetectsPlayer1Winner
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"GameOver.DetectsPlayer1Winner" end time: May 24 14:47 CDT
+"GameOver.DetectsPlayer1Winner" end time: May 24 17:08 CDT
 "GameOver.DetectsPlayer1Winner" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-17/19 Testing: GameOver.DetectsPlayer2Winner
-17/19 Test: GameOver.DetectsPlayer2Winner
+17/28 Testing: GameOver.DetectsPlayer2Winner
+17/28 Test: GameOver.DetectsPlayer2Winner
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=GameOver.DetectsPlayer2Winner" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"GameOver.DetectsPlayer2Winner" start time: May 24 14:47 CDT
+"GameOver.DetectsPlayer2Winner" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = GameOver.DetectsPlayer2Winner
@@ -440,15 +438,15 @@ Note: Google Test filter = GameOver.DetectsPlayer2Winner
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"GameOver.DetectsPlayer2Winner" end time: May 24 14:47 CDT
+"GameOver.DetectsPlayer2Winner" end time: May 24 17:08 CDT
 "GameOver.DetectsPlayer2Winner" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-18/19 Testing: FreeingPiece.CannotFreeWhenNotInHomeOrJailed
-18/19 Test: FreeingPiece.CannotFreeWhenNotInHomeOrJailed
+18/28 Testing: FreeingPiece.CannotFreeWhenNotInHomeOrJailed
+18/28 Test: FreeingPiece.CannotFreeWhenNotInHomeOrJailed
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=FreeingPiece.CannotFreeWhenNotInHomeOrJailed" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"FreeingPiece.CannotFreeWhenNotInHomeOrJailed" start time: May 24 14:47 CDT
+"FreeingPiece.CannotFreeWhenNotInHomeOrJailed" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = FreeingPiece.CannotFreeWhenNotInHomeOrJailed
@@ -466,15 +464,15 @@ Note: Google Test filter = FreeingPiece.CannotFreeWhenNotInHomeOrJailed
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"FreeingPiece.CannotFreeWhenNotInHomeOrJailed" end time: May 24 14:47 CDT
+"FreeingPiece.CannotFreeWhenNotInHomeOrJailed" end time: May 24 17:08 CDT
 "FreeingPiece.CannotFreeWhenNotInHomeOrJailed" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-19/19 Testing: FreeingPiece.CanFreeWhenEligible
-19/19 Test: FreeingPiece.CanFreeWhenEligible
+19/28 Testing: FreeingPiece.CanFreeWhenEligible
+19/28 Test: FreeingPiece.CanFreeWhenEligible
 Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=FreeingPiece.CanFreeWhenEligible" "--gtest_also_run_disabled_tests"
 Directory: /Users/romanos/Backgammon_Engine/build
-"FreeingPiece.CanFreeWhenEligible" start time: May 24 14:47 CDT
+"FreeingPiece.CanFreeWhenEligible" start time: May 24 17:08 CDT
 Output:
 ----------------------------------------------------------
 Note: Google Test filter = FreeingPiece.CanFreeWhenEligible
@@ -492,8 +490,242 @@ Note: Google Test filter = FreeingPiece.CanFreeWhenEligible
 Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"FreeingPiece.CanFreeWhenEligible" end time: May 24 14:47 CDT
+"FreeingPiece.CanFreeWhenEligible" end time: May 24 17:08 CDT
 "FreeingPiece.CanFreeWhenEligible" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: May 24 14:47 CDT
+20/28 Testing: LegalMoves.InitialP1Die1
+20/28 Test: LegalMoves.InitialP1Die1
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalMoves.InitialP1Die1" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalMoves.InitialP1Die1" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalMoves.InitialP1Die1
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalMoves
+[ RUN      ] LegalMoves.InitialP1Die1
+[       OK ] LegalMoves.InitialP1Die1 (0 ms)
+[----------] 1 test from LegalMoves (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalMoves.InitialP1Die1" end time: May 24 17:08 CDT
+"LegalMoves.InitialP1Die1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/28 Testing: LegalMoves.InitialP2Die1
+21/28 Test: LegalMoves.InitialP2Die1
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalMoves.InitialP2Die1" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalMoves.InitialP2Die1" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalMoves.InitialP2Die1
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalMoves
+[ RUN      ] LegalMoves.InitialP2Die1
+[       OK ] LegalMoves.InitialP2Die1 (0 ms)
+[----------] 1 test from LegalMoves (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalMoves.InitialP2Die1" end time: May 24 17:08 CDT
+"LegalMoves.InitialP2Die1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/28 Testing: LegalMoves.P1Die5Blocked
+22/28 Test: LegalMoves.P1Die5Blocked
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalMoves.P1Die5Blocked" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalMoves.P1Die5Blocked" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalMoves.P1Die5Blocked
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalMoves
+[ RUN      ] LegalMoves.P1Die5Blocked
+[       OK ] LegalMoves.P1Die5Blocked (0 ms)
+[----------] 1 test from LegalMoves (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalMoves.P1Die5Blocked" end time: May 24 17:08 CDT
+"LegalMoves.P1Die5Blocked" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/28 Testing: LegalMoves.JailedP1NoMoveIfBlocked
+23/28 Test: LegalMoves.JailedP1NoMoveIfBlocked
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalMoves.JailedP1NoMoveIfBlocked" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalMoves.JailedP1NoMoveIfBlocked" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalMoves.JailedP1NoMoveIfBlocked
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalMoves
+[ RUN      ] LegalMoves.JailedP1NoMoveIfBlocked
+[       OK ] LegalMoves.JailedP1NoMoveIfBlocked (0 ms)
+[----------] 1 test from LegalMoves (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalMoves.JailedP1NoMoveIfBlocked" end time: May 24 17:08 CDT
+"LegalMoves.JailedP1NoMoveIfBlocked" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/28 Testing: LegalMoves.JailedP1BarExit
+24/28 Test: LegalMoves.JailedP1BarExit
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalMoves.JailedP1BarExit" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalMoves.JailedP1BarExit" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalMoves.JailedP1BarExit
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalMoves
+[ RUN      ] LegalMoves.JailedP1BarExit
+[       OK ] LegalMoves.JailedP1BarExit (0 ms)
+[----------] 1 test from LegalMoves (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalMoves.JailedP1BarExit" end time: May 24 17:08 CDT
+"LegalMoves.JailedP1BarExit" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/28 Testing: LegalTurnSeq.NonDoublesP1
+25/28 Test: LegalTurnSeq.NonDoublesP1
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalTurnSeq.NonDoublesP1" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalTurnSeq.NonDoublesP1" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalTurnSeq.NonDoublesP1
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalTurnSeq
+[ RUN      ] LegalTurnSeq.NonDoublesP1
+[       OK ] LegalTurnSeq.NonDoublesP1 (0 ms)
+[----------] 1 test from LegalTurnSeq (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalTurnSeq.NonDoublesP1" end time: May 24 17:08 CDT
+"LegalTurnSeq.NonDoublesP1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/28 Testing: LegalTurnSeq.NonDoublesP2
+26/28 Test: LegalTurnSeq.NonDoublesP2
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalTurnSeq.NonDoublesP2" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalTurnSeq.NonDoublesP2" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalTurnSeq.NonDoublesP2
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalTurnSeq
+[ RUN      ] LegalTurnSeq.NonDoublesP2
+[       OK ] LegalTurnSeq.NonDoublesP2 (0 ms)
+[----------] 1 test from LegalTurnSeq (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalTurnSeq.NonDoublesP2" end time: May 24 17:08 CDT
+"LegalTurnSeq.NonDoublesP2" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/28 Testing: LegalTurnSeq.DoublesP1
+27/28 Test: LegalTurnSeq.DoublesP1
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalTurnSeq.DoublesP1" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalTurnSeq.DoublesP1" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalTurnSeq.DoublesP1
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalTurnSeq
+[ RUN      ] LegalTurnSeq.DoublesP1
+[       OK ] LegalTurnSeq.DoublesP1 (0 ms)
+[----------] 1 test from LegalTurnSeq (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalTurnSeq.DoublesP1" end time: May 24 17:08 CDT
+"LegalTurnSeq.DoublesP1" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/28 Testing: LegalTurnSeq.Immutability
+28/28 Test: LegalTurnSeq.Immutability
+Command: "/Users/romanos/Backgammon_Engine/build/backgammon_tests" "--gtest_filter=LegalTurnSeq.Immutability" "--gtest_also_run_disabled_tests"
+Directory: /Users/romanos/Backgammon_Engine/build
+"LegalTurnSeq.Immutability" start time: May 24 17:08 CDT
+Output:
+----------------------------------------------------------
+Note: Google Test filter = LegalTurnSeq.Immutability
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from LegalTurnSeq
+[ RUN      ] LegalTurnSeq.Immutability
+[       OK ] LegalTurnSeq.Immutability (0 ms)
+[----------] 1 test from LegalTurnSeq (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"LegalTurnSeq.Immutability" end time: May 24 17:08 CDT
+"LegalTurnSeq.Immutability" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: May 24 17:08 CDT

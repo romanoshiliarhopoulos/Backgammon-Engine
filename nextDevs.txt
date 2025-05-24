@@ -8,3 +8,5 @@ NEXT DEVELOPMENTS
 - when exaporto skip the other player's turn
 
  - START ML!!!!!
+
+

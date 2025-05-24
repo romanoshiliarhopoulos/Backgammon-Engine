@@ -231,7 +231,14 @@ TEST(FreeingPiece, CanFreeWhenEligible)
     game.gameboard[18] = 1;
 
     // No jailed pieces, and only home region occupied
-    EXPECT_TRUE(game.isValidDestination(+1, 0));
+    EXPECT_TRUE(game.isValidDestination(1, 0));
+    // FIXED: Validation functions should NOT modify state
+    EXPECT_EQ(game.pieces.numFreed(Player::PLAYER1), 0);
+
+    // To actually free a piece, you need to call tryMove()
+    std::string err;
+    bool ok = game.tryMove(&p1, 6, 19, 25, err);
+    EXPECT_TRUE(ok) << err;
     EXPECT_EQ(game.pieces.numFreed(Player::PLAYER1), 1);
 }
 
@@ -264,6 +271,132 @@ TEST(GameOver, DetectsPlayer2Winner)
     EXPECT_EQ(winner, Player::PLAYER2);
 }
 
+// Helpers to compare sequences
+static bool containsSequence(
+    const vector<vector<pair<int, int>>> &seqs,
+    const vector<pair<int, int>> &target)
+{
+    for (auto &s : seqs)
+    {
+        if (s == target)
+            return true;
+    }
+    return false;
+}
+
+TEST(LegalMoves, InitialP1Die1)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    auto moves = game.legalMoves(Player::PLAYER1, 1);
+    // Should have three legal single‑pip moves: 1→2, 17→18, 19→20
+    ASSERT_EQ(moves.size(), 3);
+    EXPECT_TRUE(std::find(moves.begin(), moves.end(), std::make_pair(1, 2)) != moves.end());
+    EXPECT_TRUE(std::find(moves.begin(), moves.end(), std::make_pair(17, 18)) != moves.end());
+    EXPECT_TRUE(std::find(moves.begin(), moves.end(), std::make_pair(19, 20)) != moves.end());
+}
+
+TEST(LegalMoves, InitialP2Die1)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    auto moves = game.legalMoves(Player::PLAYER2, 1);
+    // Should have three legal single‑pip moves: 6→5, 8→7, 24→23
+    ASSERT_EQ(moves.size(), 3);
+    EXPECT_TRUE(std::find(moves.begin(), moves.end(), std::make_pair(6, 5)) != moves.end());
+    EXPECT_TRUE(std::find(moves.begin(), moves.end(), std::make_pair(8, 7)) != moves.end());
+    EXPECT_TRUE(std::find(moves.begin(), moves.end(), std::make_pair(24, 23)) != moves.end());
+}
+
+TEST(LegalMoves, P1Die5Blocked)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    auto moves = game.legalMoves(Player::PLAYER1, 5);
+    // At launch, P1 has two legal 5‑pip moves: 12→17 and 17→22
+    ASSERT_EQ(moves.size(), 2);
+    EXPECT_TRUE(std::find(moves.begin(), moves.end(), std::make_pair(12, 17)) != moves.end());
+    EXPECT_TRUE(std::find(moves.begin(), moves.end(), std::make_pair(17, 22)) != moves.end());
+}
+
+TEST(LegalMoves, JailedP1NoMoveIfBlocked)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    game.getPieces().addJailedPiece(Player::PLAYER1);
+    auto moves = game.legalMoves(Player::PLAYER1, 6);
+    EXPECT_TRUE(moves.empty());
+}
+
+TEST(LegalMoves, JailedP1BarExit)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    game.getPieces().addJailedPiece(Player::PLAYER1);
+    auto moves = game.legalMoves(Player::PLAYER1, 5);
+    ASSERT_EQ(moves.size(), 1);
+    EXPECT_EQ(moves[0], make_pair(0, 5));
+}
+
+TEST(LegalTurnSeq, NonDoublesP1)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    auto seqs = game.legalTurnSequences(Player::PLAYER1, 1, 2);
+    // expect two sequences: {1->2,2->4} and {1->3,3->4}
+    EXPECT_TRUE(containsSequence(seqs, {{1, 2}, {2, 4}}));
+    EXPECT_TRUE(containsSequence(seqs, {{1, 3}, {3, 4}}));
+}
+
+TEST(LegalTurnSeq, NonDoublesP2)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    auto seqs = game.legalTurnSequences(Player::PLAYER2, 1, 2);
+    EXPECT_TRUE(containsSequence(seqs, {{6, 5}, {5, 3}}));
+    EXPECT_TRUE(containsSequence(seqs, {{6, 4}, {4, 3}}));
+}
+
+TEST(LegalTurnSeq, DoublesP1)
+{
+    Game game(0);
+    Player p1("X", Player::PLAYER1), p2("Y", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+
+    auto seqs = game.legalTurnSequences(Player::PLAYER1, 1, 1);
+
+    // Test that we get a reasonable number of sequences (should be > 81)
+    EXPECT_GT(seqs.size(), 81);
+    EXPECT_LT(seqs.size(), 1000); // Some reasonable upper bound
+
+    // Test for a valid sequence - four moves from point 19 to 20
+    vector<pair<int, int>> target(4, {19, 20});
+    EXPECT_TRUE(std::find(seqs.begin(), seqs.end(), target) != seqs.end());
+
+    // Test that all sequences have exactly 4 moves
+    for (const auto &seq : seqs)
+    {
+        EXPECT_EQ(seq.size(), 4);
+    }
+}
+
+TEST(LegalTurnSeq, Immutability)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    auto before = game.getGameBoard();
+    auto seqs = game.legalTurnSequences(Player::PLAYER1, 1, 2);
+    auto after = game.getGameBoard();
+    EXPECT_EQ(before, after);
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
