@@ -24,7 +24,6 @@ public:
     int turn;
 
 public:
-    
     // constructor
     Game(int player);
 
@@ -35,25 +34,31 @@ public:
     void setTurn(int turn);
     int getTurn();
 
-    vector<int> getGame();
+    vector<int> getGameBoard();
 
     /// @brief prints the gameboard of the current game instance
     void printGameBoard();
 
-    /// @brief erases the current gameboard from the terminal
-    void clearGameboard();
-
     // assesses wether a player has won and the game is over
-    bool over();
+    bool over(int *player);
 
     // sets the current players
     void setPlayers(Player *p1, Player *p2);
 
-    // called within the game loop, to make a move on the pieces....
-    void movePieces(Player *currentPlayer, int dice1, int dice2);
+    bool movePieces(Player *currentPlayer,
+                    int diceValue,
+                    const std::array<std::pair<int, int>, 4> &moves,
+                    std::string &err);
 
-    void moveOne(Player *currentPlayer, int dice);
+    bool tryMove(Player *currentPlayer,
+                 int dice,
+                 int origin,      // 0..24 as before
+                 int destination, // 1..24
+                 std::string &err);
+
     // helper functions for movePieces
     bool isValidOrigin(int multi, int idx);
     bool isValidDestination(int multi, int idx);
+
+    bool canFreePiece(int player);
 };

@@ -1,17 +1,19 @@
-/*main.cpp*/
+// main.cpp
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <stdint.h>
+#include <cstdlib> // for arc4random_uniform
+#include <array>
+#include <utility>
+#include <string>
 
 #include "game.hpp"
 
 using namespace std;
 
-#include <iostream>
 void printBanner()
 {
-    std::cout << R"(
+    cout << R"(
 ·············································································
 : ____    _    ____ _  ______    _    __  __ __  __  ___  _   _             :
 :| __ )  / \  / ___| |/ / ___|  / \  |  \/  |  \/  |/ _ \| \ | |            :
@@ -19,129 +21,195 @@ void printBanner()
 :| |_) / ___ | |___| . | |_| |/ ___ \| |  | | |  | | |_| | |\  |  _   _   _ :
 :|____/_/   \_\____|_|\_\____/_/   \_|_|  |_|_|  |_|\___/|_| \_| (_) (_) (_):
 ·············································································
-)" << std::endl;
+)" << endl;
 }
 
 int rollDice()
 {
-    // returns a number between 1 and 6
-
+    // original logic: returns 1..5
     return arc4random_uniform(5) + 1;
+}
+
+/// Prompt for two ints (origin, destination) on one line.
+pair<int, int> promptPair(const string &prompt)
+{
+    int o, d;
+    cout << prompt << " (origin dest): ";
+    cin >> o >> d;
+    return {o, d};
+}
+
+/// Ask which die to play first; only accepts a==d1 or a==d2.
+int promptDieChoice(int d1, int d2)
+{
+    int c;
+    cout << "Choose which die to play first (" << d1 << " or " << d2 << "): ";
+    cin >> c;
+    while (c != d1 && c != d2)
+    {
+        cout << "Invalid.  Enter " << d1 << " or " << d2 << ": ";
+        cin >> c;
+    }
+    return c;
 }
 
 int main()
 {
     printBanner();
-    Game game = Game(4);
+    Game game(4);
+    int playerWon = -1;
+    string p1_name, p2_name;
 
-    // for the main game loop
     while (true)
     {
-        string p1_name;
-        string p2_name;
+        // —— set up players ——
+
         cout << "Enter a name for Player 1: ";
         cin >> p1_name;
         cout << "Enter a name for Player 2: ";
         cin >> p2_name;
         while (p1_name == p2_name)
         {
-            cout << "Names must be different: ";
+            cout << "Names must be different.  Enter Player 2 name: ";
             cin >> p2_name;
         }
         cout << endl;
 
-        // create the player objects
-        Player p1(p1_name, 0);
-        Player p2(p2_name, 1);
-        game.setPlayers(&p1, &p2); // pass the players onto the game class
+        Player p1(p1_name, Player::PLAYER1), p2(p2_name, Player::PLAYER2);
+        game.setPlayers(&p1, &p2);
 
-        // starting the mechanics of the game
-        Player *p1_addr = &p1;
-        Player *p2_addr = &p2;
-
-        Player *current_player;
-
-        // Rolling the dice to determine who goes first
-        string response = "o";
-        while (response != "r")
+        // —— decide who goes first ——
+        cout << "Press r for both to roll a dice: ";
+        string rollBoth;
+        cin >> rollBoth;
+        while (rollBoth != "r")
         {
-            cout << "Press r for both to roll a dice: ";
-            cin >> response;
+            cout << "Press r to roll: ";
+            cin >> rollBoth;
         }
-        int p1_dice = rollDice();
-        int p2_dice = rollDice();
-        while (p2_dice == p1_dice)
-        {
-            // roll again,
-            p1_dice = rollDice();
-            p2_dice = rollDice();
-        }
-        cout << p1.getName() << " rolled a: " << p1_dice << ", " << p2.getName() << " rolled a: " << p2_dice << ". ";
 
-        if (p1_dice > p2_dice)
+        int p1_roll = rollDice(), p2_roll = rollDice();
+        while (p1_roll == p2_roll)
         {
-            // p1 goes first
-            current_player = p1_addr;
-            cout << current_player->getName() << " goes first!" << endl;
+            p1_roll = rollDice();
+            p2_roll = rollDice();
+        }
+
+        Player *current_player = nullptr;
+        if (p1_roll > p2_roll)
+        {
+            cout << p1.getName() << " rolled " << p1_roll
+                 << ", " << p2.getName() << " rolled " << p2_roll
+                 << ". " << p1.getName() << " goes first!\n";
             game.setTurn(Player::PLAYER1);
+            current_player = &p1;
         }
         else
         {
-            // p2 goes first
-            current_player = p2_addr;
-            cout << current_player->getName() << " goes first!" << endl;
+            cout << p1.getName() << " rolled " << p1_roll
+                 << ", " << p2.getName() << " rolled " << p2_roll
+                 << ". " << p2.getName() << " goes first!\n";
             game.setTurn(Player::PLAYER2);
+            current_player = &p2;
         }
-        string responseStrart;
-        cout << "Press s to start or q to quit ... \n";
-        cin >> responseStrart;
-        while (responseStrart != "s" && responseStrart != "q")
+
+        cout << "Press s to start or q to quit ... ";
+        string startOrQuit;
+        cin >> startOrQuit;
+        while (startOrQuit != "s" && startOrQuit != "q")
         {
-            cout << "Press s to start or q to quit ...";
-            cin >> responseStrart;
+            cout << "Press s to start or q to quit ... ";
+            cin >> startOrQuit;
         }
-        if (responseStrart == "q")
-        {
+        if (startOrQuit == "q")
             return 0;
-        }
 
         cout << "\n*-------------------------------------------------*" << endl;
-        // for the game mechanics . . .
 
-        while (!game.over())
+        // —— main turn loop ——
+        while (!game.over(&playerWon))
         {
             game.printGameBoard();
+
+            // roll once per turn
             cout << "Turn: " << current_player->getName() << ". Press r to roll: ";
-            string input;
-            cin >> input;
-            while (input != "r")
+            string rollNow;
+            cin >> rollNow;
+            while (rollNow != "r")
             {
-                cout << "\nPress r to roll:";
-                cin >> input;
+                cout << "Press r to roll: ";
+                cin >> rollNow;
             }
-            int dice1 = rollDice();
-            int dice2 = rollDice();
-            // player rolls both dice first
+            int d1 = rollDice(), d2 = rollDice();
+            cout << "Dice: " << d1 << ", " << d2 << endl;
 
-            // output the roll:
-            cout << "Dice: " << dice1 << ", Dice: " << dice2 << endl;
-            game.movePieces(current_player, dice1, dice2);
+            // play dice until succesful move is completed
+            bool turnDone = false;
+            while (!turnDone)
+            {
+                string err;
 
-            if (current_player == p1_addr)
-            {
-                // next player must be p2
-                current_player = p2_addr;
+                if (d1 != d2)
+                {
+                    // two‑move case
+                    int first = promptDieChoice(d1, d2);
+                    int second = (first == d1 ? d2 : d1);
+
+                    // first move
+                    auto [o1, dest1] = promptPair("Move for die " + to_string(first));
+                    if (!game.tryMove(current_player, first, o1, dest1, err))
+                    {
+                        cout << "Error: " << err << "\n";
+                        continue; // back to while(!turnDone) with same d1/d2
+                    }
+                    game.printGameBoard();
+
+                    // second move
+                    auto [o2, dest2] = promptPair("Move for die " + to_string(second));
+                    if (!game.tryMove(current_player, second, o2, dest2, err))
+                    {
+                        cout << "Error: " << err << "\n";
+                        continue; // back to while(!turnDone), same dice
+                    }
+                    game.printGameBoard();
+                    turnDone = true; // both moves succeeded
+                }
+                else
+                {
+                    // doubles: four moves
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        auto [o, dst] = promptPair(
+                            "Move " + to_string(i + 1) + " of 4 (die=" + to_string(d1) + ")");
+                        if (!game.tryMove(current_player, d1, o, dst, err))
+                        {
+                            cout << "Error: " << err << "\n";
+                            --i; // retry this same sub‑move
+                            continue;
+                        }
+                        game.printGameBoard();
+                    }
+                    turnDone = true;
+                }
             }
-            else
-            {
-                current_player = p1_addr;
-            }
+
+            // swap players once turnDone == true
+            current_player = (current_player == &p1 ? &p2 : &p1);
         }
 
-        break;
+        break; // exit after someone wins
     }
-    game.printGameBoard();
-    game.clearGameboard(); // works!
+
+    // final board redraw
+    game.over(&playerWon);
+    if (playerWon == Player::PLAYER1)
+    {
+        cout << p1_name << " WON!!!!" << endl;
+    }
+    else
+    {
+        cout << p2_name << " WON!!!!" << endl;
+    }
     game.printGameBoard();
     return 0;
 }
