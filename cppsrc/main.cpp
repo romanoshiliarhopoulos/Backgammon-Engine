@@ -204,11 +204,11 @@ int main()
     game.over(&playerWon);
     if (playerWon == Player::PLAYER1)
     {
-        cout << p1_name.getName << " WON!!!!" << endl;
+        cout << p1_name << " WON!!!!" << endl;
     }
     else
     {
-        cout << p2_name.getName << " WON!!!!" << endl;
+        cout << p2_name << " WON!!!!" << endl;
     }
     game.printGameBoard();
     return 0;
