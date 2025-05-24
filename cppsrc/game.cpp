@@ -24,6 +24,11 @@ void Game::setTurn(int player)
     this->turn = player;
 }
 
+vector<int> Game::getGameBoard()
+{
+    return this->gameboard;
+}
+
 /// @brief Mutates the gameBoard to correctly populate board. Player 1 positive, Player2 negative
 void Game::populateBoard()
 {
@@ -170,30 +175,20 @@ void Game::printGameBoard()
          << endl;
 }
 
-void Game::clearGameboard()
-{
-
-    int gameboardLines = 21;
-
-    // Move cursor up by exact number of lines in the board
-    std::cout << "\033[" << gameboardLines << "A";
-
-    // Move cursor to beginning of that line
-    std::cout << "\r" << std::flush;
-}
-
 // assesses wether a player has won and the game is over...
-bool Game::over()
+bool Game::over(int *player)
 {
     Pieces pieces = this->pieces;
 
     // evaluating if player 1 has won. Condition: all their pieces are freed
     if (pieces.numFreed(0) == 15)
     {
+        *player = 0;
         return true; // player 1 wins
     }
     else if (pieces.numFreed(1) == 15)
     {
+        *player = 1;
         return true; // player 2 wins
     }
     else
@@ -275,124 +270,65 @@ bool Game::isValidDestination(int multi, int idx)
         return false;
     }
 }
-void Game::moveOne(Player *currentPlayer, int dice)
+
+bool Game::movePieces(Player *currentPlayer,
+                      int diceValue,
+                      const std::array<std::pair<int, int>, 4> &moves,
+                      std::string &err)
 {
-    int multi = 1; // used to convert all pieces in array to the same sign for operations.
-    // first we want to determine wether its player one or player two
-    if (currentPlayer == this->p2)
+    for (auto [o, d] : moves)
     {
-        // if the pointers are same
-        multi = -1;
+        if (!tryMove(currentPlayer, diceValue, o, d, err))
+            return false;
+        printGameBoard();
     }
-    while (true)
-    {
-
-        cout << "Origin (" << dice << "): ";
-        int index_before_move;
-        cin >> index_before_move;
-
-        bool validO = isValidOrigin(multi, index_before_move);
-        if (!validO)
-        {
-            // this player has no pieces there!!!
-            cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index: \n";
-            continue;
-        }
-        cout << "Destination: ";
-        int index_to_move_to;
-        cin >> index_to_move_to;
-
-        int difference = index_before_move - index_to_move_to;
-
-        if (difference * (-multi) < 0)
-        {
-            cout << "Player: " << currentPlayer->getName() << " CANNOT MOVE IN THAT DIRECTION: \n";
-            continue;
-        }
-        if (dice != (abs(difference)))
-        {
-            cout << "Player: " << currentPlayer->getName() << " ENTER A MOVE ACCORDING TO UR DIE: \n";
-            continue;
-        }
-
-        bool validD = isValidDestination(multi, index_to_move_to);
-        if (!validD)
-        {
-            // this player has no pieces there!!!
-            cout << "Player: " << currentPlayer->getName() << " has no piece there, enter index:\n";
-            continue;
-        }
-
-        // add support to jailed piece freeing... also need to account for case where piece cannot be freed
-        if (index_before_move == 0)
-        {
-            // exiting from jail: remove from the correct player's jail
-            if (multi == +1)
-            {
-                pieces.removeJailedPiece(Player::PLAYER1);
-            }
-            else
-            {
-                pieces.removeJailedPiece(Player::PLAYER2);
-            }
-            // place that checker on the board
-            this->gameboard[index_to_move_to - 1] += multi;
-            return;
-        }
-
-        // by this point we have correct origin and destination indeces
-
-        // update the gameboard!!!!
-        index_before_move--;
-        index_to_move_to--;
-        // move the peices by changing the gameboard values
-        this->gameboard[index_before_move] -= multi;
-        this->gameboard[index_to_move_to] += multi;
-        return;
-    }
+    return true;
 }
 
-void Game::movePieces(Player *currentPlayer, int dice1, int dice2)
+bool Game::tryMove(Player *currentPlayer,
+                   int dice,
+                   int origin,
+                   int destination,
+                   std::string &err)
 {
-    if (dice1 != dice2)
+    int multi = (currentPlayer == p2) ? -1 : +1;
+
+    // jailed‑piece checks:
+    if (!isValidOrigin(multi, origin))
     {
-        // ask the user which die to use first
-        cout << "Choose which die to play first (" << dice1 << " or " << dice2 << "): ";
-        int choice;
-        cin >> choice;
+        err = "You have a jailed piece; origin must be 0.";
+        return false;
+    }
 
-        int firstDice, secondDice;
-        if (choice == dice1)
-        {
-            firstDice = dice1;
-            secondDice = dice2;
-        }
-        else if (choice == dice2)
-        {
-            firstDice = dice2;
-            secondDice = dice1;
-        }
-        else
-        {
-            cout << "Invalid choice; defaulting to " << dice1
-                 << " then " << dice2 << ".\n";
-            firstDice = dice1;
-            secondDice = dice2;
-        }
+    int diff = origin - destination;
+    if (diff * (-multi) < 0)
+    {
+        err = "Cannot move in that direction.";
+        return false;
+    }
+    if (dice != std::abs(diff))
+    {
+        err = "Move does not match dice.";
+        return false;
+    }
+    if (!isValidDestination(multi, destination))
+    {
+        err = "Destination blocked by opponent.";
+        return false;
+    }
 
-        // perform the two moves in the chosen order
-        moveOne(currentPlayer, firstDice);
-        printGameBoard();
-        moveOne(currentPlayer, secondDice);
-        printGameBoard();
+    // perform the move
+    if (origin == 0)
+    {
+        // freeing from jail
+        pieces.removeJailedPiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);
+        this->gameboard[destination - 1] += multi;
     }
     else
     {
-        // doubles: four moves of `dice1`
-        for (int k = 0; k < 4; k++)
-        {
-            moveOne(currentPlayer, dice1);
-            printGameBoard();
-        }
+        this->gameboard[origin - 1] -= multi;
+        this->gameboard[destination - 1] += multi;
     }
+
+    return true;
 }

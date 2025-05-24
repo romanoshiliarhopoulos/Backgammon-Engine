@@ -218,3 +218,4 @@ TEST(MoveOne, NormalMoveWhenNoJail)
     // jail count stays zero
     EXPECT_EQ(game.pieces.numJailed(Player::PLAYER1), 0);
 }
+
