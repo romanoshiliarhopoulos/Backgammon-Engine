@@ -302,11 +302,21 @@ FETCHCONTENT_QUIET:BOOL=ON
 // for googletest
 FETCHCONTENT_SOURCE_DIR_GOOGLETEST:PATH=
 
+//When not empty, overrides where to find pre-populated content
+// for pybind11
+FETCHCONTENT_SOURCE_DIR_PYBIND11:PATH=
+
 //Enables UPDATE_DISCONNECTED behavior for all content population
 FETCHCONTENT_UPDATES_DISCONNECTED:BOOL=OFF
 
 //Enables UPDATE_DISCONNECTED behavior just for population of googletest
 FETCHCONTENT_UPDATES_DISCONNECTED_GOOGLETEST:BOOL=OFF
+
+//Enables UPDATE_DISCONNECTED behavior just for population of pybind11
+FETCHCONTENT_UPDATES_DISCONNECTED_PYBIND11:BOOL=OFF
+
+//Git command line client
+GIT_EXECUTABLE:FILEPATH=/usr/local/bin/git
 
 //Use Abseil and RE2. Requires Abseil and RE2 to be separately
 // added to the build.
@@ -315,6 +325,47 @@ GTEST_HAS_ABSL:BOOL=OFF
 //Enable installation of googletest. (Projects embedding googletest
 // may want to turn this OFF.)
 INSTALL_GTEST:BOOL=ON
+
+//Force new FindPython
+PYBIND11_FINDPYTHON:BOOL=OFF
+
+//Install pybind11 header files?
+PYBIND11_INSTALL:BOOL=OFF
+
+//Override the ABI version, may be used to enable the unstable
+// ABI.
+PYBIND11_INTERNALS_VERSION:STRING=
+
+//Disable search for Python
+PYBIND11_NOPYTHON:BOOL=OFF
+
+//Overwrite cached values read from Python library (classic search).
+// Turn off if cross-compiling and manually setting these values.
+PYBIND11_PYTHONLIBS_OVERWRITE:BOOL=ON
+
+//Python version to use for compiling modules
+PYBIND11_PYTHON_VERSION:STRING=
+
+//Use simpler GIL management logic that does not support disassociation
+PYBIND11_SIMPLE_GIL_MANAGEMENT:BOOL=OFF
+
+//Build pybind11 test suite?
+PYBIND11_TEST:BOOL=OFF
+
+//Path to a program.
+PYTHON_EXECUTABLE:FILEPATH=/Users/romanos/miniconda3/python.app/Contents/MacOS/python
+
+//Path to a library.
+PYTHON_LIBRARY:FILEPATH=/Users/romanos/miniconda3/lib/libpython3.10.dylib
+
+//Value Computed by CMake
+Project_BINARY_DIR:STATIC=/Users/romanos/Backgammon_Engine/build
+
+//Value Computed by CMake
+Project_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+Project_SOURCE_DIR:STATIC=/Users/romanos/Backgammon_Engine
 
 //Value Computed by CMake
 gmock_BINARY_DIR:STATIC=/Users/romanos/Backgammon_Engine/build/_deps/googletest-build/googlemock
@@ -370,6 +421,18 @@ gtest_hide_internal_symbols:BOOL=OFF
 
 //Dependencies for the target
 gtest_main_LIB_DEPENDS:STATIC=general;gtest;
+
+//Value Computed by CMake
+pybind11_BINARY_DIR:STATIC=/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build
+
+//The directory containing a CMake configuration file for pybind11.
+pybind11_DIR:PATH=pybind11_DIR-NOTFOUND
+
+//Value Computed by CMake
+pybind11_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+pybind11_SOURCE_DIR:STATIC=/Users/romanos/Backgammon_Engine/build/_deps/pybind11-src
 
 
 ########################
@@ -506,7 +569,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=4
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=5
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -551,21 +614,46 @@ CMAKE_TAPI-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//Details about finding PYTHON
+FIND_PACKAGE_MESSAGE_DETAILS_PYTHON:INTERNAL=/Users/romanos/miniconda3/python.app/Contents/MacOS/python3.10.13
 //Details about finding Python
-FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/Users/romanos/miniconda3/bin/python3.12][found components: Interpreter ][v3.12.9()]
+FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/Users/romanos/miniconda3/bin/python3.10][found components: Interpreter ][v3.10.13()]
+//Details about finding PythonInterp
+FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/Users/romanos/miniconda3/python.app/Contents/MacOS/python][v3.10.13(3.6)]
 //Details about finding Threads
 FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
+//ADVANCED property for variable: GIT_EXECUTABLE
+GIT_EXECUTABLE-ADVANCED:INTERNAL=1
+//Test HAS_FLTO
+HAS_FLTO:INTERNAL=1
+//Test HAS_FLTO_THIN
+HAS_FLTO_THIN:INTERNAL=1
+PYBIND11_INCLUDE_DIR:INTERNAL=/Users/romanos/Backgammon_Engine/build/_deps/pybind11-src/include
+//ADVANCED property for variable: PYTHON_EXECUTABLE
+PYTHON_EXECUTABLE-ADVANCED:INTERNAL=1
+PYTHON_INCLUDE_DIRS:INTERNAL=/Users/romanos/miniconda3/include/python3.10
+PYTHON_IS_DEBUG:INTERNAL=0
+PYTHON_LIBRARIES:INTERNAL=/Users/romanos/miniconda3/lib/libpython3.10.dylib
+//ADVANCED property for variable: PYTHON_LIBRARY
+PYTHON_LIBRARY-ADVANCED:INTERNAL=1
+PYTHON_MODULE_EXTENSION:INTERNAL=.cpython-310-darwin.so
+PYTHON_MODULE_PREFIX:INTERNAL=
+PYTHON_VERSION:INTERNAL=3.10.13
+PYTHON_VERSION_MAJOR:INTERNAL=3
+PYTHON_VERSION_MINOR:INTERNAL=10
+Python_ADDITIONAL_VERSIONS:INTERNAL=3.11;3.10;3.9;3.8;3.7;3.6
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/usr/local
+_Python:INTERNAL=PYTHON
 //Compiler reason failure
 _Python_Compiler_REASON_FAILURE:INTERNAL=
 //Development reason failure
 _Python_Development_REASON_FAILURE:INTERNAL=
 //Path to a program.
-_Python_EXECUTABLE:INTERNAL=/Users/romanos/miniconda3/bin/python3.12
+_Python_EXECUTABLE:INTERNAL=/Users/romanos/miniconda3/bin/python3.10
 //Python Properties
-_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;12;9;64;32;<none>;cpython-312-darwin;abi3;/Users/romanos/miniconda3/lib/python3.12;/Users/romanos/miniconda3/lib/python3.12;/Users/romanos/miniconda3/lib/python3.12/site-packages;/Users/romanos/miniconda3/lib/python3.12/site-packages
-_Python_INTERPRETER_SIGNATURE:INTERNAL=4d8139d694733aabae42ab080170bb22
+_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;10;13;64;32;<none>;cpython-310-darwin;abi3;/Users/romanos/miniconda3/lib/python3.10;/Users/romanos/miniconda3/lib/python3.10;/Users/romanos/miniconda3/lib/python3.10/site-packages;/Users/romanos/miniconda3/lib/python3.10/site-packages
+_Python_INTERPRETER_SIGNATURE:INTERNAL=9f06da4ddb75900c38690236631775ab
 //NumPy reason failure
 _Python_NumPy_REASON_FAILURE:INTERNAL=
 cmake_package_name:INTERNAL=GTest
@@ -582,5 +670,11 @@ gtest_disable_pthreads-ADVANCED:INTERNAL=1
 gtest_force_shared_crt-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: gtest_hide_internal_symbols
 gtest_hide_internal_symbols-ADVANCED:INTERNAL=1
+//True if pybind11 and all required components found on the system
+pybind11_FOUND:INTERNAL=TRUE
+//Directory where pybind11 headers are located
+pybind11_INCLUDE_DIR:INTERNAL=/Users/romanos/Backgammon_Engine/build/_deps/pybind11-src/include
+//Directories where pybind11 and possibly Python headers are located
+pybind11_INCLUDE_DIRS:INTERNAL=/Users/romanos/Backgammon_Engine/build/_deps/pybind11-src/include;/Users/romanos/miniconda3/include/python3.10
 targets_export_name:INTERNAL=GTestTargets
 

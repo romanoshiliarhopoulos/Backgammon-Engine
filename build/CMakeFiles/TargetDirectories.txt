@@ -1,4 +1,5 @@
 /Users/romanos/Backgammon_Engine/build/CMakeFiles/Backgammon-Engine.dir
+/Users/romanos/Backgammon_Engine/build/CMakeFiles/backgammon_env.dir
 /Users/romanos/Backgammon_Engine/build/CMakeFiles/backgammon_tests.dir
 /Users/romanos/Backgammon_Engine/build/CMakeFiles/test.dir
 /Users/romanos/Backgammon_Engine/build/CMakeFiles/edit_cache.dir
@@ -7,6 +8,13 @@
 /Users/romanos/Backgammon_Engine/build/CMakeFiles/install.dir
 /Users/romanos/Backgammon_Engine/build/CMakeFiles/install/local.dir
 /Users/romanos/Backgammon_Engine/build/CMakeFiles/install/strip.dir
+/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build/CMakeFiles/test.dir
+/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build/CMakeFiles/edit_cache.dir
+/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build/CMakeFiles/rebuild_cache.dir
+/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build/CMakeFiles/list_install_components.dir
+/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build/CMakeFiles/install.dir
+/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build/CMakeFiles/install/local.dir
+/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build/CMakeFiles/install/strip.dir
 /Users/romanos/Backgammon_Engine/build/_deps/googletest-build/CMakeFiles/test.dir
 /Users/romanos/Backgammon_Engine/build/_deps/googletest-build/CMakeFiles/edit_cache.dir
 /Users/romanos/Backgammon_Engine/build/_deps/googletest-build/CMakeFiles/rebuild_cache.dir

@@ -100,24 +100,10 @@ CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/romanos/Backgammon_Engine/cppsrc/game.cpp -o CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.s
 
-CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o: CMakeFiles/Backgammon-Engine.dir/flags.make
-CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o: /Users/romanos/Backgammon_Engine/cppsrc/main.cpp
-CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o: CMakeFiles/Backgammon-Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o -MF CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o.d -o CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o -c /Users/romanos/Backgammon_Engine/cppsrc/main.cpp
-
-CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/romanos/Backgammon_Engine/cppsrc/main.cpp > CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.i
-
-CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/romanos/Backgammon_Engine/cppsrc/main.cpp -o CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.s
-
 CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o: CMakeFiles/Backgammon-Engine.dir/flags.make
 CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o: /Users/romanos/Backgammon_Engine/cppsrc/player.cpp
 CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o: CMakeFiles/Backgammon-Engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o -MF CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o.d -o CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o -c /Users/romanos/Backgammon_Engine/cppsrc/player.cpp
 
 CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.i: cmake_force
@@ -132,7 +118,6 @@ CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.s: cmake_force
 Backgammon__Engine_OBJECTS = \
 "CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.o" \
 "CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.o" \
-"CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o" \
 "CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o"
 
 # External object files for target Backgammon-Engine
@@ -140,11 +125,10 @@ Backgammon__Engine_EXTERNAL_OBJECTS =
 
 libBackgammon-Engine.a: CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.o
 libBackgammon-Engine.a: CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.o
-libBackgammon-Engine.a: CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o
 libBackgammon-Engine.a: CMakeFiles/Backgammon-Engine.dir/cppsrc/player.cpp.o
 libBackgammon-Engine.a: CMakeFiles/Backgammon-Engine.dir/build.make
 libBackgammon-Engine.a: CMakeFiles/Backgammon-Engine.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libBackgammon-Engine.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library libBackgammon-Engine.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/Backgammon-Engine.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Backgammon-Engine.dir/link.txt --verbose=$(VERBOSE)
 

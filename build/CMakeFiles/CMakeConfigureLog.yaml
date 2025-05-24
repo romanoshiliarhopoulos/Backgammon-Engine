@@ -486,3 +486,83 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCXXCompilerFlag.cmake:55 (cmake_check_compiler_flag)"
+      - "build/_deps/pybind11-src/tools/pybind11Common.cmake:276 (check_cxx_compiler_flag)"
+      - "build/_deps/pybind11-src/tools/pybind11Common.cmake:318 (_pybind11_return_if_cxx_and_linker_flags_work)"
+      - "build/_deps/pybind11-src/tools/pybind11Common.cmake:385 (_pybind11_generate_lto)"
+      - "build/_deps/pybind11-src/CMakeLists.txt:210 (include)"
+    checks:
+      - "Performing Test HAS_FLTO"
+    directories:
+      source: "/Users/romanos/Backgammon_Engine/build/CMakeFiles/CMakeScratch/TryCompile-8xFO2B"
+      binary: "/Users/romanos/Backgammon_Engine/build/CMakeFiles/CMakeScratch/TryCompile-8xFO2B"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "HAS_FLTO"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/romanos/Backgammon_Engine/build/CMakeFiles/CMakeScratch/TryCompile-8xFO2B'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_4e44b/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_4e44b.dir/build.make CMakeFiles/cmTC_4e44b.dir/build
+        Building CXX object CMakeFiles/cmTC_4e44b.dir/src.cxx.o
+        /usr/bin/c++ -DHAS_FLTO  -std=gnu++14 -arch arm64   -flto -MD -MT CMakeFiles/cmTC_4e44b.dir/src.cxx.o -MF CMakeFiles/cmTC_4e44b.dir/src.cxx.o.d -o CMakeFiles/cmTC_4e44b.dir/src.cxx.o -c /Users/romanos/Backgammon_Engine/build/CMakeFiles/CMakeScratch/TryCompile-8xFO2B/src.cxx
+        Linking CXX executable cmTC_4e44b
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_4e44b.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_4e44b.dir/src.cxx.o -o cmTC_4e44b  -flto
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:104 (try_compile)"
+      - "/opt/homebrew/share/cmake/Modules/Internal/CheckCompilerFlag.cmake:18 (cmake_check_source_compiles)"
+      - "/opt/homebrew/share/cmake/Modules/CheckCXXCompilerFlag.cmake:55 (cmake_check_compiler_flag)"
+      - "build/_deps/pybind11-src/tools/pybind11Common.cmake:276 (check_cxx_compiler_flag)"
+      - "build/_deps/pybind11-src/tools/pybind11Common.cmake:312 (_pybind11_return_if_cxx_and_linker_flags_work)"
+      - "build/_deps/pybind11-src/tools/pybind11Common.cmake:388 (_pybind11_generate_lto)"
+      - "build/_deps/pybind11-src/CMakeLists.txt:210 (include)"
+    checks:
+      - "Performing Test HAS_FLTO_THIN"
+    directories:
+      source: "/Users/romanos/Backgammon_Engine/build/CMakeFiles/CMakeScratch/TryCompile-Kykk5m"
+      binary: "/Users/romanos/Backgammon_Engine/build/CMakeFiles/CMakeScratch/TryCompile-Kykk5m"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_MODULE_PATH: ""
+      CMAKE_OSX_ARCHITECTURES: ""
+      CMAKE_OSX_DEPLOYMENT_TARGET: ""
+      CMAKE_OSX_SYSROOT: ""
+    buildResult:
+      variable: "HAS_FLTO_THIN"
+      cached: true
+      stdout: |
+        Change Dir: '/Users/romanos/Backgammon_Engine/build/CMakeFiles/CMakeScratch/TryCompile-Kykk5m'
+        
+        Run Build Command(s): /opt/homebrew/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_2a27c/fast
+        /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_2a27c.dir/build.make CMakeFiles/cmTC_2a27c.dir/build
+        Building CXX object CMakeFiles/cmTC_2a27c.dir/src.cxx.o
+        /usr/bin/c++ -DHAS_FLTO_THIN  -std=gnu++14 -arch arm64   -flto=thin -MD -MT CMakeFiles/cmTC_2a27c.dir/src.cxx.o -MF CMakeFiles/cmTC_2a27c.dir/src.cxx.o.d -o CMakeFiles/cmTC_2a27c.dir/src.cxx.o -c /Users/romanos/Backgammon_Engine/build/CMakeFiles/CMakeScratch/TryCompile-Kykk5m/src.cxx
+        Linking CXX executable cmTC_2a27c
+        /opt/homebrew/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2a27c.dir/link.txt --verbose=1
+        /usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/cmTC_2a27c.dir/src.cxx.o -o cmTC_2a27c  -flto=thin
+        
+      exitCode: 0
+...

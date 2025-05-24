@@ -185,6 +185,19 @@ Backgammon-Engine/fast:
 .PHONY : Backgammon-Engine/fast
 
 #=============================================================================
+# Target rules for targets named backgammon_env
+
+# Build rule for target.
+backgammon_env: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 backgammon_env
+.PHONY : backgammon_env
+
+# fast build rule for target.
+backgammon_env/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_env.dir/build.make CMakeFiles/backgammon_env.dir/build
+.PHONY : backgammon_env/fast
+
+#=============================================================================
 # Target rules for targets named backgammon_tests
 
 # Build rule for target.
@@ -273,6 +286,30 @@ cppsrc/Pieces.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.s
 .PHONY : cppsrc/Pieces.cpp.s
 
+cppsrc/backgammon_bindings.o: cppsrc/backgammon_bindings.cpp.o
+.PHONY : cppsrc/backgammon_bindings.o
+
+# target to build an object file
+cppsrc/backgammon_bindings.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_env.dir/build.make CMakeFiles/backgammon_env.dir/cppsrc/backgammon_bindings.cpp.o
+.PHONY : cppsrc/backgammon_bindings.cpp.o
+
+cppsrc/backgammon_bindings.i: cppsrc/backgammon_bindings.cpp.i
+.PHONY : cppsrc/backgammon_bindings.i
+
+# target to preprocess a source file
+cppsrc/backgammon_bindings.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_env.dir/build.make CMakeFiles/backgammon_env.dir/cppsrc/backgammon_bindings.cpp.i
+.PHONY : cppsrc/backgammon_bindings.cpp.i
+
+cppsrc/backgammon_bindings.s: cppsrc/backgammon_bindings.cpp.s
+.PHONY : cppsrc/backgammon_bindings.s
+
+# target to generate assembly for a file
+cppsrc/backgammon_bindings.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_env.dir/build.make CMakeFiles/backgammon_env.dir/cppsrc/backgammon_bindings.cpp.s
+.PHONY : cppsrc/backgammon_bindings.cpp.s
+
 cppsrc/game.o: cppsrc/game.cpp.o
 .PHONY : cppsrc/game.o
 
@@ -296,30 +333,6 @@ cppsrc/game.s: cppsrc/game.cpp.s
 cppsrc/game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/game.cpp.s
 .PHONY : cppsrc/game.cpp.s
-
-cppsrc/main.o: cppsrc/main.cpp.o
-.PHONY : cppsrc/main.o
-
-# target to build an object file
-cppsrc/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.o
-.PHONY : cppsrc/main.cpp.o
-
-cppsrc/main.i: cppsrc/main.cpp.i
-.PHONY : cppsrc/main.i
-
-# target to preprocess a source file
-cppsrc/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.i
-.PHONY : cppsrc/main.cpp.i
-
-cppsrc/main.s: cppsrc/main.cpp.s
-.PHONY : cppsrc/main.s
-
-# target to generate assembly for a file
-cppsrc/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Backgammon-Engine.dir/build.make CMakeFiles/Backgammon-Engine.dir/cppsrc/main.cpp.s
-.PHONY : cppsrc/main.cpp.s
 
 cppsrc/player.o: cppsrc/player.cpp.o
 .PHONY : cppsrc/player.o
@@ -383,6 +396,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... Backgammon-Engine"
+	@echo "... backgammon_env"
 	@echo "... backgammon_tests"
 	@echo "... gmock"
 	@echo "... gmock_main"
@@ -391,12 +405,12 @@ help:
 	@echo "... cppsrc/Pieces.o"
 	@echo "... cppsrc/Pieces.i"
 	@echo "... cppsrc/Pieces.s"
+	@echo "... cppsrc/backgammon_bindings.o"
+	@echo "... cppsrc/backgammon_bindings.i"
+	@echo "... cppsrc/backgammon_bindings.s"
 	@echo "... cppsrc/game.o"
 	@echo "... cppsrc/game.i"
 	@echo "... cppsrc/game.s"
-	@echo "... cppsrc/main.o"
-	@echo "... cppsrc/main.i"
-	@echo "... cppsrc/main.s"
 	@echo "... cppsrc/player.o"
 	@echo "... cppsrc/player.i"
 	@echo "... cppsrc/player.s"
