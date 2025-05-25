@@ -372,7 +372,7 @@ TEST(LegalTurnSeq, DoublesP1)
 
     auto seqs = game.legalTurnSequences(Player::PLAYER1, 1, 1);
 
-    // Test that we get a reasonable number of sequences (should be > 81)
+    // Test that we get a reasonable number of sequences should be > 81
     EXPECT_GT(seqs.size(), 81);
     EXPECT_LT(seqs.size(), 1000); // Some reasonable upper bound
 
