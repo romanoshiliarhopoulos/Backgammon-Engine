@@ -14,7 +14,7 @@ try:
     game = bg.Game(4)
     print("✓ Game created")
     
-    # Test basic getters
+    
     turn = game.getTurn()
     print(f"✓ Current turn: {turn}")
     
