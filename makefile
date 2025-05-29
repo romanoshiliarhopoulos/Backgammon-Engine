@@ -1,13 +1,19 @@
 # --- Source directory (where all your .cpp/.hpp now live) ---
 SRCDIR       := cppsrc
 
+# --- Pull in pybind11’s include flags via: python3 -m pybind11 --includes ---
+PYBIND11_INC := $(shell python3 -m pybind11 --includes)
+
 # --- Compiler settings ---
 CXX          := g++
 CXXFLAGS     := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function \
-                 -I$(SRCDIR)
+                 -I$(SRCDIR) $(PYBIND11_INC)
 
-# --- Collect all .cpp files under cppsrc/ except tests.cpp ---
-SRCS         := $(filter-out $(SRCDIR)/tests.cpp,$(wildcard $(SRCDIR)/*.cpp))
+# --- Collect all .cpp files under cppsrc/ except tests.cpp and the pybind bindings ---
+SRCS         := $(filter-out \
+                   $(SRCDIR)/tests.cpp \
+                   $(SRCDIR)/backgammon_bindings.cpp, \
+                 $(wildcard $(SRCDIR)/*.cpp))
 TARGET       := a.out
 
 # --- CMake build variables ---

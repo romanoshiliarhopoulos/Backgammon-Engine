@@ -32,8 +32,7 @@ CMAKE_ADDR2LINE:FILEPATH=CMAKE_ADDR2LINE-NOTFOUND
 //Path to a program.
 CMAKE_AR:FILEPATH=/usr/bin/ar
 
-//Choose the type of build, options are: None Debug Release RelWithDebInfo
-// MinSizeRel ...
+//No help, variable specified on the command line.
 CMAKE_BUILD_TYPE:STRING=Debug
 
 //Enable/Disable color output during build.
@@ -93,8 +92,8 @@ CMAKE_EXE_LINKER_FLAGS_RELEASE:STRING=
 //Flags used by the linker during RELWITHDEBINFO builds.
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
-//Enable/Disable output of compile commands during generation.
-CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=
+//No help, variable specified on the command line.
+CMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE
 
 //Value Computed by CMake.
 CMAKE_FIND_PACKAGE_REDIRECTS_DIR:STATIC=/Users/romanos/Backgammon_Engine/build/CMakeFiles/pkgRedirects
@@ -359,15 +358,6 @@ PYTHON_EXECUTABLE:FILEPATH=/Users/romanos/miniconda3/python.app/Contents/MacOS/p
 PYTHON_LIBRARY:FILEPATH=/Users/romanos/miniconda3/lib/libpython3.10.dylib
 
 //Value Computed by CMake
-Project_BINARY_DIR:STATIC=/Users/romanos/Backgammon_Engine/build
-
-//Value Computed by CMake
-Project_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-Project_SOURCE_DIR:STATIC=/Users/romanos/Backgammon_Engine
-
-//Value Computed by CMake
 gmock_BINARY_DIR:STATIC=/Users/romanos/Backgammon_Engine/build/_deps/googletest-build/googlemock
 
 //Value Computed by CMake
@@ -424,9 +414,6 @@ gtest_main_LIB_DEPENDS:STATIC=general;gtest;
 
 //Value Computed by CMake
 pybind11_BINARY_DIR:STATIC=/Users/romanos/Backgammon_Engine/build/_deps/pybind11-build
-
-//The directory containing a CMake configuration file for pybind11.
-pybind11_DIR:PATH=pybind11_DIR-NOTFOUND
 
 //Value Computed by CMake
 pybind11_IS_TOP_LEVEL:STATIC=OFF
@@ -499,8 +486,6 @@ CMAKE_EXE_LINKER_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_EXE_LINKER_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO
 CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
-//ADVANCED property for variable: CMAKE_EXPORT_COMPILE_COMMANDS
-CMAKE_EXPORT_COMPILE_COMMANDS-ADVANCED:INTERNAL=1
 //Name of external makefile project generator.
 CMAKE_EXTRA_GENERATOR:INTERNAL=
 //Name of generator.
