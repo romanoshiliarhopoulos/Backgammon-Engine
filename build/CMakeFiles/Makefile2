@@ -244,9 +244,9 @@ CMakeFiles/backgammon_env.dir/clean:
 # Target rules for target CMakeFiles/backgammon_tests.dir
 
 # All Build rule for target.
+CMakeFiles/backgammon_tests.dir/all: CMakeFiles/Backgammon-Engine.dir/all
 CMakeFiles/backgammon_tests.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest.dir/all
 CMakeFiles/backgammon_tests.dir/all: _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/all
-CMakeFiles/backgammon_tests.dir/all: CMakeFiles/Backgammon-Engine.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/backgammon_tests.dir/build.make CMakeFiles/backgammon_tests.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/romanos/Backgammon_Engine/build/CMakeFiles --progress-num=7,8 "Built target backgammon_tests"
