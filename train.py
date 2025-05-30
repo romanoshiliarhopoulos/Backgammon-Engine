@@ -41,7 +41,7 @@ def main():
             game.printGameBoard()
             turn_count += 1
 
-            # roll the dice for this turn
+            # roll the dice for this turn...
             die1, die2 = game.roll_dice()
             turn       = game.getTurn()
             print(f"[Ep {episode} Turn {turn_count}] Rolled dice: ({die1}, {die2}): player ({turn})")
