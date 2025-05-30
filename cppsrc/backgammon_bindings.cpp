@@ -63,5 +63,9 @@ PYBIND11_MODULE(backgammon_env, m)
         .def("getBornOffCount", &Game::getBornOffCount)
         .def("printGameBoard", &Game::printGameBoard)
         .def("reset", &Game::populateBoard)
-        .def("populateBoard", &Game::populateBoard);
+        .def("populateBoard", &Game::populateBoard)
+        .def("roll_dice", &Game::rollDice,
+             "Roll two dice and return an array [die1, die2]")
+        .def("get_last_dice", &Game::getLastDice,
+             "Return the most recently rolled dice as [die1, die2]");
 }

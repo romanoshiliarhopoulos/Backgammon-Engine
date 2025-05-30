@@ -397,6 +397,17 @@ TEST(LegalTurnSeq, Immutability)
     auto after = game.getGameBoard();
     EXPECT_EQ(before, after);
 }
+TEST(LegalTurnSeq, failing_moves_prior)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    game.gameboard.assign({-8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 4});
+    auto before = game.getGameBoard();
+    auto seqs = game.legalTurnSequences(Player::PLAYER1, 3, 1);
+    auto after = game.getGameBoard();
+    EXPECT_TRUE(seqs.size() != 0);
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

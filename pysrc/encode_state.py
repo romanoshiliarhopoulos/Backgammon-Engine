@@ -34,17 +34,19 @@ def encode_state(board, jailed, borne_off, turn):
 
 def build_legal_mask(game, batch_size=1, device='cpu'):
     """
-    Returns a [batch_size, 576] mask where True indicates that index
+    Returns a [batch_size, 676] mask where True indicates that index
     corresponds to a legal (origin,dest) pair for the current dice roll.
     Here we assume batch_size=1 for simplicity.
     """
-    legal = torch.zeros((batch_size, 24*24), dtype=torch.bool, device=device)
+    S = 26
+    mask = torch.zeros((batch_size, S*S), dtype=torch.bool, device=device)
+    dice  = game.get_last_dice()
+    player= game.getTurn()
+    seqs  = game.legalTurnSequences(player, dice[0], dice[1])
+    print(f"number of total moves: {len(seqs)}")
+    legal_moves = {(o,d) for seq in seqs for (o,d) in seq}
     for b in range(batch_size):
-        # you’d pull dice from your env; for simplicity assume they’re stored
-        dice = game.get_last_dice()  # e.g., [die1, die2]
-        seqs = game.legalTurnSequences(dice[0], dice[1])
-        # flatten all moves in all sequences
-        legal_moves = set((o,d) for seq in seqs for (o,d) in seq)
         for (o,d) in legal_moves:
-            legal[b, o*24 + d] = True
-    return legal
+            mask[b, o*S + d] = True
+    return mask
+    

@@ -53,6 +53,14 @@ vector<pair<int, int>> Game::legalMoves(int player, int die)
         if (validOrigin)
         {
             int dest = i + multi * die;
+            if (dest > 25)
+            {
+                dest = 25;
+            }
+            if (dest < 0)
+            {
+                dest = 0;
+            }
             if (isValidDestination(multi, dest))
             {
                 toReturn.emplace_back(i, dest);
@@ -286,6 +294,8 @@ void Game::printGameBoard()
     cout << "  13 14  15 16 17 18 | 19 20  21 22 23 24 " << endl;
     cout << endl;
     cout << "         Jail: ◉ x" << pieces.numJailed(0) << "  |  ◯ x" << pieces.numJailed(1) << endl;
+    cout << "\n         Free: ◉ x" << pieces.numFreed(0) << "  |  ◯ x" << pieces.numFreed(0) << endl;
+
     cout << "\n\n"
          << endl;
 }
@@ -511,4 +521,16 @@ bool Game::tryMove(Player *currentPlayer,
     }
 
     return true;
+}
+
+array<int, 2> Game::rollDice()
+{
+    last_dice[0] = die(rng);
+    last_dice[1] = die(rng);
+    return last_dice;
+}
+
+array<int, 2> Game::getLastDice() const
+{
+    return last_dice;
 }

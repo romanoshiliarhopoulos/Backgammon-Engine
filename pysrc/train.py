@@ -36,7 +36,7 @@ for episode in range(num_episodes):
         log_prob = m.log_prob(action)
         
         # 5) step env
-        o, d = divmod(action.item(), 24)
+        o, d = divmod(action.item(), 26)
         success, err = game.tryMove(p1 if turn==1 else p2, game.get_last_dice()[0], o, d)
         # you might need to handle invalid or multi‐step sequences properly
         
