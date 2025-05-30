@@ -17,7 +17,7 @@ def main():
     net = BackgammonNet().to(device)
     optimizer = torch.optim.Adam(net.parameters(), lr=1e-4)
 
-    num_episodes = 1000
+    num_episodes = 30
     gamma        = 0.99
     c1           = 0.5
 
@@ -83,12 +83,42 @@ def main():
             print(f"[Ep {episode} Turn {turn_count}] Sampled action → move {o}→{d}, logp={log_prob.item():.3f}")
 
             # 5) step env
+            #play die 1
             current_player = p1 if turn==0 else p2
             success, err = game.tryMove(current_player, die1, o, d)
             if not success:
                 print(f"   ⚠️  Invalid move: {err!r}, retrying turn {turn_count}")
                 continue  # you may want to handle retries differently
 
+            #play die 2
+            # Build the new mask for die2
+            legal_mask2 = build_legal_mask(game, batch_size=1, device=device)
+            n2 = legal_mask2.sum().item()
+            print(f"  [debug] found {n2} legal moves for die2")
+
+            if n2 > 0:
+                # re‑encode the _updated_ board
+                board       = list(game.getGameBoard())
+                jailed_p1   = game.getJailedCount(0)
+                jailed_p2   = game.getJailedCount(1)
+                born_off_p1 = game.getBornOffCount(0)
+                born_off_p2 = game.getBornOffCount(1)
+                jailed, borne_off = (jailed_p1, born_off_p1) if turn==0 else (jailed_p2, born_off_p2)
+
+                state2 = encode_state(board, jailed, borne_off, turn)\
+                        .unsqueeze(0)\
+                        .to(device)
+
+                # call your network _only_ when there are legal moves
+                probs2, value2 = net(state2, legal_mask2)
+                action2 = torch.distributions.Categorical(probs2).sample()
+                o2, d2 = divmod(action2.item(), 26)
+                success2, err2 = game.tryMove(current_player, die2, o2, d2)
+                if not success2:
+                    print(f"   ⚠️ Invalid second move: {err2!r}")
+                    # … handle retry or just give up on die2 …
+            else:
+                print("  [info] no legal moves for die2, skipping it")
             # 6) record
             log_probs.append(log_prob)
             values.append(value)
@@ -130,8 +160,7 @@ def main():
     #plot the turn_counts per episode
     plt.plot(num_turns_per_episode, linestyle='--', marker='o', color='red')
     plt.xlabel('Index')
-    plt.ylabel('Turns per game')
-    plt.title('Trend of turns per game')
+    plt.title('Turns per game')
     plt.savefig('turns_trend.png',    # filename (extension sets the format)
             dpi=300,              # resolution in dots-per-inch
             bbox_inches='tight') 

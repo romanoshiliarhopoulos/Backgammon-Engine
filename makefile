@@ -44,9 +44,11 @@ cmake_build: cmake_configure
 
 build: cmake_build
 
+
 # 4) Run all GoogleTest cases via 
 test: build
 	cd $(BUILD_DIR) && ctest --output-on-failure
+
 
 # Cleans both the direct build artifacts and the CMake 
 clean:

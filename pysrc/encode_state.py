@@ -32,21 +32,29 @@ def encode_state(board, jailed, borne_off, turn):
     
     return torch.cat([cur, opp], dim=0)  # [6,24]
 
-def build_legal_mask(game, batch_size=1, device='cpu'):
+import torch
+
+import torch
+
+def build_legal_mask(game, batch_size=1, device="cpu", max_steps=4):
     """
-    Returns a [batch_size, 676] mask where True indicates that index
-    corresponds to a legal (origin,dest) pair for the current dice roll.
-    Here we assume batch_size=1 for simplicity.
+    Returns a BoolTensor of shape [batch_size, max_steps, 26*26].
+    For each legalTurnSequence seq = [(o0,d0), (o1,d1), …],
+    we set mask[b, step, o_step*26 + d_step] = True
+    for every sequence and every step < len(seq).
     """
     S = 26
-    mask = torch.zeros((batch_size, S*S), dtype=torch.bool, device=device)
-    dice  = game.get_last_dice()
-    player= game.getTurn()
-    seqs  = game.legalTurnSequences(player, dice[0], dice[1])
-    print(f"number of total moves: {len(seqs)}")
-    legal_moves = {(o,d) for seq in seqs for (o,d) in seq}
+    N = S*S
+    mask = torch.zeros((batch_size, max_steps, N),
+                       dtype=torch.bool, device=device)
+
+    die1, die2 = game.get_last_dice()
+    player     = game.getTurn()
+    seqs        = game.legalTurnSequences(player, die1, die2)
+
     for b in range(batch_size):
-        for (o,d) in legal_moves:
-            mask[b, o*S + d] = True
+        for seq in seqs:
+            for t, (o, d) in enumerate(seq):
+                if t < max_steps:
+                    mask[b, t, o*S + d] = True
     return mask
-    

@@ -408,6 +408,16 @@ TEST(LegalTurnSeq, failing_moves_prior)
     auto after = game.getGameBoard();
     EXPECT_TRUE(seqs.size() != 0);
 }
+TEST(LegalTurnSeq, trying_replicate)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    game.gameboard.assign({-8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 8, 4});
+    string romanos;
+    EXPECT_TRUE(game.tryMove(&p1, 5, 22,25, romanos));
+    cout << romanos;
+}
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

@@ -294,7 +294,7 @@ void Game::printGameBoard()
     cout << "  13 14  15 16 17 18 | 19 20  21 22 23 24 " << endl;
     cout << endl;
     cout << "         Jail: ◉ x" << pieces.numJailed(0) << "  |  ◯ x" << pieces.numJailed(1) << endl;
-    cout << "\n         Free: ◉ x" << pieces.numFreed(0) << "  |  ◯ x" << pieces.numFreed(0) << endl;
+    cout << "\n         Free: ◉ x" << pieces.numFreed(0) << "  |  ◯ x" << pieces.numFreed(1) << endl;
 
     cout << "\n\n"
          << endl;
@@ -465,12 +465,9 @@ bool Game::tryMove(Player *currentPlayer,
 
     int diff = origin - destination;
     // Special case: bearing off moves
-    if (destination == 0 || destination == 25)
-    {
-        // P1 bears off to 0, P2 bears off to 25
-        // Don't apply normal direction rules for bearing off
-    }
-    else
+    if (destination != 0 && destination != 25)
+    // P1 bears off to 0, P2 bears off to 25
+    // Don't apply normal direction rules for bearing off
     {
         // Normal direction check for regular moves
         if (diff * (-multi) < 0)
@@ -478,34 +475,36 @@ bool Game::tryMove(Player *currentPlayer,
             err = "Cannot move in that direction.";
             return false;
         }
-    }
-    if (dice != std::abs(diff))
-    {
-        err = "Move does not match dice.";
-        return false;
-    }
-    if (!isValidDestination(multi, destination))
-    {
-        err = "Invalid destination.";
-        return false;
-    }
 
-    // Handle move execution with captures
-    if (origin == 0 || origin == 25)
-    {
-        // Moving from jail
-        pieces.removeJailedPiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);
-    }
-    else
-    {
-        // Moving from regular point
-        this->gameboard[origin - 1] -= multi;
+        if (dice != std::abs(diff))
+        {
+            err = "Move does not match dice.";
+            return false;
+        }
+        if (!isValidDestination(multi, destination))
+        {
+            err = "Invalid destination.";
+            return false;
+        }
+
+        // Handle move execution with captures
+        if (origin == 0 || origin == 25)
+        {
+            // Moving from jail
+            pieces.removeJailedPiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);
+        }
+        else
+        {
+            // Moving from regular point
+            this->gameboard[origin - 1] -= multi;
+        }
     }
 
     if (destination == 0 || destination == 25)
     {
         // Bearing off
         pieces.freePiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);
+        this->gameboard[origin - 1] -= multi;
     }
     else
     {
