@@ -458,14 +458,17 @@ def main():
                 probs_seq = F.softmax(seq_logits, dim=0)
                 dist_seq  = Categorical(probs_seq)
                 choice    = dist_seq.sample().item()
-                logp_seq  = dist_seq.log_prob(torch.tensor(choice, device=device))
                 #print(f"→ Chosen turn‐sequence [{choice}]: ", end="")
                 #for (o,d) in seqs[choice]:
                     #print(f"{o}->{d} ", end="")
                 #print()  # newline
 
-                logps.append(logp_seq)
+                logp_seq = dist_seq.log_prob(torch.tensor(choice, device=device))
+                 # detach the log‐prob so that only this scalar remains on device,
+                # but it’s still a leaf with requires_grad=True
+                logps.append(logp_seq.detach().requires_grad_(True))
                 vals.append(value)
+                
 
                 #have a random play for randomBot
             else:

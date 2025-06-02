@@ -8,3 +8,5 @@ NEXT DEVELOPMENTS
 
 
  - make it so that bearing off is done from the back forward, largest...
+
+ use parallel programming for possible moves??? is that the move?1
