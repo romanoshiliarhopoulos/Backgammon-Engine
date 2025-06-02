@@ -109,10 +109,20 @@ vector<vector<pair<int, int>>> Game::legalTurnSequences(int player, int die1, in
             Game g1 = this->clone();
             string err;
             g1.tryMove(curr_player, die1, m1.first, m1.second, err);
-
-            for (auto m2 : g1.legalMoves(player, die2))
+            auto nextMoves = g1.legalMoves(player, die2);
+            if (nextMoves.empty())
             {
-                sequences.push_back({m1, m2});
+                // if there are no more legal moves to make after the first one, just return there
+                sequences.push_back({m1, {0, 0}});
+                sequences.push_back({m1, {0, 0}});
+                return sequences;
+            }
+            else
+            {
+                for (auto m2 : g1.legalMoves(player, die2))
+                {
+                    sequences.push_back({m1, m2});
+                }
             }
         }
         // calculate all possible moves when moving die 2 first

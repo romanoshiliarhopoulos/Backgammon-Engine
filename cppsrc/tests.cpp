@@ -415,8 +415,19 @@ TEST(LegalTurnSeq, trying_replicate)
     game.setPlayers(&p1, &p2);
     game.gameboard.assign({-8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 8, 4});
     string romanos;
-    EXPECT_TRUE(game.tryMove(&p1, 5, 22,25, romanos));
+    EXPECT_TRUE(game.tryMove(&p1, 5, 22, 25, romanos));
     cout << romanos;
+}
+TEST(LegalTurnSeq, trying_replicate_another)
+{
+    Game game(0);
+    Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+    game.gameboard.assign({-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1});
+
+    EXPECT_NE(game.legalMoves(0, 6).size(), 0);
+    EXPECT_EQ(game.legalMoves(0, 6).size(), 1);
+    EXPECT_EQ(game.legalTurnSequences(0, 6, 3).size(), 1);
 }
 int main(int argc, char **argv)
 {
