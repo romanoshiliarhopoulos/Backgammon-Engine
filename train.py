@@ -272,7 +272,7 @@ def main():
     global num_completed
     num_completed = 0
     gamma, c1 = 0.99, 0.5
-    num_episodes = 10
+    num_episodes = 1000
 
     episode_turns = []
     episode_rewards = []
