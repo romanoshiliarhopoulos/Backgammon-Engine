@@ -62,7 +62,7 @@ def build_sequence_mask(game,
     player = game.getTurn()
     key = (board, die1, die2, player)
 
-    # Cache hit?
+    # Cache hit? used cached info
     if key in _seq_cache:
         _seq_cache_hits += 1
         (
@@ -82,16 +82,16 @@ def build_sequence_mask(game,
             cached_valid_mask
         )
 
-    # 3) Cache miss: build from scratch
+    #Cache miss: build from scratch
     _seq_cache_misses += 1
 
     # Zero out buffer
     _mask_buffer.zero_()
 
-    # 3a) Legal sequences
+    #  get all  Legal sequences from game engine
     seqs = game.legalTurnSequences(player, die1, die2)
 
-    # 3b) Reconstruct dice_orders
+    # Reconstruct dice_orders
     if die1 == die2:
         dice_orders = [[die1] * 4 for _ in seqs]
     else:
@@ -109,7 +109,7 @@ def build_sequence_mask(game,
         cnt2 = total_seqs - cnt1
         dice_orders = [[die1, die2]] * cnt1 + [[die2, die1]] * cnt2
 
-    # 3c) Fill the mask buffer based on seqs
+    # Fill the mask buffer based on seqs
     for i, seq in enumerate(seqs):
         for t, (o, d) in enumerate(seq):
             if t < max_steps:
