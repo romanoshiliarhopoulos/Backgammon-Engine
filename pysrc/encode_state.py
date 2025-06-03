@@ -56,13 +56,13 @@ def build_sequence_mask(game,
 
     assert batch_size == 1, "This implementation only supports batch_size=1."
 
-    # 1) Compute the cache key: (board_tuple, die1, die2, player)
+    #Compute the cache key: (board_tuple, die1, die2, player)
     board = tuple(game.getGameBoard())
     die1, die2 = game.get_last_dice()
     player = game.getTurn()
     key = (board, die1, die2, player)
 
-    # 2) Cache hit?
+    # Cache hit?
     if key in _seq_cache:
         _seq_cache_hits += 1
         (
