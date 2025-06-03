@@ -1,172 +1,492 @@
 #!/usr/bin/env python3
+import random
 import sys, os
 import time
+
 root = os.path.dirname(__file__)
 sys.path[:0] = [os.path.join(root, "build"), os.path.join(root, "pysrc")]
-
+import encode_state #type: ignore
 import torch
 import matplotlib.pyplot as plt # type: ignore
 import backgammon_env as bg  # type: ignore
-from BckgammonNet    import BackgammonNet
-from encode_state    import encode_state, build_legal_mask
+from BckgammonNet    import SeqBackgammonNet
+from encode_state import encode_state
+from encode_state    import build_sequence_mask
 import torch.nn.functional as F
+from torch.distributions import Categorical
+import cProfile, pstats
+
+
+#!/usr/bin/env python3
+import sys
+import os
+import datetime
+import time
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import matplotlib.pyplot as plt  # type: ignore
+from torch.distributions import Categorical
+from tqdm import trange 
+
+# ensure C++ extension is on path
+d = os.path.dirname(__file__)
+sys.path[:0] = [os.path.join(d, "build"), os.path.join(d, "pysrc")]
+import backgammon_env as bg  # type: ignore
+
+def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses, num_episodes):
+    """
+    Create comprehensive plots for all training metrics and save with unique timestamps.
+    """
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Ensure figures directory exists
+    os.makedirs("figures", exist_ok=True)
+    
+    # Convert to numpy arrays for easier manipulation
+    wins = np.array(win_history, dtype=np.float32)
+    rewards = np.array(episode_rewards, dtype=np.float32)
+    turns = np.array(episode_turns, dtype=np.float32)
+    losses = np.array(episode_losses, dtype=np.float32)
+    episodes = np.arange(1, len(wins) + 1)
+    
+    # Calculate moving averages (window size = 10% of episodes, minimum 5)
+    window_size = max(5, len(wins) // 10)
+    
+    def moving_average(data, window):
+        return np.convolve(data, np.ones(window)/window, mode='valid')
+    
+    # 1. Win Rate Analysis
+    plt.figure(figsize=(12, 8))
+    
+    # Subplot 1: Cumulative Win Rate
+    plt.subplot(2, 2, 1)
+    cum_wins = np.cumsum(wins)
+    cum_win_rate = cum_wins / episodes
+    plt.plot(episodes, cum_win_rate, 'b-', alpha=0.7, label='Cumulative Win Rate')
+    
+    # Add moving average if we have enough data
+    if len(cum_win_rate) >= window_size:
+        ma_episodes = episodes[window_size-1:]
+        ma_win_rate = moving_average(cum_win_rate, window_size)
+        plt.plot(ma_episodes, ma_win_rate, 'r-', linewidth=2, label=f'Moving Avg ({window_size})')
+    
+    plt.xlabel('Episode')
+    plt.ylabel('Cumulative Win Rate')
+    plt.title('Win Rate Over Time')
+    plt.ylim(0.0, 1.0)
+    plt.grid(alpha=0.3)
+    plt.legend()
+    
+    # Subplot 2: Episode-by-Episode Win Rate (windowed)
+    plt.subplot(2, 2, 2)
+    if len(wins) >= window_size:
+        windowed_episodes = episodes[window_size-1:]
+        windowed_win_rate = moving_average(wins.astype(float), window_size)
+        plt.plot(windowed_episodes, windowed_win_rate, 'g-', linewidth=2)
+        plt.axhline(y=0.5, color='k', linestyle='--', alpha=0.5, label='Random Performance')
+    
+    plt.xlabel('Episode')
+    plt.ylabel(f'Win Rate (Last {window_size} Episodes)')
+    plt.title('Recent Win Rate Trend')
+    plt.ylim(0.0, 1.0)
+    plt.grid(alpha=0.3)
+    plt.legend()
+    
+    # 2. Cumulative Reward Analysis
+    plt.subplot(2, 2, 3)
+    cumulative_rewards = np.cumsum(rewards)
+    plt.plot(episodes, cumulative_rewards, 'purple', alpha=0.7, label='Cumulative Reward')
+    
+    if len(rewards) >= window_size:
+        ma_episodes = episodes[window_size-1:]
+        ma_rewards = moving_average(cumulative_rewards, window_size)
+        plt.plot(ma_episodes, ma_rewards, 'orange', linewidth=2, label=f'Moving Avg ({window_size})')
+    
+    plt.xlabel('Episode')
+    plt.ylabel('Cumulative Reward')
+    plt.title('Reward Accumulation')
+    plt.grid(alpha=0.3)
+    plt.legend()
+    
+    # 3. Sample Efficiency (Average Reward per Episode)
+    plt.subplot(2, 2, 4)
+    avg_reward_per_episode = cumulative_rewards / episodes
+    plt.plot(episodes, avg_reward_per_episode, 'brown', alpha=0.7, label='Avg Reward/Episode')
+    
+    if len(avg_reward_per_episode) >= window_size:
+        ma_episodes = episodes[window_size-1:]
+        ma_avg_rewards = moving_average(avg_reward_per_episode, window_size)
+        plt.plot(ma_episodes, ma_avg_rewards, 'red', linewidth=2, label=f'Moving Avg ({window_size})')
+    
+    plt.xlabel('Episode')
+    plt.ylabel('Average Reward per Episode')
+    plt.title('Sample Efficiency')
+    plt.grid(alpha=0.3)
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.savefig(f"figures/training_metrics_{timestamp}.png", dpi=300, bbox_inches="tight")
+    plt.show()
+    
+    # 4. Game Length and Learning Stability
+    plt.figure(figsize=(12, 6))
+    
+    # Subplot 1: Turns per Episode
+    plt.subplot(1, 2, 1)
+    plt.plot(episodes, turns, 'b-', alpha=0.6, label='Turns per Episode')
+    
+    if len(turns) >= window_size:
+        ma_episodes = episodes[window_size-1:]
+        ma_turns = moving_average(turns, window_size)
+        plt.plot(ma_episodes, ma_turns, 'r-', linewidth=2, label=f'Moving Avg ({window_size})')
+    
+    plt.xlabel('Episode')
+    plt.ylabel('Turns per Game')
+    plt.title('Game Length Trend')
+    plt.grid(alpha=0.3)
+    plt.legend()
+    
+    # Subplot 2: Training Loss
+    plt.subplot(1, 2, 2)
+    plt.plot(episodes, losses, 'green', alpha=0.6, label='Training Loss')
+    
+    if len(losses) >= window_size:
+        ma_episodes = episodes[window_size-1:]
+        ma_losses = moving_average(losses, window_size)
+        plt.plot(ma_episodes, ma_losses, 'darkgreen', linewidth=2, label=f'Moving Avg ({window_size})')
+    
+    plt.xlabel('Episode')
+    plt.ylabel('Loss')
+    plt.title('Training Loss Over Time')
+    plt.grid(alpha=0.3)
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.savefig(f"figures/game_analysis_{timestamp}.png", dpi=300, bbox_inches="tight")
+    plt.show()
+    
+    # 5. Performance Summary Statistics
+    plt.figure(figsize=(10, 6))
+    
+    # Calculate performance milestones
+    episodes_to_50_percent = None
+    episodes_to_60_percent = None
+    episodes_to_70_percent = None
+    
+    for i, rate in enumerate(cum_win_rate):
+        if episodes_to_50_percent is None and rate >= 0.5:
+            episodes_to_50_percent = i + 1
+        if episodes_to_60_percent is None and rate >= 0.6:
+            episodes_to_60_percent = i + 1
+        if episodes_to_70_percent is None and rate >= 0.7:
+            episodes_to_70_percent = i + 1
+    
+    # Performance metrics text
+    final_win_rate = cum_win_rate[-1]
+    avg_turns = np.mean(turns)
+    total_reward = np.sum(rewards)
+    final_loss = losses[-1]
+    
+    # Create summary plot
+    plt.subplot(1, 2, 1)
+    performance_data = [final_win_rate, avg_turns/100, total_reward/num_episodes, (1-final_loss)]
+    performance_labels = ['Final Win Rate', 'Avg Turns/100', 'Avg Reward', 'Learning Stability']
+    colors = ['green', 'blue', 'purple', 'orange']
+    
+    bars = plt.bar(performance_labels, performance_data, color=colors, alpha=0.7)
+    plt.title('Final Performance Summary')
+    plt.ylabel('Normalized Values')
+    plt.xticks(rotation=45)
+    
+    # Add value labels on bars
+    for bar, value in zip(bars, performance_data):
+        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.01, 
+                f'{value:.3f}', ha='center', va='bottom')
+    
+    # Milestone achievements
+    plt.subplot(1, 2, 2)
+    milestones = []
+    milestone_episodes = []
+    
+    if episodes_to_50_percent:
+        milestones.append('50% Win Rate')
+        milestone_episodes.append(episodes_to_50_percent)
+    if episodes_to_60_percent:
+        milestones.append('60% Win Rate')
+        milestone_episodes.append(episodes_to_60_percent)
+    if episodes_to_70_percent:
+        milestones.append('70% Win Rate')
+        milestone_episodes.append(episodes_to_70_percent)
+    
+    if milestones:
+        plt.barh(milestones, milestone_episodes, color='skyblue', alpha=0.7)
+        plt.xlabel('Episodes to Achieve')
+        plt.title('Learning Milestones')
+        
+        # Add value labels
+        for i, episodes in enumerate(milestone_episodes):
+            plt.text(episodes + max(milestone_episodes)*0.01, i, 
+                    f'{episodes}', va='center', ha='left')
+    else:
+        plt.text(0.5, 0.5, 'No milestones\nachieved yet', 
+                ha='center', va='center', transform=plt.gca().transAxes, fontsize=12)
+        plt.title('Learning Milestones')
+    
+    plt.tight_layout()
+    plt.savefig(f"figures/performance_summary_{timestamp}.png", dpi=300, bbox_inches="tight")
+    plt.show()
+    
+    # Print summary statistics
+    print(f"\n=== TRAINING SUMMARY ===")
+    print(f"Total Episodes: {num_episodes}")
+    print(f"Final Win Rate: {final_win_rate:.3f}")
+    print(f"Average Game Length: {avg_turns:.1f} turns")
+    print(f"Total Reward Earned: {total_reward:.2f}")
+    print(f"Average Reward per Episode: {total_reward/num_episodes:.3f}")
+    print(f"Final Training Loss: {final_loss:.4f}")
+    
+    if episodes_to_50_percent:
+        print(f"Episodes to 50% win rate: {episodes_to_50_percent}")
+    if episodes_to_60_percent:
+        print(f"Episodes to 60% win rate: {episodes_to_60_percent}")
+    if episodes_to_70_percent:
+        print(f"Episodes to 70% win rate: {episodes_to_70_percent}")
+    
+    return timestamp
 
 def main():
     device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
     print(f"Using device: {device}")
-    net = BackgammonNet().to(device)
-    optimizer = torch.optim.Adam(net.parameters(), lr=1e-4)
+
+    net = SeqBackgammonNet().to(device)
+    opt = torch.optim.Adam(net.parameters(), lr=1e-4)
 
     num_episodes = 30
-    gamma        = 0.99
-    c1           = 0.5
+    gamma, c1    = 0.99, 0.5
 
-    #for some statistics
-    num_turns_per_episode = []
+    # Track additional metrics
+    episode_turns = []
+    episode_rewards = []  # Track total reward per episode
+    episode_losses = []   # Track loss per episode
+    win_history = []  
 
-    for episode in range(1, num_episodes+1):
-        ep_start = time.time()
-        print(f"\n=== Episode {episode}/{num_episodes} ===")
-        game = bg.Game(4)
-        p1   = bg.Player("RLAgent",  bg.PlayerType.PLAYER1)
-        p2   = bg.Player("RandomBot",bg.PlayerType.PLAYER2)
-        game.setPlayers(p1, p2)
+    encode_state._seq_cache_hits = 0
+    encode_state._seq_cache_misses = 0
 
-        log_probs  = []
-        values     = []
-        rewards    = []
+    try: 
+        for ep in trange(1, num_episodes+1,desc="Training", unit="ep"):
+            #print(f"\n=== Episode {ep}/{num_episodes} ===")
+            game = bg.Game(4)
+            p1   = bg.Player("RLAgent",   bg.PlayerType.PLAYER1)
+            p2   = bg.Player("RandomBot", bg.PlayerType.PLAYER2)
+            game.setPlayers(p1, p2)
 
-        turn_count = 0
-        while True:
-            game.printGameBoard()
-            turn_count += 1
+            logps, vals, rews = [], [], []
+            agent_rews = []            # track rewards only for RLAgent’s turns
 
-            # roll the dice for this turn.
-            die1, die2 = game.roll_dice()
-            turn       = game.getTurn()
-            print(f"[Ep {episode} Turn {turn_count}] Rolled dice: ({die1}, {die2}): player ({turn})")
+            turn_count = 0
+            episode_total_reward = 0.0  # Track total reward for this episode
 
-            # 1) encode state
-            board = list(game.getGameBoard())
-            jailed_p1  = game.getJailedCount(0)
-            jailed_p2  = game.getJailedCount(1)
-            born_off_p1= game.getBornOffCount(0)
-            born_off_p2= game.getBornOffCount(1)
-            jailed, borne_off = (jailed_p1, born_off_p1) if turn==0 else (jailed_p2, born_off_p2)
+            while True:
+                #game.printGameBoard()
+                turn_count += 1
+                die1, die2 = game.roll_dice()
+                idx = game.getTurn()
+                player = p1 if idx==0 else p2
+                #print(f"[Turn {turn_count}] Rolled ({die1},{die2}) for P{idx}")
 
-            state = encode_state(board, jailed, borne_off, turn)
-            state = state.unsqueeze(0).to(device)   # [1,6,24]
+                # mask + sequences
+                mask, seqs, dice_orders = build_sequence_mask(game, player, batch_size=1,
+                                                    device=device,
+                                                    max_steps=net.max_steps)
+                
+                if idx == 0:
+                    # encode
+                    board      = list(game.getGameBoard())
+                    ja1, bo1   = game.getJailedCount(0), game.getBornOffCount(0)
+                    ja2, bo2   = game.getJailedCount(1), game.getBornOffCount(1)
+                    jailed, borne = (ja1, bo1) if idx==0 else (ja2, bo2)
+                    state = encode_state(board, jailed, borne, idx)
+                    state = state.unsqueeze(0).to(device)
 
-            # 2) get legal mask
-            legal_mask = build_legal_mask(game, batch_size=1, device=device)
-            legal = legal_mask[0].sum().item()
-            print(f"[debug] found {legal} legal (o→d) pairs this turn")
+                    # mask + sequences
+                    #mask, seqs, dice_orders = build_sequence_mask(game, player, batch_size=1,
+                    #                               device=device,
+                    #                               max_steps=net.max_steps)
+                    # if no legal sequences, first see if the game really is finished:
+                    is_over, winner = game.is_game_over()
+                    if is_over:
+                        break
+                    # otherwise it was just a skipped turn (no moves), so hand turn to opponent:
+                    if len(seqs) == 0:
+                        game.setTurn(1-idx)
+                        continue
 
-            n_legal = legal_mask.sum().item()
-            if n_legal == 0:
-                print(f"[Ep {episode} Turn {turn_count}] ⚠️ No legal moves: skipping turn")
-                game.printGameBoard()
-                # swap turn manually, or let your C++ env handle it if you add a pass() call there
-                # manually hand the turn to the other player
-                turn = game.getTurn()
-                game.setTurn(1 - turn)
-                continue
+                    # forward for raw logits + value
+                    logits, value = net(state, masks=mask)
+                    # compute sequence‐level logits by summing per‑step logits
+                    M = len(seqs)
+                    seq_logits = torch.empty((M,), device=device)
+                    for i, seq in enumerate(seqs):
+                        s = 0.0
+                        for t,(o,d) in enumerate(seq):
+                            s = s + logits[0, t, o*net.S + d]
+                        seq_logits[i] = s
 
-            # 3) forward
-            probs, value = net(state, legal_mask)
+                    # sample one entire sequence
+                    probs_seq = F.softmax(seq_logits, dim=0)
+                    dist_seq  = Categorical(probs_seq)
+                    choice    = dist_seq.sample().item()
+                    #print(f"→ Chosen turn‐sequence [{choice}]: ", end="")
+                    #for (o,d) in seqs[choice]:
+                        #print(f"{o}->{d} ", end="")
+                    #print()  # newline
 
-            # 4) sample action
-            dist   = torch.distributions.Categorical(probs)
-            action = dist.sample()            # int in [0,576)
-            log_prob = dist.log_prob(action)
-            o, d = divmod(action.item(), 26)
-            print(f"[Ep {episode} Turn {turn_count}] Sampled action → move {o}→{d}, logp={log_prob.item():.3f}")
+                    logp_seq = dist_seq.log_prob(torch.tensor(choice, device=device))
+                    # detach the log‐prob so that only this scalar remains on device,
+                    # but it’s still a leaf with requires_grad=True
+                    logps.append(logp_seq)
+                    vals.append(value)
+                    
 
-            # 5) step env
-            #play die 1
-            current_player = p1 if turn==0 else p2
-            success, err = game.tryMove(current_player, die1, o, d)
-            if not success:
-                print(f"   ⚠️  Invalid move: {err!r}, retrying turn {turn_count}")
-                continue  # you may want to handle retries differently
+                    #have a random play for randomBot
+                else:
+                    if len(seqs) == 0:
+                        game.setTurn(1 - idx)   # give turn back to RLAgent
+                        continue
 
-            #play die 2
-            # Build the new mask for die2
-            legal_mask2 = build_legal_mask(game, batch_size=1, device=device)
-            n2 = legal_mask2.sum().item()
-            print(f"  [debug] found {n2} legal moves for die2")
+                    # Otherwise, pick uniformly at random from the non‐empty seqs list:
+                    choice = random.randrange(len(seqs))
+                    #print(f"→ [RandomBot] Chosen sequence #{choice}:", end=" ")
+                    #for (o, d) in seqs[choice]:
+                        #print(f"{o}->{d} ", end="")
+                    #print()
+        
 
-            if n2 > 0:
-                # re‑encode the _updated_ board
-                board       = list(game.getGameBoard())
-                jailed_p1   = game.getJailedCount(0)
-                jailed_p2   = game.getJailedCount(1)
-                born_off_p1 = game.getBornOffCount(0)
-                born_off_p2 = game.getBornOffCount(1)
-                jailed, borne_off = (jailed_p1, born_off_p1) if turn==0 else (jailed_p2, born_off_p2)
+                #execute sequence
+                if die1 == die2:
+                    # doubles → you get four moves of that pip
+                    remaining_dice = [die1] * 4
+                else:
+                    # use exactly the same order C++ used
+                    remaining_dice = dice_orders[choice].copy()
 
-                state2 = encode_state(board, jailed, borne_off, turn)\
-                        .unsqueeze(0)\
-                        .to(device)
+                off_idx = net.S - 1        # 25, the “borne off” index
 
-                # call your network _only_ when there are legal moves
-                probs2, value2 = net(state2, legal_mask2)
-                action2 = torch.distributions.Categorical(probs2).sample()
-                o2, d2 = divmod(action2.item(), 26)
-                success2, err2 = game.tryMove(current_player, die2, o2, d2)
-                if not success2:
-                    print(f"   ⚠️ Invalid second move: {err2!r}")
-                    # … handle retry or just give up on die2 …
-            else:
-                print("  [info] no legal moves for die2, skipping it")
-            # 6) record
-            log_probs.append(log_prob)
-            values.append(value)
+                for (o, d) in seqs[choice]:
+                    if o == 0 and d == 0:
+                        continue
+                    pip = abs(d - o)
+                    chosen_die = None
 
+                    # look for an exact match or, on a bearing‑off, any die ≥ pip
+                    for i, die in enumerate(remaining_dice):
+                        is_bearing_off = (idx == 0 and d == off_idx) or (idx == 1 and d == 0)
+                        if pip == die or (is_bearing_off and die > pip):
+                            chosen_die = die
+                            remaining_dice.pop(i)
+                            break
+
+                    assert chosen_die is not None, (
+                        f"No valid die for move {o}->{d} (needed {pip}, had {remaining_dice})"
+                    )
+
+                    ok, err = game.tryMove(player, chosen_die, o, d)
+                    assert ok, f"Illegal {o}->{d} with die={chosen_die}: {err}"
+
+                # record one logp+value+reward for the full-turn action
+                
+                is_over, winner = game.is_game_over()
+                r = 1.0 if (is_over and winner == 0) else 0.0
+
+                rews.append(r)
+                if idx == 0:
+                    agent_rews.append(r)   #only track RLAgent’s reward here
+
+                if not is_over:
+                    game.setTurn(1-idx)
+                    continue
+                else:
+                    break
+
+            episode_turns.append(turn_count)
+            #(f"Episode done in {turn_count} turns.")
+            #print(f"Winner: {game.is_game_over()[1]}")
+                
+            # Determine winner correctly
             is_over, winner = game.is_game_over()
-            if is_over:
-                reward = 1.0 if winner==turn else -1.0
-                rewards.append(reward)
-                print(f"[Ep {episode} Turn {turn_count}] Game over! Winner = Player {winner}, reward = {reward}")
-                break
-            else:
-                rewards.append(0.0)  # no intermediate reward
-            game.setTurn(1 - turn)
+            rl_won = 1 if winner == 0 else 0
+            win_history.append(rl_won)
+                
+            # Calculate total episode reward correctly
+            episode_total_reward = sum(rews)
+            episode_rewards.append(episode_total_reward)
 
-        # --- end of episode, do learning update ---
-        num_turns_per_episode.append(turn_count)
-        returns = []
-        G = 0
-        for r in reversed(rewards):
-            G = r + gamma * G
-            returns.insert(0, G)
-        returns = torch.tensor(returns, device=device)
+            # returns & update
+            returns = []
+            G = 0.0
+            for r in reversed(agent_rews):
+                G = r + gamma*G
+                returns.insert(0, G)
+            returns = torch.tensor(returns, device=device)
 
-        values    = torch.cat(values)
-        log_probs = torch.stack(log_probs)
-        advantages = returns - values.detach()
+            logps = torch.stack(logps)
+            vals   = torch.cat(vals)
+            advs   = returns - vals.detach()
 
-        policy_loss = -(log_probs * advantages).mean()
-        value_loss  = F.mse_loss(values, returns)
-        loss = policy_loss + c1 * value_loss
+            policy_loss = -(logps * advs).mean()
+            value_loss  = F.mse_loss(vals, returns)
+            loss = policy_loss + c1*value_loss
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            opt.zero_grad()
+            loss.backward()
+            opt.step()
+                
+            # Record the loss for this episode
+            episode_losses.append(loss.item())
+            #print(f"Loss: {loss.item():.4f}")
 
-        ep_time = time.time() - ep_start
-        print(f"=== Episode {episode} done in {turn_count} turns ({ep_time:.2f}s). Loss = {loss.item():.4f} ===")
-    
-    #plot the turn_counts per episode
-    plt.plot(num_turns_per_episode, linestyle='--', marker='o', color='red')
-    plt.xlabel('Index')
-    plt.title('Turns per game')
-    plt.savefig('turns_trend.png',    # filename (extension sets the format)
-            dpi=300,              # resolution in dots-per-inch
-            bbox_inches='tight') 
 
-    # Show the plot
-    plt.show()
+    except Exception as e:
+        print(f"\nTraining interrupted by error: {e}")
+        # NEWWW: ensure progress is saved—generate plots with data so far
+        print("Saving progress up to interruption...")
+        timestamp = plot_all_metrics(
+            win_history,
+            episode_rewards,
+            episode_turns,
+            episode_losses,
+            len(win_history)  # only the number of completed episodes
+        )
+        print(f"Progress plots saved with timestamp: {timestamp}")
+
+        # NEWWW: optionally save a model checkpoint
+        model_path = f"model_checkpoint_{timestamp}.pth"
+        torch.save(net.state_dict(), model_path)
+        print(f"Model checkpoint saved to {model_path}")
+
+        sys.exit(1)
+
+    # NEWWW: if training completes without error, generate final plots
+    print("\nGenerating training analysis plots...")
+    timestamp = plot_all_metrics(
+        win_history,
+        episode_rewards,
+        episode_turns,
+        episode_losses,
+        num_episodes
+    )
+    print(f"Plots saved with timestamp: {timestamp}")
+    print(f"=== build_sequence_mask cache hits: {encode_state._seq_cache_hits}, misses: {encode_state._seq_cache_misses} ===")
+
+
 
 if __name__ == "__main__":
+    profiler = cProfile.Profile()
+    profiler.enable()
     main()
+    profiler.disable()
+    ps = pstats.Stats(profiler).sort_stats("cumtime")
+    ps.print_stats(20)

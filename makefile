@@ -53,3 +53,7 @@ test: build
 # Cleans both the direct build artifacts and the CMake 
 clean:
 	rm -rf $(TARGET) *.o $(BUILD_DIR)
+
+make train:
+	clear
+	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/train.py
