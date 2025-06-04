@@ -37,7 +37,7 @@ import backgammon_env as bg  # type: ignore
 
 
 # ----------------------------------------
-# plot_all_metrics (handles empty data gracefully)
+# plot_all_metrics 
 # ----------------------------------------
 
 def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses, num_completed):
@@ -261,18 +261,37 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
 
     return timestamp
 
+def pip_sum(board, player):
+    """
+    board: list of 24 integers, positive = P1 checkers, negative = P2 checkers
+    player: 0 or 1
+    Return the sum of “pip distances” for that players 15 checkers:
+      - for P1, pip distance of a single checker on point i is (25 - i)
+      - for P2, pip distance is (i)
+    """
+    s = 0
+    if player == 0:  # P1
+        for i, cnt in enumerate(board, start=1):
+            if cnt > 0:
+                s += (25 - i) * cnt
+    else:  # P2
+        for i, cnt in enumerate(board, start=1):
+            if cnt < 0:
+                s += i * abs(cnt)
+    return s
+
 
 def main():
     device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
     print(f"Using device: {device}")
 
     net = SeqBackgammonNet().to(device)
-    opt = torch.optim.Adam(net.parameters(), lr=1e-4)
+    opt = torch.optim.Adam(net.parameters(), lr=1e-4) 
 
     global num_completed
     num_completed = 0
     gamma, c1 = 0.99, 0.5
-    num_episodes = 1000
+    num_episodes = 500
 
     episode_turns = []
     episode_rewards = []
@@ -285,12 +304,12 @@ def main():
     try:
         for ep in trange(1, num_episodes + 1, desc="Training", unit="ep"):
             game = bg.Game(4)
-            p1 = bg.Player("RLAgent", bg.PlayerType.PLAYER1)
-            p2 = bg.Player("RandomBot", bg.PlayerType.PLAYER2)
+            p1 = bg.Player("Agent1", bg.PlayerType.PLAYER1)
+            p2 = bg.Player("Agent2", bg.PlayerType.PLAYER2)
             game.setPlayers(p1, p2)
 
-            logps, vals, rews = [], [], []
-            agent_rews = []
+            logps, vals, rews = [], [], [] #log probability, values, rewards
+            agent_rews = [] #reqards for the RL agent
             turn_count = 0
 
             while True:
@@ -299,7 +318,7 @@ def main():
                 idx = game.getTurn()
                 player = p1 if idx == 0 else p2
 
-                # Fetch mask, seqs, dice_orders, and index tensors
+                # Fetch mask, seqs, dice_orders, and index tensors for the current player
                 mask, seqs, dice_orders, all_t, all_flat, valid_mask = build_sequence_mask(
                     game,
                     player,
@@ -308,36 +327,38 @@ def main():
                     max_steps=net.max_steps
                 )
 
+                # If there are no legal sequences, skip to the other player.
+                if len(seqs) == 0:
+                    game.setTurn(1 - idx)
+                    continue
+
+                # ────────────── Agent1 (idx == 0) ──────────────
                 if idx == 0:
-                    # Encode state
+                    # Encode state for P1
                     board = list(game.getGameBoard())
                     ja1, bo1 = game.getJailedCount(0), game.getBornOffCount(0)
-                    ja2, bo2 = game.getJailedCount(1), game.getBornOffCount(1)
-                    jailed, borne = (ja1, bo1) if idx == 0 else (ja2, bo2)
-                    state = encode_state.encode_state(board, jailed, borne, idx)
+                    state = encode_state.encode_state(board, ja1, bo1, idx)
                     state = state.unsqueeze(0).to(device)
 
+                    # Check for game over before picking an action
                     is_over, winner = game.is_game_over()
                     if is_over:
                         break
 
-                    if len(seqs) == 0:
-                        game.setTurn(1 - idx)
-                        continue
-
+                    # Forward pass through network to get logits and value
                     logits, value = net(state, masks=mask)  # logits: [1, T, N]
 
-                    # Vectorized sequence scoring
-                    step_logits = logits.squeeze(0)         # [T, N]
+                    # Vectorized sequence scoring (exact same as before)
+                    step_logits = logits.squeeze(0)  # [T, N]
                     T, N = step_logits.shape
-                    flat_logits = step_logits.view(-1)      # [T*N]
+                    flat_logits = step_logits.view(-1)  # [T*N]
 
-                    index_tensor = all_t * N + all_flat     # [M, T]
-                    gathered = flat_logits[index_tensor]     # [M, T]
+                    index_tensor = all_t * N + all_flat  # [M, T]
+                    gathered = flat_logits[index_tensor]  # [M, T]
                     gathered = gathered * valid_mask.float()
-                    seq_logits = gathered.sum(dim=1)        # [M]
+                    seq_logits = gathered.sum(dim=1)  # [M]
 
-                    # Safe softmax: guard against nan/inf
+                    # Safe softmax (avoid NaNs)
                     probs_seq = F.softmax(seq_logits, dim=0)
                     if torch.isnan(probs_seq).any():
                         M = seq_logits.size(0)
@@ -350,15 +371,50 @@ def main():
                     choice = choice_tensor.item()
                     logp_seq = torch.log(probs_seq[choice]).unsqueeze(0)
 
+                    # Record log-prob and value for P1
                     logps.append(logp_seq)
                     vals.append(value)
 
-                else:
-                    if len(seqs) == 0:
-                        game.setTurn(1 - idx)
-                        continue
-                    choice = random.randrange(len(seqs))
+                    # Save "previous" state variables for reward calculation (P1 perspective)
+                    prev_board = list(game.getGameBoard())
+                    prev_born = game.getBornOffCount(0)
+                    prev_pip = pip_sum(prev_board, 0)
+                    prev_jailed_opponent = game.getJailedCount(1)
 
+                # ────────────── Agent2 (idx == 1) ──────────────
+                else:
+                    # Encode state for P2, but wrap in no_grad so we do not compute gradients
+                    board = list(game.getGameBoard())
+                    ja2, bo2 = game.getJailedCount(1), game.getBornOffCount(1)
+                    state = encode_state.encode_state(board, ja2, bo2, idx)
+                    state = state.unsqueeze(0).to(device)
+
+                    # Forward pass under no_grad
+                    with torch.no_grad():
+                        logits, _ = net(state, masks=mask)  # we ignore the value for P2
+                        step_logits = logits.squeeze(0)  # [T, N]
+                        T, N = step_logits.shape
+                        flat_logits = step_logits.view(-1)  # [T*N]
+
+                        index_tensor = all_t * N + all_flat  # [M, T]
+                        gathered = flat_logits[index_tensor]  # [M, T]
+                        gathered = gathered * valid_mask.float()
+                        seq_logits = gathered.sum(dim=1)  # [M]
+
+                        # Safe softmax
+                        probs_seq = F.softmax(seq_logits, dim=0)
+                        if torch.isnan(probs_seq).any():
+                            M = seq_logits.size(0)
+                            probs_seq = torch.ones(M, device=device) / M
+                        else:
+                            probs_seq = probs_seq.clamp(min=1e-8)
+                            probs_seq = probs_seq / probs_seq.sum()
+
+                        choice_tensor = torch.multinomial(probs_seq, num_samples=1)
+                        choice = choice_tensor.item()
+                        # We do NOT append logp or value for P2
+
+                # ────────────── Execute the chosen sequence ──────────────
                 # Execute chosen sequence
                 if die1 == die2:
                     remaining_dice = [die1] * 4
@@ -385,16 +441,47 @@ def main():
                     assert ok, f"Illegal {o}->{d} with die={chosen_die}: {err}"
 
                 is_over, winner = game.is_game_over()
-                r = 1.0 if (is_over and winner == 0) else 0.0
-                rews.append(r)
-                if idx == 0:
-                    agent_rews.append(r)
 
-                if not is_over:
+                # ────────────── Compute reward for P1 perspective ──────────────
+                is_over, winner = game.is_game_over()
+                if is_over:
+                    # Terminal reward: +1 if P1 wins; -1 if P2 wins
+                    r_total = 1.0 if (winner == 0) else -1.0
+                else:
+                    # Born-off reward for P1
+                    new_born = game.getBornOffCount(0)
+                    r_born = 0.1 * (new_born - prev_born)
+
+                    # Pip-sum reward for P1
+                    new_board = list(game.getGameBoard())
+                    new_pip = pip_sum(new_board, 0)
+                    r_pip = 0.001 * (prev_pip - new_pip)
+
+                    # Capture (hit) reward: if P1 just hit P2
+                    r_hit = 0.0
+                    if prev_jailed_opponent < game.getJailedCount(1):
+                        r_hit = 0.15
+
+                    # Time penalty (to encourage shorter games)
+                    r_time = -0.001
+
+                    r_total = r_born + r_pip + r_hit + r_time
+
+                # Append reward to the master list (for logging/plots)
+                rews.append(r_total)
+
+                # If it's P1's turn, also append to agent_rews (so we can do returns & training)
+                if idx == 0:
+                    agent_rews.append(r_total)
+
+                # If game is over, break out of the while loop
+                if is_over:
+                    break
+                else:
+                    # Otherwise, switch turn and continue
                     game.setTurn(1 - idx)
                     continue
-                else:
-                    break
+
 
             episode_turns.append(turn_count)
 
@@ -405,7 +492,7 @@ def main():
             episode_total_reward = sum(rews)
             episode_rewards.append(episode_total_reward)
 
-            # Compute returns
+            # Compute returns for Agent 1 alone
             returns = []
             G = 0.0
             for r in reversed(agent_rews):
@@ -413,9 +500,9 @@ def main():
                 returns.insert(0, G)
             returns = torch.tensor(returns, device=device)
 
-            logps = torch.stack(logps)
-            vals = torch.cat(vals)
-            advs = returns - vals.detach()
+            logps = torch.stack(logps)      
+            vals = torch.cat(vals)          
+            advs = returns - vals.detach()  
 
             policy_loss = -(logps * advs).mean()
             value_loss = F.mse_loss(vals, returns)
@@ -423,6 +510,8 @@ def main():
 
             opt.zero_grad()
             loss.backward()
+            # Gradient clipping for stability
+            torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
             opt.step()
 
             episode_losses.append(loss.item())
@@ -462,5 +551,5 @@ if __name__ == "__main__":
     profiler.enable()
     main()
     profiler.disable()
-    ps = pstats.Stats(profiler).sort_stats("cumtime")
     ps.print_stats(20)
+    ps = pstats.Stats(profiler).sort_stats("cumtime")
