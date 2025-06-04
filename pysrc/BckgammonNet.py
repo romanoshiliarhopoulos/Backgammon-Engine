@@ -48,6 +48,8 @@ class SeqBackgammonNet(nn.Module):
         logits = logits.view(b, self.max_steps, self.N)
         if masks is not None:
             logits = logits.masked_fill(~masks, float('-inf'))
-        return logits, torch.tanh(self.value_head(h)).squeeze(-1)
+
+        # ––– Do NOT clamp with tanh. Output a raw scalar so the critic can predict any real value.
+        return logits, self.value_head(h).squeeze(-1)
 
     

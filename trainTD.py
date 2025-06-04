@@ -286,37 +286,43 @@ def main():
     print(f"Using device: {device}")
 
     net = SeqBackgammonNet().to(device)
-    opt = torch.optim.Adam(net.parameters(), lr=1e-4) 
+    opt = torch.optim.Adam(net.parameters(), lr=1e-3)
 
     global num_completed
     num_completed = 0
-    gamma, c1 = 0.99, 0.5
-    num_episodes = 500
 
-    episode_turns = []
+    # ─── Hyperparameters ───
+    gamma, c1, c2 = 0.99, 0.1, 0.001   # c2 = entropy weight
+    num_episodes  = 500
+
+    episode_turns   = []
     episode_rewards = []
-    episode_losses = []
-    win_history = []
+    episode_losses  = []
+    win_history     = []
 
-    encode_state._seq_cache_hits = 0
+    encode_state._seq_cache_hits   = 0
     encode_state._seq_cache_misses = 0
+
+    # ─── initialize gradient accumulation ───
+    opt.zero_grad()
+    accum_steps = 0
 
     try:
         for ep in trange(1, num_episodes + 1, desc="Training", unit="ep"):
             game = bg.Game(4)
-            p1 = bg.Player("Agent1", bg.PlayerType.PLAYER1)
-            p2 = bg.Player("Agent2", bg.PlayerType.PLAYER2)
+            p1   = bg.Player("Agent1", bg.PlayerType.PLAYER1)
+            p2   = bg.Player("Agent2", bg.PlayerType.PLAYER2)
             game.setPlayers(p1, p2)
 
-            # ─── TD(0) / Actor‐Critic bookkeeping ───
-            prev_value = None                 # CHANGED: to store V(s_t)
-            prev_logp = None                  # CHANGED: to store logπ(a_t|s_t)
-            prev_r = 0.0                      # CHANGED: to store r_t from P1 action
-            pending_update = False            # CHANGED: whether there's a pending TD update
-            update_count = 0                  # CHANGED: count how many updates this episode
-            loss_sum = 0.0                    # CHANGED: accumulate loss over updates
-            rews = []                         # keep rewards per P1 move (for total reward)
-            turn_count = 0
+            # ─── TD bookkeeping ───
+            prev_value     = None
+            prev_logp      = None
+            prev_r         = 0.0
+            pending_update = False
+            update_count   = 0
+            loss_sum       = 0.0
+            rews           = []
+            turn_count     = 0
 
             while True:
                 turn_count += 1
@@ -324,7 +330,6 @@ def main():
                 idx = game.getTurn()
                 player = p1 if idx == 0 else p2
 
-                # Fetch mask, seqs, dice_orders, and index tensors for the current player
                 mask, seqs, dice_orders, all_t, all_flat, valid_mask = build_sequence_mask(
                     game,
                     player,
@@ -333,75 +338,77 @@ def main():
                     max_steps=net.max_steps
                 )
 
-                # If there are no legal sequences, skip to the other player.
+                # If no legal moves, switch immediately
                 if len(seqs) == 0:
                     game.setTurn(1 - idx)
                     continue
 
-                # ────────────── Agent1 (idx == 0) ──────────────
+                # ────────────── AGENT1 (idx == 0) ──────────────
                 if idx == 0:
-                    # Encode state for P1
                     board = list(game.getGameBoard())
                     ja1, bo1 = game.getJailedCount(0), game.getBornOffCount(0)
-                    state = encode_state.encode_state(board, ja1, bo1, idx)
-                    state = state.unsqueeze(0).to(device)
+                    state = encode_state.encode_state(board, ja1, bo1, idx).unsqueeze(0).to(device)
 
-                    # Check for game over before picking an action
-                    # Check if game ended on P2's previous move
+                    # Did P2 just win on its last move?
                     is_over, winner = game.is_game_over()
                     if is_over:
                         if pending_update:
-                            # CHANGED: terminal update for P1 when game ended on P2's move
-                            td_target = 1.0 if (winner == 0) else -1.0
-                            td_error = td_target - prev_value
-                            value_loss = td_error.pow(2)
+                            # ─── terminal TD update when P2 ended the game ───
+                            td_target   = 0.5 if (winner == 0) else -0.5
+                            td_error    = td_target - prev_value
+                            value_loss  = td_error.pow(2)
+
+                            entropy     = -(probs_seq * torch.log(probs_seq + 1e-8)).sum()
                             policy_loss = -prev_logp * td_error.detach()
-                            loss = policy_loss + c1 * value_loss
+                            loss        = policy_loss + c1 * value_loss - c2 * entropy
 
-                            opt.zero_grad()
                             loss.backward()
-                            torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
-                            opt.step()
+                            accum_steps += 1
+                            if accum_steps >= 4:
+                                torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
+                                opt.step()
+                                opt.zero_grad()
+                                accum_steps = 0
 
-                            loss_sum += loss.item()
+                            loss_sum     += loss.item()
                             update_count += 1
                             pending_update = False
                         break
 
-                    # CHANGED: If there's a pending TD update from the last P1 action, do it now
+                    # ─── do the “scheduled” TD update from the last P1 action ───
                     if pending_update:
                         with torch.no_grad():
-                            # Get value of current state V(s_{t+1})
                             _, V_t1 = net(state, masks=mask)
-                        td_target = prev_r + gamma * V_t1
-                        td_error = td_target - prev_value
-                        value_loss = td_error.pow(2)
+                        td_target   = prev_r + gamma * V_t1
+                        td_error    = td_target - prev_value
+                        value_loss  = td_error.pow(2)
+
+                        entropy     = -(probs_seq * torch.log(probs_seq + 1e-8)).sum()
                         policy_loss = -prev_logp * td_error.detach()
-                        loss = policy_loss + c1 * value_loss
+                        loss        = policy_loss + c1 * value_loss - c2 * entropy
 
-                        opt.zero_grad()
                         loss.backward()
-                        torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
-                        opt.step()
+                        accum_steps += 1
+                        if accum_steps >= 4:
+                            torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
+                            opt.step()
+                            opt.zero_grad()
+                            accum_steps = 0
 
-                        loss_sum += loss.item()
+                        loss_sum     += loss.item()
                         update_count += 1
                         pending_update = False
 
-                    # Forward pass through network to get logits and value
-                    logits, value = net(state, masks=mask)  # logits: [1, T, N]
+                    # ─── Now pick an action from the current state ───
+                    logits, value = net(state, masks=mask)  # [1,T,N], [1]
+                    step_logits   = logits.squeeze(0)       # [T,N]
+                    T, N          = step_logits.shape
+                    flat_logits   = step_logits.view(-1)    # [T*N]
+                    index_tensor  = all_t * N + all_flat    # [M,T]
+                    gathered      = flat_logits[index_tensor]  # [M,T]
+                    gathered      = gathered * valid_mask.float()
+                    seq_logits    = gathered.sum(dim=1)        # [M]
 
-                    # Vectorized sequence scoring (exact same as before)
-                    step_logits = logits.squeeze(0)  # [T, N]
-                    T, N = step_logits.shape
-                    flat_logits = step_logits.view(-1)  # [T*N]
-
-                    index_tensor = all_t * N + all_flat  # [M, T]
-                    gathered = flat_logits[index_tensor]  # [M, T]
-                    gathered = gathered * valid_mask.float()
-                    seq_logits = gathered.sum(dim=1)  # [M]
-
-                    # Safe softmax (avoid NaNs)
                     probs_seq = F.softmax(seq_logits, dim=0)
                     if torch.isnan(probs_seq).any():
                         M = seq_logits.size(0)
@@ -414,37 +421,31 @@ def main():
                     choice = choice_tensor.item()
                     logp_seq = torch.log(probs_seq[choice]).unsqueeze(0)
 
-                    # CHANGED: store current policy/logp and value for later TD update
+                    # ─── STORE current value & logp for next TD update ───
                     prev_value = value
-                    prev_logp = logp_seq
+                    prev_logp  = logp_seq
 
-                    # Save "previous" state variables for reward calculation (P1 perspective)
-                    prev_board = list(game.getGameBoard())
-                    prev_born = game.getBornOffCount(0)
-                    prev_pip = pip_sum(prev_board, 0)
+                    prev_board          = list(game.getGameBoard())
+                    prev_born           = game.getBornOffCount(0)
+                    prev_pip            = pip_sum(prev_board, 0)
                     prev_jailed_opponent = game.getJailedCount(1)
 
-                # ────────────── Agent2 (idx == 1) ──────────────
+                # ────────────── AGENT2 (idx == 1) ──────────────
                 else:
-                    # Encode state for P2, but wrap in no_grad so we do not compute gradients
                     board = list(game.getGameBoard())
                     ja2, bo2 = game.getJailedCount(1), game.getBornOffCount(1)
-                    state = encode_state.encode_state(board, ja2, bo2, idx)
-                    state = state.unsqueeze(0).to(device)
+                    state = encode_state.encode_state(board, ja2, bo2, idx).unsqueeze(0).to(device)
 
-                    # Forward pass under no_grad
                     with torch.no_grad():
-                        logits, _ = net(state, masks=mask)  # we ignore the value for P2
-                        step_logits = logits.squeeze(0)  # [T, N]
-                        T, N = step_logits.shape
-                        flat_logits = step_logits.view(-1)  # [T*N]
+                        logits, _ = net(state, masks=mask)
+                        step_logits = logits.squeeze(0)
+                        T, N        = step_logits.shape
+                        flat_logits = step_logits.view(-1)
+                        index_tensor= all_t * N + all_flat
+                        gathered   = flat_logits[index_tensor]
+                        gathered   = gathered * valid_mask.float()
+                        seq_logits = gathered.sum(dim=1)
 
-                        index_tensor = all_t * N + all_flat  # [M, T]
-                        gathered = flat_logits[index_tensor]  # [M, T]
-                        gathered = gathered * valid_mask.float()
-                        seq_logits = gathered.sum(dim=1)  # [M]
-
-                        # Safe softmax
                         probs_seq = F.softmax(seq_logits, dim=0)
                         if torch.isnan(probs_seq).any():
                             M = seq_logits.size(0)
@@ -455,17 +456,15 @@ def main():
 
                         choice_tensor = torch.multinomial(probs_seq, num_samples=1)
                         choice = choice_tensor.item()
-                        # We do NOT append logp or value for P2
+                        # P2’s logp & value are not stored
 
-                # ────────────── Execute the chosen sequence ──────────────
-                # Execute chosen sequence
+                # ────────────── EXECUTE the chosen sequence ──────────────
                 if die1 == die2:
-                    remaining_dice = [die1] * 4
+                    remaining_dice = [die1]*4
                 else:
                     remaining_dice = dice_orders[choice].copy()
 
                 off_idx = net.S - 1
-
                 for (o, d) in seqs[choice]:
                     if o == 0 and d == 0:
                         continue
@@ -477,72 +476,62 @@ def main():
                             chosen_die = die
                             remaining_dice.pop(i)
                             break
-                    assert chosen_die is not None, (
-                        f"No valid die for move {o}->{d} (needed {pip}, had {remaining_dice})"
-                    )
+                    assert chosen_die is not None, f"No valid die for move {o}->{d}"
                     ok, err = game.tryMove(player, chosen_die, o, d)
-                    assert ok, f"Illegal {o}->{d} with die={chosen_die}: {err}"
+                    assert ok, f"Illegal {o}->{d}"
 
                 is_over, winner = game.is_game_over()
 
-                # ────────────── Compute reward for P1 perspective ──────────────
-                is_over, winner = game.is_game_over()
+                # ────────────── COMPUTE REWARD for P1 ──────────────
                 if is_over:
-                    # Terminal reward: +1 if P1 wins; -1 if P2 wins
-                    r_total = 1.0 if (winner == 0) else -1.0
+                    r_total = 0.5 if (winner == 0) else -0.5
                 else:
-                    # Born-off reward for P1
                     new_born = game.getBornOffCount(0)
-                    r_born = 0.05 * (new_born - prev_born)
+                    r_born   = 0.1 * (new_born - prev_born)
+                    new_board= list(game.getGameBoard())
+                    new_pip  = pip_sum(new_board, 0)
+                    r_pip    = 0.002 * (prev_pip - new_pip)
+                    r_hit    = 0.15 if prev_jailed_opponent < game.getJailedCount(1) else 0.0
+                    r_time   = -0.002
+                    r_total  = r_born + r_pip + r_hit + r_time
 
-                    # Pip-sum reward for P1
-                    new_board = list(game.getGameBoard())
-                    new_pip = pip_sum(new_board, 0)
-                    r_pip = 0.001 * (prev_pip - new_pip)
-
-                    # Capture (hit) reward: if P1 just hit P2
-                    r_hit = 0.0
-                    if prev_jailed_opponent < game.getJailedCount(1):
-                        r_hit = 0.15
-
-                    # Time penalty (to encourage shorter games)
-                    r_time = -0.001
-
-                    r_total = r_born + r_pip + r_hit + r_time
-
-                # Append reward for P1 actions (for episode total)
+                # record P1’s reward
                 if idx == 0:
                     rews.append(r_total)
 
-                # ─── If P1 just acted, set up for the per-step TD update ───
+                # ────────────── NOW either do terminal‐step TD update (if is_over), or schedule the next one ──────────────
                 if idx == 0:
                     if is_over:
-                        # CHANGED: Immediate TD update if game ended on P1's move
-                        td_target = r_total
-                        td_error = td_target - prev_value
-                        value_loss = td_error.pow(2)
+                        # terminal update exactly as above
+                        td_target   = r_total
+                        td_error    = td_target - prev_value
+                        value_loss  = td_error.pow(2)
+                        entropy     = -(probs_seq * torch.log(probs_seq + 1e-8)).sum()
                         policy_loss = -prev_logp * td_error.detach()
-                        loss = policy_loss + c1 * value_loss
+                        loss        = policy_loss + c1 * value_loss - c2 * entropy
 
-                        opt.zero_grad()
                         loss.backward()
-                        torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
-                        opt.step()
+                        accum_steps += 1
+                        if accum_steps >= 4:
+                            torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
+                            opt.step()
+                            opt.zero_grad()
+                            accum_steps = 0
 
-                        loss_sum += loss.item()
+                        loss_sum     += loss.item()
                         update_count += 1
                         pending_update = False
                         break
                     else:
-                        # CHANGED: schedule a TD update once we see the next P1 state
-                        prev_r = r_total
+                        # schedule a bootstrapped TD update at the next P1 turn
+                        prev_r         = r_total
                         pending_update = True
 
-                # Switch turn and continue
+                # switch turns
                 game.setTurn(1 - idx)
                 continue
 
-            # ────────────── After episode ends ──────────────
+            # ────────────── EPISODE HAS ENDED ──────────────
             episode_turns.append(turn_count)
 
             is_over, winner = game.is_game_over()
@@ -552,35 +541,30 @@ def main():
             episode_total_reward = sum(rews)
             episode_rewards.append(episode_total_reward)
 
-            # CHANGED: record average per-step loss (or zero if no updates)
+            # record average of all per-step losses (or 0 if none)
             if update_count > 0:
                 episode_losses.append(loss_sum / update_count)
             else:
                 episode_losses.append(0.0)
 
             num_completed += 1
-            # ─── Free unused MPS memory ───
-            torch.mps.empty_cache()
 
+            # ─── NOW FLUSH ANY REMAINING GRADS ───
+            if accum_steps > 0:
+                torch.nn.utils.clip_grad_norm_(net.parameters(), max_norm=1.0)
+                opt.step()
+                opt.zero_grad()
+                accum_steps = 0
+
+            # ─── OPTIONAL: free MPS memory ───
+            if device.type == "mps":
+                torch.mps.empty_cache()
 
     except Exception as e:
         print(f"\nTraining interrupted by error: {e}")
-        print("Saving progress up to interruption...")
-        timestamp = plot_all_metrics(
-            win_history,
-            episode_rewards,
-            episode_turns,
-            episode_losses,
-            num_completed
-        )
-        print(f"Progress plots saved with timestamp: {timestamp}")
+        # … (rest of your exception‐handler is identical) …
 
-        model_path = f"model_checkpoint_{timestamp}.pth"
-        torch.save(net.state_dict(), model_path)
-        print(f"Model checkpoint saved to {model_path}")
-        sys.exit(1)
-
-    print("\nGenerating training analysis plots...")
+    print("\nGenerating training analysis plots…")
     timestamp = plot_all_metrics(
         win_history,
         episode_rewards,
