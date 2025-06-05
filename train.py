@@ -36,7 +36,7 @@ sys.path[:0] = [os.path.join(d, "build"), os.path.join(d, "pysrc")]
 import backgammon_env as bg  # type: ignore
 
 
-# ----------------------------------------
+# -------------------------------------
 # plot_all_metrics 
 # ----------------------------------------
 
