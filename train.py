@@ -38,7 +38,7 @@ import backgammon_env as bg  # type: ignore
 
 # -------------------------------------
 # plot_all_metrics 
-# ----------------------------------------
+# --------------------------------------
 
 def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses, num_completed):
     """
