@@ -1,0 +1,1 @@
+#training loop for model 2. Will be completed shortly, hopefully with more success than our previous training loop. 
