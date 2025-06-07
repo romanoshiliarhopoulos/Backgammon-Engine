@@ -33,7 +33,7 @@ from encode_state import encode_state, build_sequence_mask
 # ==== Hyperparameters =====
 NUM_ITERATIONS     = 100
 NUM_SELFPLAY_GAMES = 10
-MCTS_SIMS          = 0   # dummy, not used in fallback
+MCTS_SIMS          = 0   # dummy, not used 
 BATCH_SIZE         = 64
 EPOCHS_PER_ITER    = 1
 LR                 = 3e-4
