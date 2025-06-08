@@ -9,7 +9,7 @@ Assumes you have:
 import os
 import sys
 
-# ensure C++ extension, script dir, and pysrc bindings are on path
+# ensure C++ extension, script dir, and pysrc bindings 
 root = os.path.dirname(__file__)
 parent = os.path.abspath(os.path.join(root, '..', '..'))
 sys.path[:0] = [
