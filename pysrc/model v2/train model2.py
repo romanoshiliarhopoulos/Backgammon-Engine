@@ -135,6 +135,12 @@ class SelfPlayTrainer:
         self.games_played = 0
         self.training_steps = 0
         self.win_rates = deque(maxlen=100)
+        # Add this to your SelfPlayTrainer.__init__
+
+        self.cache_clear_interval = 5  # Clear cache every 10 games
+
+        
+
     
     
     def select_action(self, game, player, temperature=1.0):
@@ -349,6 +355,10 @@ class SelfPlayTrainer:
             temperature = max(0.1, 1.0 - game_idx / (num_games * 0.8))
             experiences = self.play_game(temperature=temperature)
             
+            # Also clear PyTorch cache
+            if torch.backends.mps.is_available():
+                torch.mps.empty_cache()
+            
             # Compute returns and add to buffer
             returns = self.compute_returns(experiences)
             for exp, ret in zip(experiences, returns):
@@ -364,7 +374,12 @@ class SelfPlayTrainer:
                 win_rate = np.mean(self.win_rates) if self.win_rates else 0.0
                 logger.info(f"Game {game_idx}: Loss={loss_info['total_loss']:.4f}, "
                           f"Win Rate={win_rate:.3f}, Temp={temperature:.3f}")
-            
+            if game_idx % self.cache_clear_interval == 0:
+                logger.info(f"Clearing sequence cache at game {game_idx}")
+                from encode_state import clear_sequence_cache, get_cache_stats
+                stats = get_cache_stats()
+                logger.info(f"Cache stats before clear: {stats}")
+                clear_sequence_cache()
             # Save model
             if game_idx % save_interval == 0 and game_idx > 0:
                 self.save_model(f"model_checkpoint_{game_idx}.pt")
