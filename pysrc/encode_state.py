@@ -41,7 +41,7 @@ _seq_cache_misses = 0
 def build_sequence_mask(game,
                         curr_player,
                         batch_size=1,
-                        device='cpu',
+                        device='mps',
                         max_steps=_max_steps):
     """
     Returns:
