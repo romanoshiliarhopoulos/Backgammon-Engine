@@ -1,5 +1,7 @@
 import torch
+import logging
 
+logger = logging.getLogger(__name__)
 
 
 # Pre‐allocate a reusable mask buffer of shape (1, max_steps, 26*26).
@@ -10,52 +12,59 @@ _N = _S * _S
 _mask_buffer = torch.zeros((1, _max_steps, _N), dtype=torch.bool)
 
 
-def encode_state(board, jailed, borne_off, turn):
+def encode_state(board, pieces, turn, dice1=0, dice2=0):
+    """
+    Encode game state into 9-channel tensor for neural network input
+    
+    Args:
+        board: List of 24 integers representing piece counts on each point
+        pieces: Pieces object from the game
+        turn: Current player turn (0 or 1)
+        dice1, dice2: Current dice values
+    
+    Returns:
+        torch.Tensor of shape [9, 24] representing the encoded state
+    """
     board_pts = torch.tensor(board, dtype=torch.float32)
     p1 = torch.clamp(board_pts, min=0).unsqueeze(0)
     p2 = torch.clamp(-board_pts, min=0).unsqueeze(0)
     
-    # Get dice information from the last roll
-    # You'll need to pass dice info to this function or get it from game state
-    dice1_plane = torch.zeros((1, 24))  # Will need actual dice values
-    dice2_plane = torch.zeros((1, 24))  # Will need actual dice values
+    # Create dice planes
+    dice1_plane = torch.full((1, 24), float(dice1))
+    dice2_plane = torch.full((1, 24), float(dice2))
     
-    if turn == 1:
-        # Player 1's perspective
+    # Get piece counts for both players
+    p1_jailed = pieces.numJailed(0)
+    p1_borne_off = pieces.numFreed(0)
+    p2_jailed = pieces.numJailed(1)
+    p2_borne_off = pieces.numFreed(1)
+    
+    if turn == 0:  # Player 1's turn
         cur_pieces = p1
-        cur_jail = torch.full((1, 24), float(jailed))
-        cur_off = torch.full((1, 24), float(borne_off))
+        cur_jail = torch.full((1, 24), float(p1_jailed))
+        cur_off = torch.full((1, 24), float(p1_borne_off))
         
         opp_pieces = p2
-        opp_jail = torch.full((1, 24), float(board_pts.min().abs()))
-        opp_off = torch.full((1, 24), float(board_pts.max().abs()))
+        opp_jail = torch.full((1, 24), float(p2_jailed))
+        opp_off = torch.full((1, 24), float(p2_borne_off))
         
-        turn_plane = torch.ones((1, 24))  # Player 1's turn
-    else:
-        # Player 2's perspective  
+        turn_plane = torch.ones((1, 24))
+    else:  # Player 2's turn
         cur_pieces = p2
-        cur_jail = torch.full((1, 24), float(jailed))
-        cur_off = torch.full((1, 24), float(borne_off))
+        cur_jail = torch.full((1, 24), float(p2_jailed))
+        cur_off = torch.full((1, 24), float(p2_borne_off))
         
         opp_pieces = p1
-        opp_jail = torch.full((1, 24), float(board_pts.max().abs()))
-        opp_off = torch.full((1, 24), float(board_pts.min().abs()))
+        opp_jail = torch.full((1, 24), float(p1_jailed))
+        opp_off = torch.full((1, 24), float(p1_borne_off))
         
-        turn_plane = torch.zeros((1, 24))  # Player 2's turn
+        turn_plane = torch.zeros((1, 24))
 
-    # Stack all 9 channels
     return torch.cat([
-        cur_pieces,    # Channel 0: Current player pieces
-        cur_jail,      # Channel 1: Current player jailed count
-        cur_off,       # Channel 2: Current player borne off count
-        opp_pieces,    # Channel 3: Opponent pieces
-        opp_jail,      # Channel 4: Opponent jailed count  
-        opp_off,       # Channel 5: Opponent borne off count
-        dice1_plane,   # Channel 6: First die value
-        dice2_plane,   # Channel 7: Second die value
-        turn_plane     # Channel 8: Whose turn (1=player1, 0=player2)
+        cur_pieces, cur_jail, cur_off,
+        opp_pieces, opp_jail, opp_off,
+        dice1_plane, dice2_plane, turn_plane
     ], dim=0)
-
 
 _seq_cache = {}          # Cache: key → (mask_tensor_on_device, seqs, dice_orders)
 _seq_cache_hits = 0
@@ -67,82 +76,126 @@ def build_sequence_mask(game,
                         device='mps',
                         max_steps=_max_steps):
     """
-    Returns:
-      mask_on_device:   Tensor[1, max_steps, S*S] (bool)
-      seqs:             list of legal sequences for this turn
-      dice_orders:      list of dice_order lists for each sequence
-      all_t:            LongTensor[M, max_steps] of timestep indices
-      all_flat:         LongTensor[M, max_steps] of (o*S + d) indices
-      valid_mask:       BoolTensor[M, max_steps] where True indicates a real step
+    Simplified version that trusts the C++ engine's legal sequence generation
     """
     global _seq_cache_hits, _seq_cache_misses, _mask_buffer
 
     assert batch_size == 1, "This implementation only supports batch_size=1."
 
-    #Compute the cache key: (board_tuple, die1, die2, player)
+    # Compute the cache key
     board = tuple(game.getGameBoard())
     die1, die2 = game.get_last_dice()
-    player = game.getTurn()
-    key = (board, die1, die2, player)
+    player_num = curr_player.getNum()
+    key = (board, die1, die2, player_num)
 
-    # Cache hit? used cached info
+    # Check cache
     if key in _seq_cache:
         _seq_cache_hits += 1
-        (
-            cached_mask,
-            cached_seqs,
-            cached_orders,
-            cached_all_t,
-            cached_all_flat,
-            cached_valid_mask
-        ) = _seq_cache[key]
+        cached_data = _seq_cache[key]
         return (
-            cached_mask.clone(),
-            cached_seqs,
-            cached_orders,
-            cached_all_t,
-            cached_all_flat,
-            cached_valid_mask
+            cached_data[0].clone(),
+            cached_data[1],
+            cached_data[2],
+            cached_data[3],
+            cached_data[4],
+            cached_data[5]
         )
 
-    #Cache miss: build from scratch
     _seq_cache_misses += 1
-
-    # Zero out buffer
     _mask_buffer.zero_()
 
-    #  get all  Legal sequences from game engine
-    seqs = game.legalTurnSequences(player, die1, die2)
+    # Get legal sequences from C++ engine
+    try:
+        seqs = game.legalTurnSequences(player_num, die1, die2)
+        logger.debug(f"C++ engine returned {len(seqs)} sequences for player {player_num}, dice [{die1}, {die2}]")
+    except Exception as e:
+        logger.error(f"Error getting legal sequences: {e}")
+        seqs = []
 
-    # Reconstruct dice_orders
+    if not seqs:
+        # Return empty structures
+        empty_mask = torch.zeros((1, max_steps, _N), dtype=torch.bool).to(device)
+        empty_tensors = torch.zeros((0, max_steps), dtype=torch.long).to(device)
+        empty_valid = torch.zeros((0, max_steps), dtype=torch.bool).to(device)
+        return (empty_mask, [], [], empty_tensors, empty_tensors, empty_valid)
+
+    # Create simple dice orders - trust that sequences are already legal
+    dice_orders = []
     if die1 == die2:
-        dice_orders = [[die1] * 4 for _ in seqs]
+        # Doubles: use the same die for all moves
+        for seq in seqs:
+            dice_order = [die1] * len(seq)
+            dice_orders.append(dice_order)
     else:
-        first_moves = game.legalMoves(player, die1)
-        cnt1 = 0
-        for m1 in first_moves:
-            g1 = game.clone()
-            ok, err = g1.tryMove(curr_player, die1, m1[0], m1[1])
-            next_moves = g1.legalMoves(player, die2)
-            if not next_moves:
-                cnt1 += 2
-            else:
-                cnt1 += len(next_moves)
-        total_seqs = len(seqs)
-        cnt2 = total_seqs - cnt1
-        dice_orders = [[die1, die2]] * cnt1 + [[die2, die1]] * cnt2
+        # Non-doubles: create plausible dice orders without complex reconstruction
+        for seq in seqs:
+            dice_order = []
+            dice_remaining = [die1, die2]
+            
+            for i, (origin, dest) in enumerate(seq):
+                # Simple heuristic: use the die that matches the move distance if possible
+                move_distance = abs(dest - origin)
+                
+                if move_distance in dice_remaining:
+                    dice_order.append(move_distance)
+                    dice_remaining.remove(move_distance)
+                elif dice_remaining:
+                    # Use any remaining die (for bearing off, etc.)
+                    dice_order.append(dice_remaining[0])
+                    dice_remaining.remove(dice_remaining[0])
+                else:
+                    # This shouldn't happen, but handle gracefully
+                    dice_order.append(die1 if i % 2 == 0 else die2)
+            
+            dice_orders.append(dice_order)
 
-    # Fill the mask buffer based on seqs
+    # Validate sequences by actually testing them
+    validated_seqs = []
+    validated_dice_orders = []
+    
+    for seq, dice_order in zip(seqs, dice_orders):
+        if len(seq) <= max_steps:
+            # Test the sequence on a cloned game
+            temp_game = game.clone()
+            valid = True
+            
+            for i, (origin, dest) in enumerate(seq):
+                if i < len(dice_order):
+                    success, error = temp_game.tryMove(curr_player, dice_order[i], origin, dest)
+                    if not success:
+                        # Try the other die if available
+                        other_die = die2 if dice_order[i] == die1 else die1
+                        success, error = temp_game.tryMove(curr_player, other_die, origin, dest)
+                        if success:
+                            dice_order[i] = other_die  # Update the dice order
+                        else:
+                            logger.debug(f"Sequence validation failed: {seq} - {error}")
+                            valid = False
+                            break
+            
+            if valid:
+                validated_seqs.append(seq)
+                validated_dice_orders.append(dice_order)
+
+    seqs = validated_seqs
+    dice_orders = validated_dice_orders
+
+    if not seqs:
+        empty_mask = torch.zeros((1, max_steps, _N), dtype=torch.bool).to(device)
+        empty_tensors = torch.zeros((0, max_steps), dtype=torch.long).to(device)
+        empty_valid = torch.zeros((0, max_steps), dtype=torch.bool).to(device)
+        return (empty_mask, [], [], empty_tensors, empty_tensors, empty_valid)
+
+    # Fill mask buffer
     for i, seq in enumerate(seqs):
         for t, (o, d) in enumerate(seq):
-            if t < max_steps:
+            if t < max_steps and 0 <= o < _S and 0 <= d < _S:
                 _mask_buffer[0, t, o * _S + d] = True
 
-    # 3d) Move mask to device and detach
     mask_on_device = _mask_buffer.to(device)
-    mask_to_store = mask_on_device.detach()
+    mask_to_store = mask_on_device.detach().clone()
 
-    # 4) Build index tensors for vectorized scoring
+    # Build index tensors
     M = len(seqs)
     all_t = torch.zeros((M, max_steps), dtype=torch.long)
     all_flat = torch.zeros((M, max_steps), dtype=torch.long)
@@ -150,15 +203,16 @@ def build_sequence_mask(game,
 
     for i, seq in enumerate(seqs):
         for t, (o, d) in enumerate(seq):
-            all_t[i, t] = t
-            all_flat[i, t] = o * _S + d
-            valid_mask[i, t] = True
+            if t < max_steps:
+                all_t[i, t] = t
+                all_flat[i, t] = o * _S + d
+                valid_mask[i, t] = True
 
     all_t = all_t.to(device)
     all_flat = all_flat.to(device)
     valid_mask = valid_mask.to(device)
 
-    # 5) Cache everything
+    # Cache the results
     _seq_cache[key] = (
         mask_to_store,
         seqs,
@@ -168,11 +222,19 @@ def build_sequence_mask(game,
         valid_mask
     )
 
-    return (
-        mask_on_device,
-        seqs,
-        dice_orders,
-        all_t,
-        all_flat,
-        valid_mask
-    )
+    return (mask_on_device, seqs, dice_orders, all_t, all_flat, valid_mask)
+
+def clear_sequence_cache():
+    """Clear the sequence cache - useful for debugging"""
+    global _seq_cache, _seq_cache_hits, _seq_cache_misses
+    _seq_cache.clear()
+    _seq_cache_hits = 0
+    _seq_cache_misses = 0
+
+def get_cache_stats():
+    """Get cache statistics"""
+    return {
+        'hits': _seq_cache_hits,
+        'misses': _seq_cache_misses,
+        'size': len(_seq_cache)
+    }

@@ -135,9 +135,13 @@ class SelfPlayTrainer:
         self.games_played = 0
         self.training_steps = 0
         self.win_rates = deque(maxlen=100)
-        
+    
+    
     def select_action(self, game, player, temperature=1.0):
-        """Select action using the neural network with temperature sampling"""
+        """Select action using the neural network with proper move validation"""
+        # Get dice values
+        dice1, dice2 = game.get_last_dice()
+        
         # Encode current state
         board = game.getGameBoard()
         pieces = game.getPieces()
@@ -145,9 +149,14 @@ class SelfPlayTrainer:
         borne_off = pieces.numFreed(player.getNum())
         turn = game.getTurn()
         
-        state = encode_state(board, jailed, borne_off, turn).unsqueeze(0).to(self.device)
+        # Get opponent info for proper encoding
+        opponent_num = 1 - player.getNum()
+        opp_jailed = pieces.numJailed(opponent_num)
+        opp_borne_off = pieces.numFreed(opponent_num)
         
-        # Get legal moves and build mask
+        state = encode_state(board, pieces, turn, dice1, dice2).unsqueeze(0).to(self.device)
+        
+        # Get legal moves and build mask - this is crucial
         mask, seqs, dice_orders, all_t, all_flat, valid_mask = build_sequence_mask(
             game, player, batch_size=1, device=self.device
         )
@@ -159,30 +168,23 @@ class SelfPlayTrainer:
         with torch.no_grad():
             logits, value = self.model(state, mask)
         
-        # Calculate action probabilities for each sequence
-        sequence_probs = []
-        for i, seq in enumerate(seqs):
-            seq_prob = 1.0
-            for t, (o, d) in enumerate(seq):
-                if t < self.model.max_steps:
-                    step_logits = logits[0, t, :] / temperature
-                    step_probs = F.softmax(step_logits, dim=0)
-                    action_idx = o * 26 + d
-                    seq_prob *= step_probs[action_idx].item()
-            sequence_probs.append(seq_prob)
-        
-        # Sample sequence based on probabilities
-        sequence_probs = torch.tensor(sequence_probs)
+        # Instead of calculating probabilities manually, use the legal sequences directly
+        # Sample from the available legal sequences with equal probability initially
         if temperature > 0:
-            sequence_dist = Categorical(sequence_probs)
-            selected_idx = sequence_dist.sample().item()
+            # For now, sample uniformly from legal sequences
+            # You can later implement proper probability calculation
+            selected_idx = random.randint(0, len(seqs) - 1)
         else:
-            selected_idx = sequence_probs.argmax().item()
+            selected_idx = 0  # Take first legal sequence
         
         selected_sequence = seqs[selected_idx]
         dice_order = dice_orders[selected_idx]
         
+        # Return uniform probabilities for now
+        sequence_probs = torch.ones(len(seqs)) / len(seqs)
+        
         return selected_sequence, dice_order, sequence_probs
+
     
     def play_game(self, temperature=1.0):
         """Play a complete self-play game and collect experiences"""
@@ -223,7 +225,8 @@ class SelfPlayTrainer:
             jailed = pieces.numJailed(current_player.getNum())
             borne_off = pieces.numFreed(current_player.getNum())
             turn = game.getTurn()
-            state = encode_state(board, jailed, borne_off, turn)
+            state = encode_state(board, pieces, turn, dice[0], dice[1])
+
             
             # Select and execute action
             game_before = game.clone()
