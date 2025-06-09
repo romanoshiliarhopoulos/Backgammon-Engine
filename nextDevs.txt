@@ -10,3 +10,70 @@ NEXT DEVELOPMENTS
  - make it so that bearing off is done from the back forward, largest...
 
  use parallel programming for possible moves??? is that the move?1
+
+ fix this buffer overflow bug & get training metrics and benchmark against a true random seed to see if I learn anything at the end of the day
+
+
+ Dont forget to revert back to the original makefile after i am done with some of my shit and testing to catch the buffer overflow
+
+ makefile: 
+
+ # --- Source directory (where all your .cpp/.hpp now live) ---
+SRCDIR       := cppsrc
+
+# --- Pull in pybind11’s include flags via: python3 -m pybind11 --includes ---
+PYBIND11_INC := $(shell python3 -m pybind11 --includes)
+
+# --- Compiler settings ---
+CXX          := g++
+CXXFLAGS     := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function \
+                 -I$(SRCDIR) $(PYBIND11_INC)
+
+# --- Collect all .cpp files under cppsrc/ except tests.cpp and the pybind bindings ---
+SRCS         := $(filter-out \
+                   $(SRCDIR)/tests.cpp \
+                   $(SRCDIR)/backgammon_bindings.cpp, \
+                 $(wildcard $(SRCDIR)/*.cpp))
+TARGET       := a.out
+
+# --- CMake build variables ---
+BUILD_DIR    := build
+CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug
+
+.PHONY: all run build test clean cmake_configure cmake_build
+
+# Default: build both the CLI  the CMake 
+all: $(TARGET) build
+
+# 1) Direct build of your CLI executable (excludes tests.cpp)
+$(TARGET): $(SRCS)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
+run: $(TARGET)
+	clear
+	./$(TARGET)
+
+# 2) CMake configure step
+cmake_configure:
+	mkdir -p $(BUILD_DIR)
+	cmake -S . -B $(BUILD_DIR) $(CMAKE_FLAGS)
+
+# 3) CMake build step (depends on configure)
+cmake_build: cmake_configure
+	cmake --build $(BUILD_DIR)
+
+build: cmake_build
+
+
+# 4) Run all GoogleTest cases via 
+test: build
+	cd $(BUILD_DIR) && ctest --output-on-failure
+
+
+# Cleans both the direct build artifacts and the CMake 
+clean:
+	rm -rf $(TARGET) *.o $(BUILD_DIR)
+
+make train:
+	clear
+	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/train.py

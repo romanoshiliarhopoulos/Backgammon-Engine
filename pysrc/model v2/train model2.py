@@ -244,6 +244,7 @@ class SelfPlayTrainer:
             if sequence is None:
                 # No legal moves, switch turns
                 game.setTurn(1 - game.getTurn())
+                turn_count +=1
                 continue
             
             # Execute the selected sequence
@@ -407,7 +408,7 @@ class SelfPlayTrainer:
 def main():
     """Main training function"""
     # Set device
-    device = 'mps' if torch.backends.mps.is_available() else 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu' if torch.backends.mps.is_available() else 'cuda' if torch.cuda.is_available() else 'cpu'
     logger.info(f"Using device: {device}")
     
     # Initialize model

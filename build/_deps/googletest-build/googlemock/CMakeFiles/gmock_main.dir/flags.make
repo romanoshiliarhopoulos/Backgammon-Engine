@@ -6,7 +6,7 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include -isystem /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest
 
-CXX_FLAGSarm64 = -g -std=c++14 -arch arm64  -DGTEST_HAS_PTHREAD=1  
+CXX_FLAGSarm64 = -g -fsanitize=address,undefined -g -std=c++14 -arch arm64  -DGTEST_HAS_PTHREAD=1  
 
-CXX_FLAGS = -g -std=c++14 -arch arm64  -DGTEST_HAS_PTHREAD=1  
+CXX_FLAGS = -g -fsanitize=address,undefined -g -std=c++14 -arch arm64  -DGTEST_HAS_PTHREAD=1  
 

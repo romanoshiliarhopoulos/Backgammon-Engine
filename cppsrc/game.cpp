@@ -1,5 +1,6 @@
 /*game.cpp*/
 #include "game.hpp"
+#include <cassert>
 
 // default constructor for copies
 Game::Game()
@@ -472,6 +473,8 @@ bool Game::tryMove(Player *currentPlayer,
         err = "Invalid origin";
         return false;
     }
+    assert((origin >= 0 && origin <= 25) && "origin out of range");
+    assert((destination >= 0 && destination <= 25) && "destination out of range");
 
     int diff = origin - destination;
     // Special case: bearing off moves

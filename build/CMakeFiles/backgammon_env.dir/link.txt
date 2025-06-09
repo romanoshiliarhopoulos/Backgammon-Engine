@@ -1,1 +1,1 @@
-/usr/bin/c++ -g -arch arm64 -bundle -Wl,-headerpad_max_install_names -Xlinker -undefined -Xlinker dynamic_lookup -o backgammon_env.cpython-310-darwin.so CMakeFiles/backgammon_env.dir/cppsrc/backgammon_bindings.cpp.o  libBackgammon-Engine.a
+/usr/bin/c++ -g -fsanitize=address,undefined -g -arch arm64 -bundle -Wl,-headerpad_max_install_names -Xlinker -undefined -Xlinker dynamic_lookup -o backgammon_env.cpython-310-darwin.so CMakeFiles/backgammon_env.dir/cppsrc/backgammon_bindings.cpp.o  libBackgammon-Engine.a

@@ -1,4 +1,5 @@
 CMakeFiles/backgammon_env.dir/cppsrc/backgammon_bindings.cpp.o: \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Users/romanos/Backgammon_Engine/cppsrc/backgammon_bindings.cpp \
   /Users/romanos/Backgammon_Engine/build/_deps/pybind11-src/include/pybind11/pybind11.h \
   /Users/romanos/Backgammon_Engine/build/_deps/pybind11-src/include/pybind11/detail/class.h \

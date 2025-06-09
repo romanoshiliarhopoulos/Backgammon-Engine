@@ -1,4 +1,5 @@
 _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o: \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/src/gmock-all.cc \
   /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/include/gmock/gmock.h \
   /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googlemock/include/gmock/gmock-actions.h \

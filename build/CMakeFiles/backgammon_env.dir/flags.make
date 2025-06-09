@@ -6,7 +6,7 @@ CXX_DEFINES = -Dbackgammon_env_EXPORTS
 
 CXX_INCLUDES = -I/Users/romanos/Backgammon_Engine/cppsrc -isystem /Users/romanos/Backgammon_Engine/build/_deps/pybind11-src/include -isystem /Users/romanos/miniconda3/include/python3.10
 
-CXX_FLAGSarm64 = -g -std=gnu++14 -arch arm64 -fPIC -fvisibility=hidden
+CXX_FLAGSarm64 = -g -fsanitize=address,undefined -g -std=gnu++14 -arch arm64 -fPIC -fvisibility=hidden
 
-CXX_FLAGS = -g -std=gnu++14 -arch arm64 -fPIC -fvisibility=hidden
+CXX_FLAGS = -g -fsanitize=address,undefined -g -std=gnu++14 -arch arm64 -fPIC -fvisibility=hidden
 

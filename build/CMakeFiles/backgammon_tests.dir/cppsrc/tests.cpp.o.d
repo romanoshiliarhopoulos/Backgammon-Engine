@@ -1,4 +1,5 @@
 CMakeFiles/backgammon_tests.dir/cppsrc/tests.cpp.o: \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Users/romanos/Backgammon_Engine/cppsrc/tests.cpp \
   /Users/romanos/Backgammon_Engine/build/_deps/googletest-src/googletest/include/gtest/gtest.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cstddef \

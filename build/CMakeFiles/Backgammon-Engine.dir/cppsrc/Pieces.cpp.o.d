@@ -1,4 +1,5 @@
 CMakeFiles/Backgammon-Engine.dir/cppsrc/Pieces.cpp.o: \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   /Users/romanos/Backgammon_Engine/cppsrc/Pieces.cpp \
   /Users/romanos/Backgammon_Engine/cppsrc/Pieces.hpp \
   /Users/romanos/Backgammon_Engine/cppsrc/player.hpp \

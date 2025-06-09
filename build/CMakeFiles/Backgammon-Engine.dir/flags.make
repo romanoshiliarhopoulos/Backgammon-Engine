@@ -6,7 +6,7 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/Users/romanos/Backgammon_Engine/cppsrc
 
-CXX_FLAGSarm64 = -g -std=gnu++14 -arch arm64 -fPIC
+CXX_FLAGSarm64 = -g -fsanitize=address,undefined -g -std=gnu++14 -arch arm64 -fPIC
 
-CXX_FLAGS = -g -std=gnu++14 -arch arm64 -fPIC
+CXX_FLAGS = -g -fsanitize=address,undefined -g -std=gnu++14 -arch arm64 -fPIC
 

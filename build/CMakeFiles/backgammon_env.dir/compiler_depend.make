@@ -858,6 +858,7 @@ CMakeFiles/backgammon_env.dir/cppsrc/backgammon_bindings.cpp.o: /Users/romanos/B
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h \
+  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt \
   _deps/pybind11-src/include/pybind11/attr.h \
   _deps/pybind11-src/include/pybind11/complex.h \
   _deps/pybind11-src/include/pybind11/attr.h \
@@ -1120,6 +1121,8 @@ _deps/pybind11-src/include/pybind11/detail/descr.h:
 _deps/pybind11-src/include/pybind11/pytypes.h:
 
 _deps/pybind11-src/include/pybind11/complex.h:
+
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/share/asan_ignorelist.txt:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdint.h:
 
