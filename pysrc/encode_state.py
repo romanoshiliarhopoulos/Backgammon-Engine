@@ -14,25 +14,48 @@ def encode_state(board, jailed, borne_off, turn):
     board_pts = torch.tensor(board, dtype=torch.float32)
     p1 = torch.clamp(board_pts, min=0).unsqueeze(0)
     p2 = torch.clamp(-board_pts, min=0).unsqueeze(0)
-    jail_plane = torch.full((1, 24), float(jailed))
-    off_plane = torch.full((1, 24), float(borne_off))
-
+    
+    # Get dice information from the last roll
+    # You'll need to pass dice info to this function or get it from game state
+    dice1_plane = torch.zeros((1, 24))  # Will need actual dice values
+    dice2_plane = torch.zeros((1, 24))  # Will need actual dice values
+    
     if turn == 1:
-        cur = torch.cat([p1, jail_plane, off_plane], dim=0)
-        opp = torch.cat([
-            p2,
-            torch.full((1, 24), float(board_pts.min().abs())),
-            torch.full((1, 24), float(board_pts.max().abs()))
-        ], dim=0)
+        # Player 1's perspective
+        cur_pieces = p1
+        cur_jail = torch.full((1, 24), float(jailed))
+        cur_off = torch.full((1, 24), float(borne_off))
+        
+        opp_pieces = p2
+        opp_jail = torch.full((1, 24), float(board_pts.min().abs()))
+        opp_off = torch.full((1, 24), float(board_pts.max().abs()))
+        
+        turn_plane = torch.ones((1, 24))  # Player 1's turn
     else:
-        cur = torch.cat([p2, jail_plane, off_plane], dim=0)
-        opp = torch.cat([
-            p1,
-            torch.full((1, 24), float(board_pts.max().abs())),
-            torch.full((1, 24), float(board_pts.min().abs()))
-        ], dim=0)
+        # Player 2's perspective  
+        cur_pieces = p2
+        cur_jail = torch.full((1, 24), float(jailed))
+        cur_off = torch.full((1, 24), float(borne_off))
+        
+        opp_pieces = p1
+        opp_jail = torch.full((1, 24), float(board_pts.max().abs()))
+        opp_off = torch.full((1, 24), float(board_pts.min().abs()))
+        
+        turn_plane = torch.zeros((1, 24))  # Player 2's turn
 
-    return torch.cat([cur, opp], dim=0)
+    # Stack all 9 channels
+    return torch.cat([
+        cur_pieces,    # Channel 0: Current player pieces
+        cur_jail,      # Channel 1: Current player jailed count
+        cur_off,       # Channel 2: Current player borne off count
+        opp_pieces,    # Channel 3: Opponent pieces
+        opp_jail,      # Channel 4: Opponent jailed count  
+        opp_off,       # Channel 5: Opponent borne off count
+        dice1_plane,   # Channel 6: First die value
+        dice2_plane,   # Channel 7: Second die value
+        turn_plane     # Channel 8: Whose turn (1=player1, 0=player2)
+    ], dim=0)
+
 
 _seq_cache = {}          # Cache: key → (mask_tensor_on_device, seqs, dice_orders)
 _seq_cache_hits = 0
