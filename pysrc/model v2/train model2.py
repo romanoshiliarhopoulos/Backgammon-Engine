@@ -188,6 +188,7 @@ class SelfPlayTrainer:
     
     def play_game(self, temperature=1.0):
         """Play a complete self-play game and collect experiences"""
+        print("Starting a new game")
         # Initialize game and players
         game = bg.Game(0)  # Start with player 1
         player1 = bg.Player("Player1", bg.PlayerType.PLAYER1)
@@ -196,8 +197,10 @@ class SelfPlayTrainer:
         
         experiences = []
         game_rewards = {0: [], 1: []}  # Track rewards for each player
-        
-        while True:
+        turn_count = 0
+        while True and turn_count< 500:
+            if turn_count > 499:
+                print("more than 500 turns")
             # Check if game is over
             is_over, winner = game.is_game_over()
             if is_over:
@@ -273,6 +276,7 @@ class SelfPlayTrainer:
             
             # Switch turns
             game.setTurn(1 - game.getTurn())
+            turn_count +=1
         
         return experiences
     
@@ -356,10 +360,10 @@ class SelfPlayTrainer:
             # Training step
             if game_idx % games_per_update == 0 and len(self.experience_buffer) >= self.batch_size:
                 loss_info = self.train_step()
-                if loss_info and game_idx % 50 == 0:
-                    win_rate = np.mean(self.win_rates) if self.win_rates else 0.0
-                    logger.info(f"Game {game_idx}: Loss={loss_info['total_loss']:.4f}, "
-                              f"Win Rate={win_rate:.3f}, Temp={temperature:.3f}")
+                
+                win_rate = np.mean(self.win_rates) if self.win_rates else 0.0
+                logger.info(f"Game {game_idx}: Loss={loss_info['total_loss']:.4f}, "
+                          f"Win Rate={win_rate:.3f}, Temp={temperature:.3f}")
             
             # Save model
             if game_idx % save_interval == 0 and game_idx > 0:
