@@ -194,7 +194,7 @@ class SelfPlayTrainer:
     
     def play_game(self, temperature=1.0):
         """Play a complete self-play game and collect experiences"""
-        print("Starting a new game")
+        #("Starting a new game")
         # Initialize game and players
         game = bg.Game(0)  # Start with player 1
         player1 = bg.Player("Player1", bg.PlayerType.PLAYER1)
