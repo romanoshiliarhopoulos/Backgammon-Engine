@@ -186,7 +186,7 @@ class SelfPlayTrainer:
         selected_sequence = seqs[selected_idx]
         dice_order = dice_orders[selected_idx]
         
-        # Return uniform probabilities for now
+        # Return uniform probabilities for 
         sequence_probs = torch.ones(len(seqs)) / len(seqs)
         
         return selected_sequence, dice_order, sequence_probs
