@@ -13,9 +13,7 @@ NEXT DEVELOPMENTS
 
  fix this buffer overflow bug & get training metrics and benchmark against a true random seed to see if I learn anything at the end of the day
 
-
- Dont forget to revert back to the original makefile after i am done with some of my shit and testing to catch the buffer overflow
-
+    ADD the plots shit and make sure my training loop plots the error etc after training...
  makefile: 
 
  # --- Source directory (where all your .cpp/.hpp now live) ---

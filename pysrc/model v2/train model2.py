@@ -15,6 +15,7 @@ import pickle
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import logging
+import matplotlib as plt
 
 # Ensure C++ extension is on path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'build')))
@@ -27,7 +28,226 @@ from model2 import SeqBackgammonNet
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses, num_completed):
+    """
+    Create and save plots for training metrics. If no episodes completed, skip plotting.
+    """
+    if num_completed == 0:
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        return timestamp
 
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    os.makedirs("figures", exist_ok=True)
+
+    wins = torch.tensor(win_history, dtype=torch.float32).cpu().numpy()
+    rewards = torch.tensor(episode_rewards, dtype=torch.float32).cpu().numpy()
+    turns = torch.tensor(episode_turns, dtype=torch.float32).cpu().numpy()
+    losses = torch.tensor(episode_losses, dtype=torch.float32).cpu().numpy()
+    episodes = torch.arange(1, len(wins) + 1).cpu().numpy()
+
+    window_size = max(5, len(wins) // 10)
+
+    def moving_average(data, window):
+        return torch.from_numpy(data).to(torch.float32).unfold(0, window, 1).mean(dim=1).cpu().numpy()
+
+    # 1. Win Rate Analysis
+    plt.figure(figsize=(12, 8))
+
+    # Subplot 1: Cumulative Win Rate
+    plt.subplot(2, 2, 1)
+    cum_wins = torch.cumsum(torch.from_numpy(wins), dim=0).cpu().numpy()
+    cum_win_rate = cum_wins / episodes
+    plt.plot(episodes, cum_win_rate, 'b-', alpha=0.7, label='Cumulative Win Rate')
+
+    if len(cum_win_rate) >= window_size:
+        ma_win_rate = moving_average(cum_win_rate, window_size)
+        ma_episodes = episodes[window_size - 1:]
+        plt.plot(ma_episodes, ma_win_rate, 'r-', linewidth=2, label=f'Moving Avg ({window_size})')
+
+    plt.xlabel('Episode')
+    plt.ylabel('Cumulative Win Rate')
+    plt.title('Win Rate Over Time')
+    plt.ylim(0.0, 1.0)
+    plt.grid(alpha=0.3)
+    plt.legend()
+
+    # Subplot 2: Episode-by-Episode Win Rate (windowed)
+    plt.subplot(2, 2, 2)
+    if len(wins) >= window_size:
+        windowed_win_rate = moving_average(wins, window_size)
+        windowed_episodes = episodes[window_size - 1:]
+        plt.plot(windowed_episodes, windowed_win_rate, 'g-', linewidth=2)
+        plt.axhline(y=0.5, color='k', linestyle='--', alpha=0.5, label='Random Performance')
+        plt.legend()
+
+    plt.xlabel('Episode')
+    plt.ylabel(f'Win Rate (Last {window_size} Episodes)')
+    plt.title('Recent Win Rate Trend')
+    plt.ylim(0.0, 1.0)
+    plt.grid(alpha=0.3)
+
+    # 2. Cumulative Reward Analysis
+    plt.subplot(2, 2, 3)
+    cumulative_rewards = torch.cumsum(torch.from_numpy(rewards), dim=0).cpu().numpy()
+    plt.plot(episodes, cumulative_rewards, 'purple', alpha=0.7, label='Cumulative Reward')
+
+    if len(rewards) >= window_size:
+        ma_rewards = moving_average(cumulative_rewards, window_size)
+        ma_episodes = episodes[window_size - 1:]
+        plt.plot(ma_episodes, ma_rewards, 'orange', linewidth=2, label=f'Moving Avg ({window_size})')
+
+    plt.xlabel('Episode')
+    plt.ylabel('Cumulative Reward')
+    plt.title('Reward Accumulation')
+    plt.grid(alpha=0.3)
+    plt.legend()
+
+    # 3. Sample Efficiency (Average Reward per Episode)
+    plt.subplot(2, 2, 4)
+    avg_reward_per_episode = cumulative_rewards / episodes
+    plt.plot(episodes, avg_reward_per_episode, 'brown', alpha=0.7, label='Avg Reward/Episode')
+
+    if len(avg_reward_per_episode) >= window_size:
+        ma_avg_rewards = moving_average(avg_reward_per_episode, window_size)
+        ma_episodes = episodes[window_size - 1:]
+        plt.plot(ma_episodes, ma_avg_rewards, 'red', linewidth=2, label=f'Moving Avg ({window_size})')
+
+    plt.xlabel('Episode')
+    plt.ylabel('Average Reward per Episode')
+    plt.title('Sample Efficiency')
+    plt.grid(alpha=0.3)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.savefig(f"figures/training_metrics_{timestamp}.png", dpi=300, bbox_inches="tight")
+    plt.close('all')
+
+    # 4. Game Length and Learning Stability
+    plt.figure(figsize=(12, 6))
+
+    # Subplot 1: Turns per Episode
+    plt.subplot(1, 2, 1)
+    plt.plot(episodes, turns, 'b-', alpha=0.6, label='Turns per Episode')
+
+    if len(turns) >= window_size:
+        ma_turns = moving_average(turns, window_size)
+        ma_episodes = episodes[window_size - 1:]
+        plt.plot(ma_episodes, ma_turns, 'r-', linewidth=2, label=f'Moving Avg ({window_size})')
+
+    plt.xlabel('Episode')
+    plt.ylabel('Turns per Game')
+    plt.title('Game Length Trend')
+    plt.grid(alpha=0.3)
+    plt.legend()
+
+    # Subplot 2: Training Loss
+    plt.subplot(1, 2, 2)
+    plt.plot(episodes, losses, 'green', alpha=0.6, label='Training Loss')
+
+    if len(losses) >= window_size:
+        ma_losses = moving_average(losses, window_size)
+        ma_episodes = episodes[window_size - 1:]
+        plt.plot(ma_episodes, ma_losses, 'darkgreen', linewidth=2, label=f'Moving Avg ({window_size})')
+
+    plt.xlabel('Episode')
+    plt.ylabel('Loss')
+    plt.title('Training Loss Over Time')
+    plt.grid(alpha=0.3)
+    plt.legend()
+
+    plt.tight_layout()
+    plt.savefig(f"figures/game_analysis_{timestamp}.png", dpi=300, bbox_inches="tight")
+    plt.close('all')
+
+    # 5. Performance Summary Statistics
+    plt.figure(figsize=(10, 6))
+
+    # Calculate milestones
+    episodes_to_50_percent = None
+    episodes_to_60_percent = None
+    episodes_to_70_percent = None
+    for i, rate in enumerate(cum_win_rate):
+        if episodes_to_50_percent is None and rate >= 0.5:
+            episodes_to_50_percent = i + 1
+        if episodes_to_60_percent is None and rate >= 0.6:
+            episodes_to_60_percent = i + 1
+        if episodes_to_70_percent is None and rate >= 0.7:
+            episodes_to_70_percent = i + 1
+
+    final_win_rate = cum_win_rate[-1]
+    avg_turns = turns.mean()
+    total_reward = rewards.sum()
+    final_loss = losses[-1]
+
+    plt.subplot(1, 2, 1)
+    performance_data = [
+        final_win_rate,
+        avg_turns / 100.0,
+        (total_reward / num_completed),
+        (1.0 - final_loss),
+    ]
+    performance_labels = [
+        'Final Win Rate',
+        'Avg Turns/100',
+        'Avg Reward',
+        'Learning Stability'
+    ]
+    colors = ['green', 'blue', 'purple', 'orange']
+
+    bars = plt.bar(performance_labels, performance_data, color=colors, alpha=0.7)
+    plt.title('Final Performance Summary')
+    plt.ylabel('Normalized Values')
+    plt.xticks(rotation=45)
+    for bar, value in zip(bars, performance_data):
+        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.01,
+                 f'{value:.3f}', ha='center', va='bottom')
+
+    plt.subplot(1, 2, 2)
+    milestones = []
+    milestone_episodes = []
+    if episodes_to_50_percent:
+        milestones.append('50% Win Rate')
+        milestone_episodes.append(episodes_to_50_percent)
+    if episodes_to_60_percent:
+        milestones.append('60% Win Rate')
+        milestone_episodes.append(episodes_to_60_percent)
+    if episodes_to_70_percent:
+        milestones.append('70% Win Rate')
+        milestone_episodes.append(episodes_to_70_percent)
+
+    if milestones:
+        plt.barh(milestones, milestone_episodes, color='skyblue', alpha=0.7)
+        plt.xlabel('Episodes to Achieve')
+        plt.title('Learning Milestones')
+        for i, ep_count in enumerate(milestone_episodes):
+            plt.text(ep_count + max(milestone_episodes) * 0.01, i,
+                     f'{ep_count}', va='center', ha='left')
+    else:
+        plt.text(0.5, 0.5, 'No milestones\nachieved yet',
+                 ha='center', va='center',
+                 transform=plt.gca().transAxes, fontsize=12)
+        plt.title('Learning Milestones')
+
+    plt.tight_layout()
+    plt.savefig(f"figures/performance_summary_{timestamp}.png", dpi=300, bbox_inches="tight")
+    plt.close('all')
+
+    # Print summary
+    print(f"\n=== TRAINING SUMMARY ===")
+    print(f"Total Episodes: {num_completed}")
+    print(f"Final Win Rate: {final_win_rate:.3f}")
+    print(f"Average Game Length: {avg_turns:.1f} turns")
+    print(f"Total Reward Earned: {total_reward:.2f}")
+    print(f"Average Reward per Episode: {(total_reward/ num_completed):.3f}")
+    print(f"Final Training Loss: {final_loss:.4f}")
+    if episodes_to_50_percent:
+        print(f"Episodes to 50% win rate: {episodes_to_50_percent}")
+    if episodes_to_60_percent:
+        print(f"Episodes to 60% win rate: {episodes_to_60_percent}")
+    if episodes_to_70_percent:
+        print(f"Episodes to 70% win rate: {episodes_to_70_percent}")
+
+    return timestamp
 @dataclass
 class GameExperience:
     """Store experience from a single game step"""
@@ -135,7 +355,11 @@ class SelfPlayTrainer:
         self.games_played = 0
         self.training_steps = 0
         self.win_rates = deque(maxlen=100)
-        # Add this to your SelfPlayTrainer.__init__
+        self.win_history = []
+        
+        self.episode_rewards = []
+        self.episode_turns  = []
+        self.episode_losses = []
 
         self.cache_clear_interval = 5  # Clear cache every 10 games
 
