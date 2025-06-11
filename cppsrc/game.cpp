@@ -473,8 +473,16 @@ bool Game::tryMove(Player *currentPlayer,
         err = "Invalid origin";
         return false;
     }
-    assert((origin >= 0 && origin <= 25) && "origin out of range");
-    assert((destination >= 0 && destination <= 25) && "destination out of range");
+    if (origin < 0 || origin > 25)
+    {
+        err = "Origin out of range";
+        return false;
+    }
+    if (destination < 0 || destination > 25)
+    {
+        err = "Destination out of range";
+        return false;
+    }
 
     int diff = origin - destination;
     // Special case: bearing off moves
@@ -518,6 +526,7 @@ bool Game::tryMove(Player *currentPlayer,
         // Bearing off
         pieces.freePiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);
         this->gameboard[origin - 1] -= multi;
+        return true;
     }
     else
     {
