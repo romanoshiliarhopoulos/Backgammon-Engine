@@ -524,6 +524,12 @@ bool Game::tryMove(Player *currentPlayer,
     if (destination == 0 || destination == 25)
     {
         // Bearing off
+        // origin must be on‐board to bear off
+        if (origin == 0 || origin == 25 || origin < 0 || origin > 25)
+        {
+            err = "Cannot bear off from jail";
+            return false;
+        }
         pieces.freePiece(multi > 0 ? Player::PLAYER1 : Player::PLAYER2);
         this->gameboard[origin - 1] -= multi;
         return true;
