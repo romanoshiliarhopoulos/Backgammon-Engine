@@ -356,7 +356,7 @@ class SelfPlayTrainer:
         self.training_steps = 0
         self.win_rates = deque(maxlen=100)
         self.win_history = []
-        
+
         self.episode_rewards = []
         self.episode_turns  = []
         self.episode_losses = []
@@ -591,7 +591,7 @@ class SelfPlayTrainer:
             
             self.games_played += 1
             
-            # Training step
+            # Training 
             if game_idx % games_per_update == 0 and len(self.experience_buffer) >= self.batch_size:
                 loss_info = self.train_step()
                 
