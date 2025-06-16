@@ -25,7 +25,7 @@ import backgammon_env as bg
 from encode_state import encode_state, build_sequence_mask
 from model2 import SeqBackgammonNet
 
-# Set up logging
+# Data logging - set up
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses, num_completed):
@@ -595,7 +595,7 @@ class SelfPlayTrainer:
             if game_idx % games_per_update == 0 and len(self.experience_buffer) >= self.batch_size:
                 loss_info = self.train_step()
                 
-                win_rate = np.mean(self.win_rates) if self.win_rates else 0.0
+                win_rate = np.mean(self.win_rates) if self.win_rates else 0.0xf
                 logger.info(f"Game {game_idx}: Loss={loss_info['total_loss']:.4f}, "
                           f"Win Rate={win_rate:.3f}, Temp={temperature:.3f}")
             if game_idx % self.cache_clear_interval == 0:
