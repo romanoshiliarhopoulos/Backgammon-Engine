@@ -393,7 +393,7 @@ class SelfPlayTrainer:
         
         state = encode_state(board, pieces, turn, dice1, dice2).unsqueeze(0).to(self.device)
         
-        # Get legal moves and build mask - this is crucial
+        # Get legal moves and build mask
         mask, seqs, dice_orders, all_t, all_flat, valid_mask = build_sequence_mask(
             game, player, batch_size=1, device=self.device
         )

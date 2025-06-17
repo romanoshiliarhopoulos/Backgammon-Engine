@@ -11,7 +11,6 @@ PYTHON := /Users/romanos/miniconda3/bin/python
 CXX          := g++
 # ↓ Added -fsanitize=address,undefined here to catch OOB / UB in your C++ extension
 CXXFLAGS     := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function \
-                 -fsanitize=address,undefined \
                  -I$(SRCDIR) $(PYBIND11_INC)
 
 # --- Collect all .cpp files under cppsrc/ except tests.cpp and the pybind bindings ---
