@@ -15,7 +15,10 @@ import pickle
 from dataclasses import dataclass
 from typing import List, Tuple, Optional
 import logging
-import matplotlib as plt
+
+import datetime
+import matplotlib.pyplot as plt
+
 
 # Ensure C++ extension is on path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'build')))
@@ -43,7 +46,8 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
     rewards = torch.tensor(episode_rewards, dtype=torch.float32).cpu().numpy()
     turns = torch.tensor(episode_turns, dtype=torch.float32).cpu().numpy()
     losses = torch.tensor(episode_losses, dtype=torch.float32).cpu().numpy()
-    episodes = torch.arange(1, len(wins) + 1).cpu().numpy()
+    episodes = np.arange(1, len(rewards) + 1)
+
 
     window_size = max(5, len(wins) // 10)
 
@@ -355,7 +359,7 @@ class SelfPlayTrainer:
         self.games_played = 0
         self.training_steps = 0
         self.win_rates = deque(maxlen=100)
-        self.win_history = []
+        self.win_history = [] # This stores 1/0 for each game
 
         self.episode_rewards = []
         self.episode_turns  = []
@@ -427,11 +431,17 @@ class SelfPlayTrainer:
         experiences = []
         game_rewards = {0: [], 1: []}  # Track rewards for each player
         turn_count = 0
+        total_episode_reward = 0.0  # Track total reward for this episode
+        game_completed = False  # Track if game actually completed
+        winner = None
+
         while True and turn_count< 500:
             if turn_count > 499:
                 print("more than 500 turns")
+
             # Check if game is over
             is_over, winner = game.is_game_over()
+
             if is_over:
                 # Assign final rewards
                 final_reward_winner = RewardCalculator.WIN_REWARD
@@ -443,8 +453,12 @@ class SelfPlayTrainer:
                         exp.reward += final_reward_winner
                     else:
                         exp.reward += final_reward_loser
-                
+
+                game_completed = True
+
+                # Track wins for plotting (1 if player 0 wins, 0 if player 1 wins)
                 self.win_rates.append(1 if winner == 0 else 0)
+                self.win_history.append(1 if winner == 0 else 0)  # Add this line
                 break
             
             # Roll dice
@@ -486,7 +500,8 @@ class SelfPlayTrainer:
                 intermediate_reward = RewardCalculator.calculate_intermediate_rewards(
                     game_before, game, current_player.getNum()
                 )
-                
+                # Add to total episode reward
+                total_episode_reward += intermediate_reward
                 # Get value prediction
                 state_tensor = state.unsqueeze(0).to(self.device)
                 with torch.no_grad():
@@ -508,7 +523,8 @@ class SelfPlayTrainer:
             game.setTurn(1 - game.getTurn())
             turn_count +=1
         
-        return experiences
+        return experiences, total_episode_reward, turn_count
+
     
     def compute_returns(self, experiences, gamma=0.99):
         """Compute discounted returns for experiences"""
@@ -570,16 +586,20 @@ class SelfPlayTrainer:
             'entropy_loss': entropy_loss
         }
     
-    def train(self, num_games=1000, games_per_update=10, save_interval=100):
+    def train(self, num_games=1000, games_per_update=10, save_interval=100, plot_interval=100):
         """Main training loop"""
         logger.info(f"Starting training for {num_games} games")
         
         for game_idx in range(num_games):
             # Play game with temperature annealing
             temperature = max(0.1, 1.0 - game_idx / (num_games * 0.8))
-            experiences = self.play_game(temperature=temperature)
+            experiences, episode_reward, episode_turns = self.play_game(temperature=temperature)
+
+            # Store episode metrics
+            self.episode_rewards.append(episode_reward)
+            self.episode_turns.append(episode_turns)
             
-            # Also clear PyTorch cache
+            # Also clear PyTorch cache - to prevent memory from growing indefinetely
             if torch.backends.mps.is_available():
                 torch.mps.empty_cache()
             
@@ -591,26 +611,56 @@ class SelfPlayTrainer:
             
             self.games_played += 1
             
-            # Training 
+            # Training step
+            current_loss = 0.0
             if game_idx % games_per_update == 0 and len(self.experience_buffer) >= self.batch_size:
                 loss_info = self.train_step()
+                current_loss = loss_info['total_loss'] if loss_info else 0.0
                 
-                win_rate = np.mean(self.win_rates) if self.win_rates else 0.0xf
-                logger.info(f"Game {game_idx}: Loss={loss_info['total_loss']:.4f}, "
-                          f"Win Rate={win_rate:.3f}, Temp={temperature:.3f}")
+                win_rate = np.mean(self.win_rates) if self.win_rates else 0.0
+                logger.info(f"Game {game_idx}: Loss={current_loss:.4f}, "
+                        f"Win Rate={win_rate:.3f}, Temp={temperature:.3f}")
+            
+            # Store the loss for this episode
+            self.episode_losses.append(current_loss)
+            
+            # Cache clearing
             if game_idx % self.cache_clear_interval == 0:
                 logger.info(f"Clearing sequence cache at game {game_idx}")
                 from encode_state import clear_sequence_cache, get_cache_stats
                 stats = get_cache_stats()
                 logger.info(f"Cache stats before clear: {stats}")
                 clear_sequence_cache()
+
+            # Generate plots at specified intervals
+            if game_idx % plot_interval == 0 and game_idx > 0:
+                logger.info(f"Generating training plots at game {game_idx}")
+                timestamp = plot_all_metrics(
+                    self.win_history, 
+                    self.episode_rewards, 
+                    self.episode_turns, 
+                    self.episode_losses, 
+                    game_idx + 1  # num_completed
+                )
+                logger.info(f"Plots saved with timestamp: {timestamp}")
+            
             # Save model
             if game_idx % save_interval == 0 and game_idx > 0:
                 self.save_model(f"model_checkpoint_{game_idx}.pt")
                 logger.info(f"Model saved at game {game_idx}")
         
+        # Generate final plots
+        logger.info("Generating final training plots")
+        final_timestamp = plot_all_metrics(
+            self.win_history, 
+            self.episode_rewards, 
+            self.episode_turns, 
+            self.episode_losses, 
+            num_games
+        )
+        logger.info(f"Final plots saved with timestamp: {final_timestamp}")
         logger.info("Training completed!")
-    
+        
     def save_model(self, filepath):
         """Save model and training state"""
         torch.save({
@@ -654,13 +704,12 @@ def main():
         entropy_weight=0.01
     )
     
-    # Start training
     trainer.train(
         num_games=5000,
         games_per_update=5,
-        save_interval=500
+        save_interval=500,
+        plot_interval=100  # Generate plots every 100 games
     )
-    
     # Save final model
     trainer.save_model("final_model.pt")
 
