@@ -46,7 +46,11 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
     rewards = torch.tensor(episode_rewards, dtype=torch.float32).cpu().numpy()
     turns = torch.tensor(episode_turns, dtype=torch.float32).cpu().numpy()
     losses = torch.tensor(episode_losses, dtype=torch.float32).cpu().numpy()
-    episodes = np.arange(1, len(rewards) + 1)
+    
+    # one axis for win‑based stats:
+    episodes_win = np.arange(1, len(wins) + 1)
+    # one axis for reward/turn/loss stats:
+    episodes     = np.arange(1, len(rewards) + 1)
 
 
     window_size = max(5, len(wins) // 10)
@@ -59,13 +63,14 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
 
     # Subplot 1: Cumulative Win Rate
     plt.subplot(2, 2, 1)
-    cum_wins = torch.cumsum(torch.from_numpy(wins), dim=0).cpu().numpy()
-    cum_win_rate = cum_wins / episodes
-    plt.plot(episodes, cum_win_rate, 'b-', alpha=0.7, label='Cumulative Win Rate')
+    cum_wins     = np.cumsum(wins)
+    cum_win_rate = cum_wins / episodes_win
+    plt.plot(episodes_win, cum_win_rate, 'b-', alpha=0.7, label='Cumulative Win Rate')
+ 
 
     if len(cum_win_rate) >= window_size:
-        ma_win_rate = moving_average(cum_win_rate, window_size)
-        ma_episodes = episodes[window_size - 1:]
+        ma_win_rate  = moving_average(cum_win_rate, window_size)
+        ma_episodes  = episodes_win[window_size - 1:]
         plt.plot(ma_episodes, ma_win_rate, 'r-', linewidth=2, label=f'Moving Avg ({window_size})')
 
     plt.xlabel('Episode')
@@ -79,10 +84,8 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
     plt.subplot(2, 2, 2)
     if len(wins) >= window_size:
         windowed_win_rate = moving_average(wins, window_size)
-        windowed_episodes = episodes[window_size - 1:]
+        windowed_episodes = episodes_win[window_size - 1:]
         plt.plot(windowed_episodes, windowed_win_rate, 'g-', linewidth=2)
-        plt.axhline(y=0.5, color='k', linestyle='--', alpha=0.5, label='Random Performance')
-        plt.legend()
 
     plt.xlabel('Episode')
     plt.ylabel(f'Win Rate (Last {window_size} Episodes)')
@@ -90,9 +93,9 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
     plt.ylim(0.0, 1.0)
     plt.grid(alpha=0.3)
 
-    # 2. Cumulative Reward Analysis
+    # Cumulative Reward
     plt.subplot(2, 2, 3)
-    cumulative_rewards = torch.cumsum(torch.from_numpy(rewards), dim=0).cpu().numpy()
+    cumulative_rewards = np.cumsum(rewards)
     plt.plot(episodes, cumulative_rewards, 'purple', alpha=0.7, label='Cumulative Reward')
 
     if len(rewards) >= window_size:
@@ -333,7 +336,7 @@ class SelfPlayTrainer:
     def __init__(self, 
                  model: SeqBackgammonNet,
                  device: str = 'mps',
-                 lr: float = 1e-3,
+                 lr: float = 1e-4,
                  buffer_size: int = 10000,
                  batch_size: int = 32,
                  value_loss_weight: float = 1.0,
@@ -436,7 +439,7 @@ class SelfPlayTrainer:
         winner = None
 
         while True and turn_count< 500:
-            if turn_count > 499:
+            if turn_count > 498:
                 print("more than 500 turns")
 
             # Check if game is over
@@ -592,7 +595,7 @@ class SelfPlayTrainer:
         
         for game_idx in range(num_games):
             # Play game with temperature annealing
-            temperature = max(0.1, 1.0 - game_idx / (num_games * 0.8))
+            temperature = max(0.1, 1.0 - game_idx / (num_games * 3.0))
             experiences, episode_reward, episode_turns = self.play_game(temperature=temperature)
 
             # Store episode metrics
@@ -626,10 +629,10 @@ class SelfPlayTrainer:
             
             # Cache clearing
             if game_idx % self.cache_clear_interval == 0:
-                logger.info(f"Clearing sequence cache at game {game_idx}")
+                #logger.info(f"Clearing sequence cache at game {game_idx}")
                 from encode_state import clear_sequence_cache, get_cache_stats
                 stats = get_cache_stats()
-                logger.info(f"Cache stats before clear: {stats}")
+                #logger.info(f"Cache stats before clear: {stats}")
                 clear_sequence_cache()
 
             # Generate plots at specified intervals
@@ -696,7 +699,7 @@ def main():
     trainer = SelfPlayTrainer(
         model=model,
         device=device,
-        lr=1e-3,
+        lr=1e-5,
         buffer_size=10000,
         batch_size=32,
         value_loss_weight=1.0,
@@ -706,7 +709,7 @@ def main():
     
     trainer.train(
         num_games=5000,
-        games_per_update=5,
+        games_per_update=10,
         save_interval=500,
         plot_interval=100  # Generate plots every 100 games
     )
