@@ -372,8 +372,6 @@ class SelfPlayTrainer:
 
         
 
-    
-    
     def select_action(self, game, player, temperature=1.0):
         """Select action using the neural network with proper move validation"""
         # Get dice values
@@ -404,24 +402,33 @@ class SelfPlayTrainer:
         # Forward pass through network
         with torch.no_grad():
             logits, value = self.model(state, mask)
-        
-        # Instead of calculating probabilities manually, use the legal sequences directly
-        # Sample from the available legal sequences with equal probability initially
-        if temperature > 0:
-            # For now, sample uniformly from legal sequences
-            # You can later implement proper probability calculation
-            selected_idx = random.randint(0, len(seqs) - 1)
-        else:
-            selected_idx = 0  # Take first legal sequence
-        
-        selected_sequence = seqs[selected_idx]
-        dice_order = dice_orders[selected_idx]
-        
-        # Return uniform probabilities for 
-        sequence_probs = torch.ones(len(seqs)) / len(seqs)
-        
-        return selected_sequence, dice_order, sequence_probs
 
+        _S = 26
+        seq_logits = []
+        """
+        seq_logits[i] is the sum of the network's scores across every individual 
+        move in sequence i. The network's confidence in an entire sequence is the 
+        sum of its confidences in each step of that sequence.
+
+        """
+        for seq in seqs:
+            # sum the network’s raw logits at each (step, origin→dest) in this sequence
+            s = 0.0
+            for t, (origin, dest) in enumerate(seq):
+                pos = origin * _S + dest
+                s += logits[0, t, pos]
+            seq_logits.append(s)
+
+        seq_logits = torch.stack(seq_logits)         #turn scores into a prob distribution
+        probs = F.softmax(seq_logits / max(temperature, 1e-6), dim=0)
+
+        m = Categorical(probs)  #draws a sample from the probs distribution
+        idx = m.sample().item()                     
+
+        selected_sequence = seqs[idx]
+        dice_order       = dice_orders[idx]
+
+        return selected_sequence, dice_order, probs
     
     def play_game(self, temperature=1.0):
         """Play a complete self-play game and collect experiences"""
@@ -441,6 +448,7 @@ class SelfPlayTrainer:
         while True and turn_count< 500:
             if turn_count > 498:
                 print("more than 500 turns")
+                #need to make game logs to understand what is going wrong...
 
             # Check if game is over
             is_over, winner = game.is_game_over()

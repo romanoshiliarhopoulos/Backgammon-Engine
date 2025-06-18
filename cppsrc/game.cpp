@@ -80,12 +80,13 @@ void collectDoubles(Player *player,
                     vector<pair<int, int>> &current,
                     vector<vector<pair<int, int>>> &out)
 {
-    if (depth == 4)
+    auto moves = state.legalMoves(player->getNum(), die);
+    if (depth == 4 || moves.empty())
     {
         out.push_back(current);
         return;
     }
-    for (auto m : state.legalMoves(player->getNum(), die))
+    for (auto m : moves)
     {
         Game next = state.clone();
         string err;
@@ -114,9 +115,10 @@ vector<vector<pair<int, int>>> Game::legalTurnSequences(int player, int die1, in
             if (nextMoves.empty())
             {
                 // if there are no more legal moves to make after the first one, just return there
-                sequences.push_back({m1, {0, 0}});
-                sequences.push_back({m1, {0, 0}});
-                return sequences;
+                sequences.push_back({m1});
+                //sequences.push_back({m1, {0, 0}});
+                //continue;
+                // return sequences;
             }
             else
             {
@@ -133,15 +135,22 @@ vector<vector<pair<int, int>>> Game::legalTurnSequences(int player, int die1, in
             string err;
             g1.tryMove(curr_player, die2, m1.first, m1.second, err); // make the move
 
-            for (auto m2 : g1.legalMoves(player, die1))
+            auto next2 = g1.legalMoves(player, die1);
+            if (next2.empty())
             {
-                sequences.push_back({m1, m2});
+                // only one move possible with die2
+                sequences.push_back({m1});
+            }
+            else
+            {
+                for (auto m2 : next2)
+                    sequences.push_back({m1, m2});
             }
         }
     }
     else
     {
-        // case where we have a double.
+        // case where we have a double
         vector<pair<int, int>> curr;
         collectDoubles(curr_player, die1, 0, *this, curr, sequences);
     }
@@ -385,7 +394,7 @@ bool Game::isValidOrigin(int multi, int idx)
 // helper function to see if a player can move a piece there
 bool Game::isValidDestination(int multi, int idx)
 {
-    if (idx == 0 || idx == 25)
+    if (idx == 0 || idx >= 25)
     {
         // if player want to "free" a piece.
         return canFreePiece(multi);

@@ -427,8 +427,124 @@ TEST(LegalTurnSeq, trying_replicate_another)
 
     EXPECT_NE(game.legalMoves(0, 6).size(), 0);
     EXPECT_EQ(game.legalMoves(0, 6).size(), 1);
-    EXPECT_EQ(game.legalTurnSequences(0, 6, 3).size(), 1);
+    EXPECT_EQ(game.legalTurnSequences(0, 6, 3).size(), 2);
 }
+
+TEST(LegalTurnSeq, Player2FinalBearOff)
+{
+    // Set up a brand-new game, p1 vs p2
+    Game game(0);
+    Player p1("White", Player::PLAYER1),
+        p2("Black", Player::PLAYER2);
+    game.setPlayers(&p1, &p2);
+
+    // Manually put exactly one black checker on point 1,
+    // and no other checkers on the board.
+    // In our representation, gameboard[0] == -1 means ◯ has one checker at pip 1.
+    vector<int> empty(24, 0);
+    empty[0] = -1;
+    game.gameboard = empty;
+
+    // Since all the other ◯ checkers are already freed,
+    // canFreePiece() should allow bearing off whenever die >= 1.
+
+    // 1) A single legal origin for die=3:
+    auto m = game.legalMoves(Player::PLAYER2, 3);
+    EXPECT_EQ(m.size(), 1);
+    EXPECT_EQ(m[0], make_pair(1, 0));
+    // origin==1 → dest==0 (off the board)
+
+    // 2) And exactly one turn‐sequence, of length 1
+    auto seqs = game.legalTurnSequences(Player::PLAYER2, 3, 2);
+    ASSERT_EQ(seqs.size(), 2);
+    EXPECT_EQ(seqs[0].size(), 1);
+    EXPECT_EQ(seqs[0][0], make_pair(1, 0));
+}
+TEST(LegalTurnSeq, Player2SingleCheckerCanBearOffWithBothDice)
+{
+    // Arrange: one Black (player2) checker on pip 1, nothing else on board
+    Game g(0);
+    Player white("W", Player::PLAYER1),
+        black("B", Player::PLAYER2);
+    g.setPlayers(&white, &black);
+
+    std::vector<int> board24(24, 0);
+    board24[0] = -1; // ◯ on point 1
+    g.gameboard = board24;
+
+    // Act: roll 3 and 2
+    auto seqs = g.legalTurnSequences(Player::PLAYER2, 3, 2);
+
+    // Assert: exactly two single‐step sequences, one per die‐ordering
+    ASSERT_EQ(seqs.size(), 2)
+        << "Should get two ways to bear off (use 3 first, or 2 first)";
+    for (auto &seq : seqs)
+    {
+        ASSERT_EQ(seq.size(), 1)
+            << "Each sequence is a single origin→dest step";
+        EXPECT_EQ(seq[0], std::make_pair(1, 0))
+            << "Origin=1, Dest=0 (off the board)";
+    }
+}
+
+// 1) A single ◯ on pip 1, rolling doubles (1,1) should still give you
+//    a one‐step bear‐off sequence – not zero.
+TEST(LegalTurnSeq, Player2FinalBearOffDouble1)
+{
+    Game g(0);
+    Player w("W", Player::PLAYER1),
+        b("B", Player::PLAYER2);
+    g.setPlayers(&w, &b);
+
+    // One black checker on point 1, everything else off-board:
+    std::vector<int> board(24, 0);
+    board[0] = -1;
+    g.gameboard = board;
+
+    // Roll doubles 1,1
+    auto seqs = g.legalTurnSequences(Player::PLAYER2, 1, 1);
+
+    // You **must** get at least one legal sequence of length 1: (1→0).
+    ASSERT_GT(seqs.size(), 0) << "Expected at least one bear-off sequence on double roll";
+    for (auto &seq : seqs)
+    {
+        EXPECT_EQ(seq.size(), 1);
+        EXPECT_EQ(seq[0], std::make_pair(1, 0));
+    }
+}
+
+// 2) Two ◯ checkers on pips 1 and 2, rolling doubles (2,2) should allow
+//    you to bear off the '2' and then the '1' (two steps), or vice versa.
+TEST(LegalTurnSeq, Player2TwoCheckersDouble2)
+{
+    Game g(0);
+    Player w("W", Player::PLAYER1),
+        b("B", Player::PLAYER2);
+    g.setPlayers(&w, &b);
+
+    // Black on points 1 and 2:
+    std::vector<int> board(24, 0);
+    board[0] = board[1] = -1;
+    g.gameboard = board;
+
+    // Roll doubles 2,2
+    auto seqs = g.legalTurnSequences(Player::PLAYER2, 2, 2);
+
+    // You **must** get at least one two-step sequence:
+    // either [(2→0),(1→0)] or [(1→0),(2→0)].
+    bool saw_valid = false;
+    for (auto &seq : seqs)
+    {
+        if (seq.size() == 2 &&
+            ((seq[0] == std::make_pair(2, 0) && seq[1] == std::make_pair(1, 0)) ||
+             (seq[0] == std::make_pair(1, 0) && seq[1] == std::make_pair(2, 0))))
+        {
+            saw_valid = true;
+        }
+    }
+    EXPECT_TRUE(saw_valid) << "Expected a 2-step double-bear-off sequence for pips {1,2}";
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
