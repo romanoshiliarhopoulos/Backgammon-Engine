@@ -413,10 +413,10 @@ class SelfPlayTrainer:
         """
         for seq in seqs:
             # sum the network’s raw logits at each (step, origin→dest) in this sequence
-            s = 0.0
+            s = logits.new_zeros(())
             for t, (origin, dest) in enumerate(seq):
                 pos = origin * _S + dest
-                s += logits[0, t, pos]
+                s = s + logits[0, t, pos]
             seq_logits.append(s)
 
         seq_logits = torch.stack(seq_logits)         #turn scores into a prob distribution
@@ -597,7 +597,7 @@ class SelfPlayTrainer:
             'entropy_loss': entropy_loss
         }
     
-    def train(self, num_games=1000, games_per_update=10, save_interval=100, plot_interval=100):
+    def train(self, num_games=1000, games_per_update=10, save_interval=100, plot_interval=500):
         """Main training loop"""
         logger.info(f"Starting training for {num_games} games")
         
@@ -719,7 +719,7 @@ def main():
         num_games=5000,
         games_per_update=10,
         save_interval=500,
-        plot_interval=100  # Generate plots every 100 games
+        plot_interval=500  # Generate plots every 100 games
     )
     # Save final model
     trainer.save_model("final_model.pt")

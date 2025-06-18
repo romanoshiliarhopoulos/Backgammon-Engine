@@ -116,7 +116,7 @@ def play_random(model):
 
     """
 
-    total_games = 200
+    total_games = 1000
     num_wins = 0
     
     for i in range(total_games):
