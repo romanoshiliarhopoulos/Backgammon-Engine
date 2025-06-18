@@ -10,8 +10,10 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/4.0.1/CMakeSystem.cmake"
   "CMakeLists.txt"
   "pybind11-populate-prefix/tmp/pybind11-populate-mkdirs.cmake"
+  "/opt/homebrew/share/cmake/Modules/CMakeDetermineSystem.cmake"
   "/opt/homebrew/share/cmake/Modules/CMakeGenericSystem.cmake"
   "/opt/homebrew/share/cmake/Modules/CMakeInitializeConfigs.cmake"
+  "/opt/homebrew/share/cmake/Modules/CMakeSystem.cmake.in"
   "/opt/homebrew/share/cmake/Modules/CMakeSystemSpecificInformation.cmake"
   "/opt/homebrew/share/cmake/Modules/CMakeSystemSpecificInitialize.cmake"
   "/opt/homebrew/share/cmake/Modules/ExternalProject.cmake"
@@ -36,6 +38,7 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
+  "CMakeFiles/4.0.1/CMakeSystem.cmake"
   "pybind11-populate-prefix/tmp/pybind11-populate-mkdirs.cmake"
   "pybind11-populate-prefix/tmp/pybind11-populate-gitclone.cmake"
   "pybind11-populate-prefix/src/pybind11-populate-stamp/pybind11-populate-gitinfo.txt"

@@ -4,12 +4,8 @@ SRCDIR       := cppsrc
 # --- Pull in pybind11’s include flags via: python3 -m pybind11 --includes ---
 PYBIND11_INC := $(shell python3 -m pybind11 --includes)
 
-PYTHON := /Users/romanos/miniconda3/bin/python
-
-
 # --- Compiler settings ---
 CXX          := g++
-# ↓ Added -fsanitize=address,undefined here to catch OOB / UB in your C++ extension
 CXXFLAGS     := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function \
                  -I$(SRCDIR) $(PYBIND11_INC)
 
@@ -22,16 +18,14 @@ TARGET       := a.out
 
 # --- CMake build variables ---
 BUILD_DIR    := build
-# ↓ Pass ASan into CMake as well
-CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug \
-                -DCMAKE_CXX_FLAGS="-g -fsanitize=address,undefined"
+CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug
 
-.PHONY: all run build test clean cmake_configure cmake_build train
+.PHONY: all run build test clean cmake_configure cmake_build
 
-# Default: build both the CLI and the CMake extension (and then run training)
+# Default: build both the CLI  the CMake 
 all: $(TARGET) build
 
-# Direct build of  CLI executable (excludes tests.cpp)
+# 1) Direct build of your CLI executable (excludes tests.cpp)
 $(TARGET): $(SRCS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
@@ -39,7 +33,7 @@ run: $(TARGET)
 	clear
 	./$(TARGET)
 
-#CMake configure step
+# 2) CMake configure step
 cmake_configure:
 	mkdir -p $(BUILD_DIR)
 	cmake -S . -B $(BUILD_DIR) $(CMAKE_FLAGS)
@@ -48,15 +42,18 @@ cmake_configure:
 cmake_build: cmake_configure
 	cmake --build $(BUILD_DIR)
 
-# Build  CMake extension, then automatically kick off Python training under ASan
 build: cmake_build
-	@echo "→ Rebuild complete. Now running Python training under AddressSanitizer…"
 
-#Run all GoogleTest cases via CTest
+
+# 4) Run all GoogleTest cases via 
 test: build
 	cd $(BUILD_DIR) && ctest --output-on-failure
 
 
+# Cleans both the direct build artifacts and the CMake 
 clean:
 	rm -rf $(TARGET) *.o $(BUILD_DIR)
 
+make train:
+	clear
+	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/train.py
