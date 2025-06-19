@@ -120,7 +120,7 @@ def play_random(model):
     num_wins = 0
     
     for i in range(total_games):
-        print(f"Game {i} started...")
+        #print(f"Game {i} started...")
         game = bg.Game(0)
         model_agent = bg.Player("RL model", bg.PlayerType.PLAYER1)
         random_agent = bg.Player("Random agent", bg.PlayerType.PLAYER2)
@@ -212,7 +212,7 @@ def main():
     print("Starting Benchmarking tests:")
     
     model = SeqBackgammonNet()
-    checkpoint = torch.load("model_checkpoint_4500.pt", map_location="cpu")
+    checkpoint = torch.load("model_checkpoint_1500.pt", map_location="cpu")
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
 

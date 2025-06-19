@@ -259,7 +259,8 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
 class GameExperience:
     """Store experience from a single game step"""
     state: torch.Tensor
-    action_probs: torch.Tensor
+    action_log_prob:  torch.Tensor
+    entropy:   torch.Tensor
     value: float
     reward: float
     turn: int
@@ -268,12 +269,12 @@ class RewardCalculator:
     """Calculate rewards for different game events"""
     
     # Reward constants
-    WIN_REWARD = 1.0
-    LOSS_REWARD = -1.0
-    HIT_OPPONENT_REWARD = 0.1
-    BEAR_OFF_REWARD = 0.05
+    WIN_REWARD = 1.5
+    LOSS_REWARD = -1.5
+    HIT_OPPONENT_REWARD = 0.05
+    BEAR_OFF_REWARD = 0.1
     ESCAPE_JAR_REWARD = 0.02
-    PROGRESS_REWARD = 0.001
+    PROGRESS_REWARD = 0
     
     @staticmethod
     def calculate_intermediate_rewards(game_before, game_after, player_num):
@@ -372,7 +373,7 @@ class SelfPlayTrainer:
 
         
 
-    def select_action(self, game, player, temperature=1.0):
+    def select_action(self, game, player, temperature=1.0)-> Tuple[List[Tuple[int,int]], List[int], torch.Tensor, torch.Tensor]:
         """Select action using the neural network with proper move validation"""
         # Get dice values
         dice1, dice2 = game.get_last_dice()
@@ -397,7 +398,7 @@ class SelfPlayTrainer:
         )
         
         if not seqs:  # No legal moves
-            return None, None, None
+            return None, None, None, None
         
         # Forward pass through network
         with torch.no_grad():
@@ -422,13 +423,17 @@ class SelfPlayTrainer:
         seq_logits = torch.stack(seq_logits)         #turn scores into a prob distribution
         probs = F.softmax(seq_logits / max(temperature, 1e-6), dim=0)
 
-        m = Categorical(probs)  #draws a sample from the probs distribution
-        idx = m.sample().item()                     
+        m = Categorical(probs)           # distribution over sequences
+        idx_t    = m.sample()            # tensor([i])
+        log_prob = m.log_prob(idx_t)     # scalar tensor: log π(a|s)
+        entropy  = m.entropy()           # scalar tensor: entropy bonus
 
+        idx = idx_t.item()
         selected_sequence = seqs[idx]
         dice_order       = dice_orders[idx]
 
-        return selected_sequence, dice_order, probs
+        # now return both log_prob & entropy
+        return selected_sequence, dice_order, log_prob, entropy
     
     def play_game(self, temperature=1.0):
         """Play a complete self-play game and collect experiences"""
@@ -487,7 +492,7 @@ class SelfPlayTrainer:
             
             # Select and execute action
             game_before = game.clone()
-            sequence, dice_order, action_probs = self.select_action(game, current_player, temperature)
+            sequence, dice_order, log_prob, entropy = self.select_action(game, current_player, temperature)
             
             if sequence is None:
                 # No legal moves, switch turns
@@ -522,9 +527,10 @@ class SelfPlayTrainer:
                 # Store experience
                 experience = GameExperience(
                     state=state,
-                    action_probs=action_probs,
+                    action_log_prob=log_prob,
                     value=value,
                     reward=intermediate_reward,
+                    entropy=entropy,
                     turn=current_player.getNum()
                 )
                 experiences.append(experience)
@@ -567,11 +573,14 @@ class SelfPlayTrainer:
         logits, predicted_values = self.model(states)
         
         # Compute losses
+
+        #value loss
         value_loss = F.mse_loss(predicted_values, returns)
         
-        # Policy loss (simplified - using value advantage as proxy)
+        # Policy loss
+        action_log_probs = torch.stack([exp.action_log_prob for exp in batch_experiences]).to(self.device)
         advantages = returns - predicted_values.detach()
-        policy_loss = -torch.mean(advantages * torch.log(torch.clamp(values, min=1e-8)))
+        policy_loss = -torch.mean(action_log_probs * advantages)
         
         # Entropy loss for exploration
         entropy_loss = 0.0  # Simplified for now
@@ -603,7 +612,7 @@ class SelfPlayTrainer:
         
         for game_idx in range(num_games):
             # Play game with temperature annealing
-            temperature = max(0.1, 1.0 - game_idx / (num_games * 3.0))
+            temperature = max(0.3, 3 - game_idx / (num_games * 3.0))
             experiences, episode_reward, episode_turns = self.play_game(temperature=temperature)
 
             # Store episode metrics

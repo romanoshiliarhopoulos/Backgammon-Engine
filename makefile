@@ -58,7 +58,6 @@ make train:
 	clear
 	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/train.py
 make bench:
-	clear
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v2/benchmark.py"
 
 make train2:
