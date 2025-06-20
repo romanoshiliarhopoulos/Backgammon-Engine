@@ -274,7 +274,7 @@ class RewardCalculator:
     HIT_OPPONENT_REWARD = 0.05
     BEAR_OFF_REWARD = 0.1
     ESCAPE_JAR_REWARD = 0.02
-    PROGRESS_REWARD = 0
+    PROGRESS_REWARD = -0.0001
     
     @staticmethod
     def calculate_intermediate_rewards(game_before, game_after, player_num):
@@ -401,8 +401,7 @@ class SelfPlayTrainer:
             return None, None, None, None
         
         # Forward pass through network
-        with torch.no_grad():
-            logits, value = self.model(state, mask)
+        logits, value = self.model(state, mask)
 
         _S = 26
         seq_logits = []
@@ -520,17 +519,17 @@ class SelfPlayTrainer:
                 total_episode_reward += intermediate_reward
                 # Get value prediction
                 state_tensor = state.unsqueeze(0).to(self.device)
-                with torch.no_grad():
-                    _, value = self.model(state_tensor)
-                    value = value.item()
                 
-                # Store experience
+                _, value = self.model(state_tensor)
+                value = value.item()
+                
+                # Store experience - detaching tensors so they dont carry old graphs
                 experience = GameExperience(
                     state=state,
-                    action_log_prob=log_prob,
+                    action_log_prob=log_prob.detach(),
+                    entropy=entropy.detach(),
                     value=value,
                     reward=intermediate_reward,
-                    entropy=entropy,
                     turn=current_player.getNum()
                 )
                 experiences.append(experience)
@@ -583,7 +582,7 @@ class SelfPlayTrainer:
         policy_loss = -torch.mean(action_log_probs * advantages)
         
         # Entropy loss for exploration
-        entropy_loss = 0.0  # Simplified for now
+        entropy_loss = 0.1  # Simplified for now
         
         # Total loss
         total_loss = (self.value_loss_weight * value_loss + 
@@ -612,7 +611,7 @@ class SelfPlayTrainer:
         
         for game_idx in range(num_games):
             # Play game with temperature annealing
-            temperature = max(0.3, 3 - game_idx / (num_games * 3.0))
+            temperature = max(0.3, 3.0 -  (3.0 - 0.3) * game_idx / num_games)
             experiences, episode_reward, episode_turns = self.play_game(temperature=temperature)
 
             # Store episode metrics

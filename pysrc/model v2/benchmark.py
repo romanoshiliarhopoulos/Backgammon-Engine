@@ -212,7 +212,7 @@ def main():
     print("Starting Benchmarking tests:")
     
     model = SeqBackgammonNet()
-    checkpoint = torch.load("model_checkpoint_1500.pt", map_location="cpu")
+    checkpoint = torch.load("model_checkpoint_1000.pt", map_location="cpu")
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
 

@@ -34,7 +34,7 @@ class ResidualBlock1D(nn.Module):
         residual = x
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
-        out += residual
+        out = out + residual
         out = F.relu(out)
         return out
 
