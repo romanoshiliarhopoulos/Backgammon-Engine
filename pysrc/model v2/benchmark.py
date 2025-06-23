@@ -221,7 +221,6 @@ def main():
     win_rate_random = play_random(model=model)
     
     print(f"Against random bot: {win_rate_random* 100}%")
-    print("Romanos")
 
 
 
