@@ -131,7 +131,7 @@ class SeqBackgammonNet(nn.Module):
 
         return logits, values
     
-    def select_action(self, game, player, temperature=1.0)-> Tuple[List[Tuple[int,int]], List[int], torch.Tensor, torch.Tensor]:
+    def select_action(self, game, player, temperature=1.0):
         """Select action using the neural network with proper move validation"""
         # Get dice values
         dice1, dice2 = game.get_last_dice()
@@ -148,18 +148,18 @@ class SeqBackgammonNet(nn.Module):
         opp_jailed = pieces.numJailed(opponent_num)
         opp_borne_off = pieces.numFreed(opponent_num)
         
-        state = encode_state(board, pieces, turn, dice1, dice2).unsqueeze(0).to(self.device)
+        state = encode_state(board, pieces, turn, dice1, dice2).unsqueeze(0).to("cpu")
         
         # Get legal moves and build mask
         mask, seqs, dice_orders, all_t, all_flat, valid_mask = build_sequence_mask(
-            game, player, batch_size=1, device=self.device
+            game, player, batch_size=1, device="cpu"
         )
         
         if not seqs:  # No legal moves
             return None, None, None, None, None, None, None, None
         
         # Forward pass through network
-        logits, value = self.model(state, mask)
+        logits, value = self.forward(state, mask)
 
         _S = 26
         seq_logits = []
