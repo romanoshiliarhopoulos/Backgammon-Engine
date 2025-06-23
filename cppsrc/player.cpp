@@ -15,3 +15,4 @@ int Player::getNum()
 {
     return this->player_num;
 }
+

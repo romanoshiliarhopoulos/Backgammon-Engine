@@ -123,12 +123,76 @@ class SeqBackgammonNet(nn.Module):
         logits = logits.view(bsz, self.max_steps, self.N)  # [batch_size, 4, 676]
         if masks is not None:
             # masks: expected shape [batch_size, max_steps, N]; True for valid, False for invalid
-            logits = logits.masked_fill(~masks, float('-inf'))
+            NEG_INF = -1e9
+            logits = logits.masked_fill(~masks, NEG_INF)
 
         # Value head (output raw scalar)
         values = self.value_head(feat).squeeze(-1)  # [batch_size]
 
         return logits, values
+    
+    def select_action(self, game, player, temperature=1.0)-> Tuple[List[Tuple[int,int]], List[int], torch.Tensor, torch.Tensor]:
+        """Select action using the neural network with proper move validation"""
+        # Get dice values
+        dice1, dice2 = game.get_last_dice()
+        
+        # Encode current state
+        board = game.getGameBoard()
+        pieces = game.getPieces()
+        jailed = pieces.numJailed(player.getNum())
+        borne_off = pieces.numFreed(player.getNum())
+        turn = game.getTurn()
+        
+        # Get opponent info for proper encoding
+        opponent_num = 1 - player.getNum()
+        opp_jailed = pieces.numJailed(opponent_num)
+        opp_borne_off = pieces.numFreed(opponent_num)
+        
+        state = encode_state(board, pieces, turn, dice1, dice2).unsqueeze(0).to(self.device)
+        
+        # Get legal moves and build mask
+        mask, seqs, dice_orders, all_t, all_flat, valid_mask = build_sequence_mask(
+            game, player, batch_size=1, device=self.device
+        )
+        
+        if not seqs:  # No legal moves
+            return None, None, None, None, None, None, None, None
+        
+        # Forward pass through network
+        logits, value = self.model(state, mask)
+
+        _S = 26
+        seq_logits = []
+        """
+        seq_logits[i] is the sum of the network's scores across every individual 
+        move in sequence i. The network's confidence in an entire sequence is the 
+        sum of its confidences in each step of that sequence.
+
+        """
+        for seq in seqs:
+            # sum the network’s raw logits at each (step, origin→dest) in this sequence
+            s = logits.new_zeros(())
+            for t, (origin, dest) in enumerate(seq):
+                pos = origin * _S + dest
+                s = s + logits[0, t, pos]
+            seq_logits.append(s)
+
+        seq_logits = torch.stack(seq_logits)         #turn scores into a prob distribution
+        probs = F.softmax(seq_logits / max(temperature, 1e-6), dim=0)
+
+        m = Categorical(probs)           # distribution over sequences
+        idx_t    = m.sample()            # tensor([i])
+        log_prob = m.log_prob(idx_t)     # scalar tensor: log π(a|s)
+        entropy  = m.entropy()           # scalar tensor: entropy bonus
+
+        idx = idx_t.item()
+        selected_sequence = seqs[idx]
+        dice_order       = dice_orders[idx]
+
+        # now return both log_prob & entropy
+        mask = mask.to(torch.bool)
+        return selected_sequence, dice_order, log_prob, entropy, mask.squeeze(0), seqs, dice_orders, idx_t
+
 
 
 # Example usage sanity check. 

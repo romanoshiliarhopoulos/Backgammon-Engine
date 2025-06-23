@@ -107,6 +107,8 @@ def select_action(model, game, player, temperature=1.0):
 
         return selected_sequence, dice_order, probs
 
+from tqdm import trange
+
 def play_random(model):
     """
     Benchmarks the latest model against a model playing a random legal move each time:
@@ -116,10 +118,10 @@ def play_random(model):
 
     """
 
-    total_games = 1000
+    total_games = 500
     num_wins = 0
     
-    for i in range(total_games):
+    for i in trange(total_games, desc="Playing games"):
         #print(f"Game {i} started...")
         game = bg.Game(0)
         model_agent = bg.Player("RL model", bg.PlayerType.PLAYER1)
@@ -212,7 +214,7 @@ def main():
     print("Starting Benchmarking tests:")
     
     model = SeqBackgammonNet()
-    checkpoint = torch.load("model_checkpoint_1000.pt", map_location="cpu")
+    checkpoint = torch.load("model_checkpoint_4500.pt", map_location="cpu")
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
 

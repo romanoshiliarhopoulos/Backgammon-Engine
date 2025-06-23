@@ -6,7 +6,40 @@
 Game::Game()
 {
 }
+void Game::setDice(int d1, int d2)
+{
+    this->last_dice = {d1, d2};
+}
 
+void Game::setFreed(int player, int num)
+{
+    if (player == 0)
+    {
+        this->pieces.freedPieces_p1 = num;
+    }
+    else
+    {
+        this->pieces.freedPieces_p2 = num;
+    }
+}
+
+void Game::setGameBoard(vector<int> gameboard)
+{
+    this->gameboard = gameboard;
+}
+
+Player Game::getPlayer(int num)
+{
+
+    if (num == 0)
+    {
+        return *this->p1;
+    }
+    else
+    {
+        return *this->p2;
+    }
+}
 // constructor
 Game::Game(int player)
 {
@@ -116,9 +149,9 @@ vector<vector<pair<int, int>>> Game::legalTurnSequences(int player, int die1, in
             {
                 // if there are no more legal moves to make after the first one, just return there
                 sequences.push_back({m1});
-                //sequences.push_back({m1, {0, 0}});
-                //continue;
-                // return sequences;
+                // sequences.push_back({m1, {0, 0}});
+                // continue;
+                //  return sequences;
             }
             else
             {

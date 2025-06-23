@@ -258,12 +258,14 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
 @dataclass
 class GameExperience:
     """Store experience from a single game step"""
-    state: torch.Tensor
-    action_log_prob:  torch.Tensor
-    entropy:   torch.Tensor
-    value: float
+    state: torch.Tensor                                # [C,24]
+    mask:  torch.Tensor                                # [max_steps, N]
+    seqs:  List[List[Tuple[int,int]]]                  # all legal sequences at that turn
+    dice_orders: List[List[int]]                       # matching dice orders
+    action_idx: int                                    # which sequence‐index we actually picked, 0 ≤ action_idx < len(seqs)
+    return_:    float
+    turn : int
     reward: float
-    turn: int
     
 class RewardCalculator:
     """Calculate rewards for different game events"""
@@ -274,7 +276,7 @@ class RewardCalculator:
     HIT_OPPONENT_REWARD = 0.05
     BEAR_OFF_REWARD = 0.1
     ESCAPE_JAR_REWARD = 0.02
-    PROGRESS_REWARD = -0.0001
+    PROGRESS_REWARD = 0.001
     
     @staticmethod
     def calculate_intermediate_rewards(game_before, game_after, player_num):
@@ -373,66 +375,7 @@ class SelfPlayTrainer:
 
         
 
-    def select_action(self, game, player, temperature=1.0)-> Tuple[List[Tuple[int,int]], List[int], torch.Tensor, torch.Tensor]:
-        """Select action using the neural network with proper move validation"""
-        # Get dice values
-        dice1, dice2 = game.get_last_dice()
-        
-        # Encode current state
-        board = game.getGameBoard()
-        pieces = game.getPieces()
-        jailed = pieces.numJailed(player.getNum())
-        borne_off = pieces.numFreed(player.getNum())
-        turn = game.getTurn()
-        
-        # Get opponent info for proper encoding
-        opponent_num = 1 - player.getNum()
-        opp_jailed = pieces.numJailed(opponent_num)
-        opp_borne_off = pieces.numFreed(opponent_num)
-        
-        state = encode_state(board, pieces, turn, dice1, dice2).unsqueeze(0).to(self.device)
-        
-        # Get legal moves and build mask
-        mask, seqs, dice_orders, all_t, all_flat, valid_mask = build_sequence_mask(
-            game, player, batch_size=1, device=self.device
-        )
-        
-        if not seqs:  # No legal moves
-            return None, None, None, None
-        
-        # Forward pass through network
-        logits, value = self.model(state, mask)
-
-        _S = 26
-        seq_logits = []
-        """
-        seq_logits[i] is the sum of the network's scores across every individual 
-        move in sequence i. The network's confidence in an entire sequence is the 
-        sum of its confidences in each step of that sequence.
-
-        """
-        for seq in seqs:
-            # sum the network’s raw logits at each (step, origin→dest) in this sequence
-            s = logits.new_zeros(())
-            for t, (origin, dest) in enumerate(seq):
-                pos = origin * _S + dest
-                s = s + logits[0, t, pos]
-            seq_logits.append(s)
-
-        seq_logits = torch.stack(seq_logits)         #turn scores into a prob distribution
-        probs = F.softmax(seq_logits / max(temperature, 1e-6), dim=0)
-
-        m = Categorical(probs)           # distribution over sequences
-        idx_t    = m.sample()            # tensor([i])
-        log_prob = m.log_prob(idx_t)     # scalar tensor: log π(a|s)
-        entropy  = m.entropy()           # scalar tensor: entropy bonus
-
-        idx = idx_t.item()
-        selected_sequence = seqs[idx]
-        dice_order       = dice_orders[idx]
-
-        # now return both log_prob & entropy
-        return selected_sequence, dice_order, log_prob, entropy
+    
     
     def play_game(self, temperature=1.0):
         """Play a complete self-play game and collect experiences"""
@@ -464,11 +407,9 @@ class SelfPlayTrainer:
                 
                 # Update all experiences with final rewards
                 for exp in experiences:
-                    if exp.turn == winner:
-                        exp.reward += final_reward_winner
-                    else:
-                        exp.reward += final_reward_loser
-
+                    exp.reward += (RewardCalculator.WIN_REWARD
+                       if exp.turn == winner
+                       else RewardCalculator.LOSS_REWARD)
                 game_completed = True
 
                 # Track wins for plotting (1 if player 0 wins, 0 if player 1 wins)
@@ -491,7 +432,7 @@ class SelfPlayTrainer:
             
             # Select and execute action
             game_before = game.clone()
-            sequence, dice_order, log_prob, entropy = self.select_action(game, current_player, temperature)
+            sequence, dice_order, log_prob, entropy, mask, seqs, dice_orders, idx_t = self.model.select_action(game, current_player, temperature)
             
             if sequence is None:
                 # No legal moves, switch turns
@@ -525,13 +466,16 @@ class SelfPlayTrainer:
                 
                 # Store experience - detaching tensors so they dont carry old graphs
                 experience = GameExperience(
-                    state=state,
-                    action_log_prob=log_prob.detach(),
-                    entropy=entropy.detach(),
-                    value=value,
-                    reward=intermediate_reward,
-                    turn=current_player.getNum()
+                    state        = state.detach().cpu(),
+                    mask         = mask.cpu(),
+                    seqs         = seqs,           # a small Python list, OK to stash
+                    dice_orders  = dice_orders,
+                    action_idx   = idx_t,
+                    return_      = None,            # fill in after computing returns()
+                    reward       = intermediate_reward,
+                    turn         = current_player.getNum()
                 )
+                
                 experiences.append(experience)
                 game_rewards[current_player.getNum()].append(intermediate_reward)
             
@@ -540,8 +484,9 @@ class SelfPlayTrainer:
             turn_count +=1
         
         return experiences, total_episode_reward, turn_count
-
     
+    
+
     def compute_returns(self, experiences, gamma=0.99):
         """Compute discounted returns for experiences"""
         returns = []
@@ -556,54 +501,72 @@ class SelfPlayTrainer:
         return returns
     
     def train_step(self):
-        """Perform one training step on a batch of experiences"""
         if len(self.experience_buffer) < self.batch_size:
             return None
-        
-        # Sample batch from experience buffer
-        batch_experiences = random.sample(self.experience_buffer, self.batch_size)
-        
-        # Prepare batch data
-        states = torch.stack([exp.state for exp in batch_experiences]).to(self.device)
-        returns = torch.tensor([exp.reward for exp in batch_experiences], dtype=torch.float32).to(self.device)
-        values = torch.tensor([exp.value for exp in batch_experiences], dtype=torch.float32).to(self.device)
-        
-        # Forward pass
-        logits, predicted_values = self.model(states)
-        
-        # Compute losses
 
-        #value loss
-        value_loss = F.mse_loss(predicted_values, returns)
-        
-        # Policy loss
-        action_log_probs = torch.stack([exp.action_log_prob for exp in batch_experiences]).to(self.device)
-        advantages = returns - predicted_values.detach()
-        policy_loss = -torch.mean(action_log_probs * advantages)
-        
-        # Entropy loss for exploration
-        entropy_loss = 0.1  # Simplified for now
-        
-        # Total loss
-        total_loss = (self.value_loss_weight * value_loss + 
-                     self.policy_loss_weight * policy_loss + 
-                     self.entropy_weight * entropy_loss)
-        
-        # Backward pass
+        # sample and pull out returns
+        batch = random.sample(self.experience_buffer, self.batch_size)
+        returns = torch.tensor([e.return_ for e in batch], device=self.device)
+
+        all_log_probs = []
+        all_entropies = []
+        all_values    = []
+
+        # run each (state, mask) through the net one at a time
+        for exp in batch:
+            # 1) prep inputs
+            state = exp.state.to(self.device).unsqueeze(0)   # [1,C,24]
+            mask  = exp.mask .to(self.device).unsqueeze(0)   # [1,S,N]
+
+            # 2) forward
+            logits, value = self.model(state, mask)          # logits: [1,S,N], value: [1]
+            l_i   = logits .squeeze(0)                       # [S,N]
+            v_i   = value  .squeeze(0)                       # scalar tensor
+
+            seq_logits_list = []
+            for seq in exp.seqs:
+                s = l_i.new_zeros(())   # start from a 0‐dim Tensor, not an int
+                for t, (origin, dest) in enumerate(seq):
+                    s = s + l_i[t, origin * 26 + dest]
+                seq_logits_list.append(s)
+            seq_logits = torch.stack(seq_logits_list)  # [num_seqs]
+
+            dist = Categorical(logits=seq_logits)
+            all_log_probs.append( dist.log_prob(torch.tensor(exp.action_idx, device=self.device)) )
+            all_entropies.append( dist.entropy() )
+            all_values.append( v_i )
+
+        # stack them up
+        log_probs  = torch.stack(all_log_probs)   # [B]
+        entropies  = torch.stack(all_entropies)   # [B]
+        values     = torch.stack(all_values)      # [B]
+
+        # compute losses
+        advantages  = returns - values.detach()
+        policy_loss = -(log_probs * advantages).mean()
+        value_loss  = F.mse_loss(values, returns)
+        entropy_loss = -entropies.mean()
+
+        total_loss = (self.policy_loss_weight * policy_loss
+                    + self.value_loss_weight  * value_loss
+                    + self.entropy_weight     * entropy_loss)
+
+        # backward + step
         self.optimizer.zero_grad()
         total_loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
         self.optimizer.step()
         self.scheduler.step()
-        
         self.training_steps += 1
-        
+
         return {
             'total_loss': total_loss.item(),
-            'value_loss': value_loss.item(),
             'policy_loss': policy_loss.item(),
-            'entropy_loss': entropy_loss
+            'value_loss':  value_loss.item(),
+            'entropy':     entropies.mean().item()
         }
+
+
     
     def train(self, num_games=1000, games_per_update=10, save_interval=100, plot_interval=500):
         """Main training loop"""
@@ -624,8 +587,8 @@ class SelfPlayTrainer:
             
             # Compute returns and add to buffer
             returns = self.compute_returns(experiences)
-            for exp, ret in zip(experiences, returns):
-                exp.reward = ret
+            for exp, R in zip(experiences, returns):
+                exp.return_ = R
                 self.experience_buffer.append(exp)
             
             self.games_played += 1

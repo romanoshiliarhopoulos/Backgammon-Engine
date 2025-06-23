@@ -86,4 +86,11 @@ public:
     //creates a dice pair: rolling dice through the API
     array<int, 2> rollDice();
     array<int, 2> getLastDice() const;
+
+    void setGameBoard(vector<int> gameboard);
+    Player getPlayer(int num);
+
+    void setFreed(int player, int num);
+
+    void setDice(int d1, int d2);
 };
