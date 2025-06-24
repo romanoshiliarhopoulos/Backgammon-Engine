@@ -271,12 +271,12 @@ class RewardCalculator:
     """Calculate rewards for different game events"""
     
     # Reward constants
-    WIN_REWARD = 1.5
-    LOSS_REWARD = -1.5
-    HIT_OPPONENT_REWARD = 0.05
-    BEAR_OFF_REWARD = 0.1
-    ESCAPE_JAR_REWARD = 0.02
-    PROGRESS_REWARD = 0.001
+    WIN_REWARD = 1
+    LOSS_REWARD = -1
+    HIT_OPPONENT_REWARD = 0.2
+    BEAR_OFF_REWARD = 0.4
+    ESCAPE_JAR_REWARD = 0.05
+    PROGRESS_REWARD = 0.01
     
     @staticmethod
     def calculate_intermediate_rewards(game_before, game_after, player_num):
@@ -338,7 +338,7 @@ class SelfPlayTrainer:
     
     def __init__(self, 
                  model: SeqBackgammonNet,
-                 device: str = 'mps',
+                 device: str = 'cpu',
                  lr: float = 1e-4,
                  buffer_size: int = 10000,
                  batch_size: int = 32,
@@ -371,18 +371,39 @@ class SelfPlayTrainer:
         self.episode_turns  = []
         self.episode_losses = []
 
-        self.cache_clear_interval = 5  # Clear cache every 10 games
+        self.cache_clear_interval = 10  # Clear cache every 10 games
 
         
 
-    
+    def execute_move(self, sequence, dice_order, action_probs, current_player, game):
+        """Helper function to complete moves for agents"""
+        if sequence is None:
+            # No legal moves, switch turns
+            game.setTurn(1 - game.getTurn())
+            return False, 1
+                
+        # Execute the selected sequence
+        success = True
+        for i, (origin, dest) in enumerate(sequence):
+            if i < len(dice_order):
+                dice_val = dice_order[i]
+                move_success, error = game.tryMove(current_player, dice_val, origin, dest)
+                if not move_success:
+                    logger.warning(f"Move failed: {error}")
+                    success = False
+                    return False, 2
+        return True, 1
     
     def play_game(self, temperature=1.0):
         """Play a complete self-play game and collect experiences"""
         # Initialize game and players
+
+        # ─── freeze normalization stats ───────────────────────────
+        self.model.eval()
+
         game = bg.Game(0)  # Start with player 1
-        player1 = bg.Player("Player1", bg.PlayerType.PLAYER1)
-        player2 = bg.Player("Player2", bg.PlayerType.PLAYER2)
+        player1 = bg.Player("RL model", bg.PlayerType.PLAYER1)
+        player2 = bg.Player("RandomBot", bg.PlayerType.PLAYER2)
         game.setPlayers(player1, player2)
         
         experiences = []
@@ -395,16 +416,12 @@ class SelfPlayTrainer:
         while True and turn_count< 500:
             if turn_count > 498:
                 print("more than 500 turns")
-                #need to make game logs to understand what is going wrong...
 
             # Check if game is over
             is_over, winner = game.is_game_over()
 
             if is_over:
-                # Assign final rewards
-                final_reward_winner = RewardCalculator.WIN_REWARD
-                final_reward_loser = RewardCalculator.LOSS_REWARD
-                
+                # Assign final rewards                
                 # Update all experiences with final rewards
                 for exp in experiences:
                     exp.reward += (RewardCalculator.WIN_REWARD
@@ -431,57 +448,104 @@ class SelfPlayTrainer:
 
             
             # Select and execute action
-            game_before = game.clone()
-            sequence, dice_order, log_prob, entropy, mask, seqs, dice_orders, idx_t = self.model.select_action(game, current_player, temperature)
-            
-            if sequence is None:
-                # No legal moves, switch turns
-                game.setTurn(1 - game.getTurn())
-                turn_count +=1
-                continue
-            
-            # Execute the selected sequence
-            success = True
-            for i, (origin, dest) in enumerate(sequence):
-                if i < len(dice_order):
-                    dice_val = dice_order[i]
-                    move_success, error = game.tryMove(current_player, dice_val, origin, dest)
-                    if not move_success:
-                        logger.warning(f"Move failed: {error}")
-                        success = False
-                        break
-            
-            if success:
-                # Calculate intermediate rewards
-                intermediate_reward = RewardCalculator.calculate_intermediate_rewards(
-                    game_before, game, current_player.getNum()
+
+            #for RL agent
+            if current_player ==player1:    
+                game_before = game.clone()
+                sequence, dice_order, log_prob, entropy, mask, seqs, dice_orders, idx_t = self.model.select_action(game, current_player, temperature)
+    
+                if sequence is None:
+                    # No legal moves, switch turns
+                    game.setTurn(1 - game.getTurn())
+                    turn_count +=1
+                    continue
+                
+                # Execute the selected sequence
+                success = True
+                for i, (origin, dest) in enumerate(sequence):
+                    if i < len(dice_order):
+                        dice_val = dice_order[i]
+                        move_success, error = game.tryMove(current_player, dice_val, origin, dest)
+                        if not move_success:
+                            logger.warning(f"Move failed: {error}")
+                            success = False
+                            break
+                
+                if success:
+                    # Calculate intermediate rewards
+                    intermediate_reward = RewardCalculator.calculate_intermediate_rewards(
+                        game_before, game, current_player.getNum()
+                    )
+                    # Add to total episode reward
+                    total_episode_reward += intermediate_reward
+                    # Get value prediction
+                    state_tensor = state.unsqueeze(0).to(self.device)
+                    
+                    _, value = self.model(state_tensor)
+                    value = value.item()
+                    
+                    # Store experience - detaching tensors so they dont carry old graphs
+                    experience = GameExperience(
+                        state        = state.detach().cpu(),
+                        mask         = mask.cpu(),
+                        seqs         = seqs,           # a small Python list, OK to stash
+                        dice_orders  = dice_orders,
+                        action_idx   = idx_t,
+                        return_      = None,            # fill in after computing returns()
+                        reward       = intermediate_reward,
+                        turn         = current_player.getNum()
+                    )
+                    
+                    experiences.append(experience)
+                    game_rewards[current_player.getNum()].append(intermediate_reward)
+            else:
+                #random bot's turn - play a random legal move
+                """It is the random agents's turn."""
+
+                #select a random legal move and execute it
+                # Get dice values
+                dice1, dice2 = game.get_last_dice()
+                
+                # Encode current state
+                board = game.getGameBoard()
+                pieces = game.getPieces()
+                turn = game.getTurn()
+                
+                state = encode_state(board, pieces, turn, dice1, dice2).unsqueeze(0).to("cpu")
+                
+                # Get legal moves and build mask
+                mask, seqs, dice_orders, all_t, all_flat, valid_mask = build_sequence_mask(
+                    game, player2, batch_size=1, device="cpu"
                 )
-                # Add to total episode reward
-                total_episode_reward += intermediate_reward
-                # Get value prediction
-                state_tensor = state.unsqueeze(0).to(self.device)
                 
-                _, value = self.model(state_tensor)
-                value = value.item()
+                if not seqs:  # No legal moves
+                    #print(f"No legal moves for the Random bot, turn: {turn_count}")
+                    #print(f"Dice: {game.get_last_dice()}")
+                    #game.printGameBoard()
+                    continue #pass turn
                 
-                # Store experience - detaching tensors so they dont carry old graphs
-                experience = GameExperience(
-                    state        = state.detach().cpu(),
-                    mask         = mask.cpu(),
-                    seqs         = seqs,           # a small Python list, OK to stash
-                    dice_orders  = dice_orders,
-                    action_idx   = idx_t,
-                    return_      = None,            # fill in after computing returns()
-                    reward       = intermediate_reward,
-                    turn         = current_player.getNum()
-                )
+                selected_idx = random.randint(0, len(seqs) - 1)
                 
-                experiences.append(experience)
-                game_rewards[current_player.getNum()].append(intermediate_reward)
-            
+                selected_sequence = seqs[selected_idx]
+                dice_order = dice_orders[selected_idx]
+
+                # Return uniform probabilities for 
+                sequence_probs = torch.ones(len(seqs)) / len(seqs)
+                #executes move based on randomly selected index. 
+                status, num = self.execute_move(selected_sequence, dice_order, sequence_probs, current_player, game)
+                
+                if not status and num == 1 :
+                    turn_count +=1
+                    continue
+                elif not status and num == 2:
+                    break
+
             # Switch turns
             game.setTurn(1 - game.getTurn())
             turn_count +=1
+
+        # ─── back to training mode so we can learn in train_step ──
+        self.model.train()
         
         return experiences, total_episode_reward, turn_count
     
@@ -543,6 +607,7 @@ class SelfPlayTrainer:
 
         # compute losses
         advantages  = returns - values.detach()
+        advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8) # normalize advantages
         policy_loss = -(log_probs * advantages).mean()
         value_loss  = F.mse_loss(values, returns)
         entropy_loss = -entropies.mean()
@@ -554,7 +619,7 @@ class SelfPlayTrainer:
         # backward + step
         self.optimizer.zero_grad()
         total_loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=5.0)
         self.optimizer.step()
         self.scheduler.step()
         self.training_steps += 1
@@ -568,13 +633,13 @@ class SelfPlayTrainer:
 
 
     
-    def train(self, num_games=1000, games_per_update=10, save_interval=100, plot_interval=500):
+    def train(self, num_games=1000, games_per_update=20, save_interval=100, plot_interval=500):
         """Main training loop"""
         logger.info(f"Starting training for {num_games} games")
         
         for game_idx in range(num_games):
             # Play game with temperature annealing
-            temperature = max(0.3, 3.0 -  (3.0 - 0.3) * game_idx / num_games)
+            temperature = min(0.3, 3.0 -  (3.0 - 0.3) * game_idx / num_games)
             experiences, episode_reward, episode_turns = self.play_game(temperature=temperature)
 
             # Store episode metrics
@@ -587,6 +652,10 @@ class SelfPlayTrainer:
             
             # Compute returns and add to buffer
             returns = self.compute_returns(experiences)
+            returns = torch.tensor(returns, device="cpu")
+            # normalize
+            returns = (returns - returns.mean()) / (returns.std() + 1e-8)
+
             for exp, R in zip(experiences, returns):
                 exp.return_ = R
                 self.experience_buffer.append(exp)
@@ -595,7 +664,7 @@ class SelfPlayTrainer:
             
             # Training step
             current_loss = 0.0
-            if game_idx % games_per_update == 0 and len(self.experience_buffer) >= self.batch_size:
+            if game_idx % games_per_update == 0 and len(self.experience_buffer) >= self.batch_size and game_idx !=0:
                 loss_info = self.train_step()
                 current_loss = loss_info['total_loss'] if loss_info else 0.0
                 
@@ -678,7 +747,7 @@ def main():
     trainer = SelfPlayTrainer(
         model=model,
         device=device,
-        lr=1e-5,
+        lr=1e-4,
         buffer_size=10000,
         batch_size=32,
         value_loss_weight=1.0,
@@ -688,7 +757,7 @@ def main():
     
     trainer.train(
         num_games=5000,
-        games_per_update=10,
+        games_per_update=30,
         save_interval=500,
         plot_interval=500  # Generate plots every 100 games
     )

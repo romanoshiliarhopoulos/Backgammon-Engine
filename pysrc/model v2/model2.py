@@ -26,14 +26,14 @@ class ResidualBlock1D(nn.Module):
     def __init__(self, channels: int = 64):
         super().__init__()
         self.conv1 = nn.Conv1d(channels, channels, kernel_size=3, padding=1, bias=False)
-        self.bn1 = nn.BatchNorm1d(channels)
+        self.norm1 = nn.GroupNorm(1, channels)
         self.conv2 = nn.Conv1d(channels, channels, kernel_size=3, padding=1, bias=False)
-        self.bn2 = nn.BatchNorm1d(channels)
+        self.norm2 = nn.GroupNorm(1, channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         residual = x
-        out = F.relu(self.bn1(self.conv1(x)))
-        out = self.bn2(self.conv2(out))
+        out = F.relu(self.norm1(self.conv1(x)))
+        out = self.norm2(self.conv2(out))
         out = out + residual
         out = F.relu(out)
         return out
@@ -63,7 +63,7 @@ class SeqBackgammonNet(nn.Module):
         super().__init__()
         # Initial convolution to map input channels to 64 feature maps
         self.conv_input = nn.Conv1d(n_channels, 64, kernel_size=3, padding=1, bias=False)
-        self.bn_input = nn.BatchNorm1d(64)
+        self.norm_input = nn.GroupNorm(1, 64)
 
         # Create `num_res_blocks` residual blocks, each preserving 64 channels
         self.res_blocks = nn.ModuleList([
@@ -107,7 +107,7 @@ class SeqBackgammonNet(nn.Module):
 
         # Initial conv + BN + ReLU
         out = self.conv_input(x)       # [batch_size, 64, 24]
-        out = self.bn_input(out)
+        out = self.norm_input(self.conv_input(x))
         out = F.relu(out)
 
         # Pass through residual blocks
@@ -169,16 +169,19 @@ class SeqBackgammonNet(nn.Module):
         sum of its confidences in each step of that sequence.
 
         """
+        seq_log_probs = []
         for seq in seqs:
-            # sum the network’s raw logits at each (step, origin→dest) in this sequence
-            s = logits.new_zeros(())
+            log_prob_sum = torch.tensor(0.0, device=logits.device)  # Start with a tensor, not float
             for t, (origin, dest) in enumerate(seq):
                 pos = origin * _S + dest
-                s = s + logits[0, t, pos]
-            seq_logits.append(s)
+                step_logits = logits[0, t, :]  # All logits for this step
+                step_probs = F.softmax(step_logits, dim=0)
+                log_prob_sum = log_prob_sum + torch.log(step_probs[pos] + 1e-8)
+            seq_log_probs.append(log_prob_sum)
 
-        seq_logits = torch.stack(seq_logits)         #turn scores into a prob distribution
-        probs = F.softmax(seq_logits / max(temperature, 1e-6), dim=0)
+        seq_log_probs = torch.stack(seq_log_probs)
+        probs = F.softmax(seq_log_probs / temperature, dim=0)
+
 
         m = Categorical(probs)           # distribution over sequences
         idx_t    = m.sample()            # tensor([i])
