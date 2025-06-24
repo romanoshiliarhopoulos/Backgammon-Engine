@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#model2.py
 import random
 import sys
 import os
@@ -128,11 +129,16 @@ class SeqBackgammonNet(nn.Module):
 
         # Value head (output raw scalar)
         values = self.value_head(feat).squeeze(-1)  # [batch_size]
+        values = torch.tanh(values)
+        logits = torch.clamp(logits, min=-10.0, max=10.0) 
 
         return logits, values
     
     def select_action(self, game, player, temperature=1.0):
         """Select action using the neural network with proper move validation"""
+
+        self.eval() # Set model to evaluation mode
+
         # Get dice values
         dice1, dice2 = game.get_last_dice()
         
@@ -159,7 +165,8 @@ class SeqBackgammonNet(nn.Module):
             return None, None, None, None, None, None, None, None
         
         # Forward pass through network
-        logits, value = self.forward(state, mask)
+        with torch.no_grad(): # Disable gradient calculation
+            logits, value = self.forward(state, mask)
 
         _S = 26
         seq_logits = []
@@ -169,18 +176,16 @@ class SeqBackgammonNet(nn.Module):
         sum of its confidences in each step of that sequence.
 
         """
-        seq_log_probs = []
+        seq_scores = []
         for seq in seqs:
-            log_prob_sum = torch.tensor(0.0, device=logits.device)  # Start with a tensor, not float
+            score = torch.tensor(0.0, device="cpu")
             for t, (origin, dest) in enumerate(seq):
-                pos = origin * _S + dest
-                step_logits = logits[0, t, :]  # All logits for this step
-                step_probs = F.softmax(step_logits, dim=0)
-                log_prob_sum = log_prob_sum + torch.log(step_probs[pos] + 1e-8)
-            seq_log_probs.append(log_prob_sum)
+                pos = origin * self.S + dest
+                score += logits[0, t, pos] # Summing raw logits
+            seq_scores.append(score)
 
-        seq_log_probs = torch.stack(seq_log_probs)
-        probs = F.softmax(seq_log_probs / temperature, dim=0)
+        seq_scores_t = torch.stack(seq_scores)
+        probs = F.softmax(seq_scores_t / temperature, dim=0)
 
 
         m = Categorical(probs)           # distribution over sequences
@@ -207,5 +212,5 @@ if __name__ == "__main__":
     model = SeqBackgammonNet(n_channels=9, hidden_dim=128, max_steps=4, num_res_blocks=10)
     logits, values = model(dummy_x, masks=dummy_masks)
 
-    print("Logits shape:", logits.shape)  # Expect [2, 4, 676]
-    print("Values shape:", values.shape)  # Expect [2]
+    print("Logits shape:", logits.shape)  # 
+    print("Values shape:", values.shape)  # 

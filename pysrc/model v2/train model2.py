@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#train_model2.py
 """
 Self-play training loop for SeqBackgammonNet using the C++ Backgammon environment.
 """
@@ -565,61 +566,82 @@ class SelfPlayTrainer:
         return returns
     
     def train_step(self):
+        """ More stable training step"""
         if len(self.experience_buffer) < self.batch_size:
             return None
 
-        # sample and pull out returns
+        # Sample batch
         batch = random.sample(self.experience_buffer, self.batch_size)
-        returns = torch.tensor([e.return_ for e in batch], device=self.device)
-
-        all_log_probs = []
-        all_entropies = []
-        all_values    = []
-
-        # run each (state, mask) through the net one at a time
-        for exp in batch:
-            # 1) prep inputs
-            state = exp.state.to(self.device).unsqueeze(0)   # [1,C,24]
-            mask  = exp.mask .to(self.device).unsqueeze(0)   # [1,S,N]
-
-            # 2) forward
-            logits, value = self.model(state, mask)          # logits: [1,S,N], value: [1]
-            l_i   = logits .squeeze(0)                       # [S,N]
-            v_i   = value  .squeeze(0)                       # scalar tensor
-
-            seq_logits_list = []
+        
+        # Extract data
+        states = torch.stack([exp.state for exp in batch]).to(self.device)
+        masks = torch.stack([exp.mask for exp in batch]).to(self.device)
+        returns = torch.tensor([exp.return_ for exp in batch], dtype=torch.float32).to(self.device)
+        
+        # Get current policy and value predictions
+        logits, values = self.model(states, masks)
+        values = values.squeeze(-1)
+        
+        # Compute log probabilities for taken actions
+        log_probs = []
+        entropies = []
+        
+        for i, exp in enumerate(batch):
+            # Get logits for this sample
+            sample_logits = logits[i]  # [max_steps, N]
+            
+            # Compute sequence scores
+            seq_scores = []
+            _S = 26
             for seq in exp.seqs:
-                s = l_i.new_zeros(())   # start from a 0‐dim Tensor, not an int
+                score = torch.tensor(0.0, device=self.device)
                 for t, (origin, dest) in enumerate(seq):
-                    s = s + l_i[t, origin * 26 + dest]
-                seq_logits_list.append(s)
-            seq_logits = torch.stack(seq_logits_list)  # [num_seqs]
-
-            dist = Categorical(logits=seq_logits)
-            all_log_probs.append( dist.log_prob(exp.action_idx.to(self.device)) )
-            all_entropies.append( dist.entropy() )
-            all_values.append( v_i )
-
-        # stack them up
-        log_probs  = torch.stack(all_log_probs)   # [B]
-        entropies  = torch.stack(all_entropies)   # [B]
-        values     = torch.stack(all_values)      # [B]
-
-        # compute losses
-        advantages  = returns - values.detach()
-        advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8) # normalize advantages
+                    pos = origin * _S + dest
+                    score += sample_logits[t, pos]
+                seq_scores.append(score)
+            
+            seq_scores = torch.stack(seq_scores)
+            dist = Categorical(logits=seq_scores)
+            
+            log_probs.append(dist.log_prob(exp.action_idx.to(self.device)))
+            entropies.append(dist.entropy())
+        
+        log_probs = torch.stack(log_probs)
+        entropies = torch.stack(entropies)
+        
+        # Compute losses
+        advantages = returns - values.detach()
+        # Normalize advantages
+        if advantages.std() > 1e-8:
+            advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+        
+        # Clamp advantages to prevent extreme values
+        advantages = torch.clamp(advantages, -10.0, 10.0)
+        
         policy_loss = -(log_probs * advantages).mean()
-        value_loss  = F.mse_loss(values, returns)
+        value_loss = F.mse_loss(values, returns)
         entropy_loss = -entropies.mean()
 
         total_loss = (self.policy_loss_weight * policy_loss
                     + self.value_loss_weight  * value_loss
                     + self.entropy_weight     * entropy_loss)
 
-        # backward + step
+        # Check for NaN/Inf
+        if not torch.isfinite(total_loss):
+            logger.warning("Non-finite loss detected, skipping update")
+            return None
+
+        # In train_step, before computing total_loss:
+        print(f"  Logits (mean/std/min/max): {logits.mean().item():.3f} / {logits.std().item():.3f} / {logits.min().item():.3f} / {logits.max().item():.3f}")
+        print(f"  Seq Scores (mean/std/min/max): {seq_scores.mean().item():.3f} / {seq_scores.std().item():.3f} / {seq_scores.min().item():.3f} / {seq_scores.max().item():.3f}")
+        print(f"  Entropies (mean/std/min/max): {entropies.mean().item():.3f} / {entropies.std().item():.3f} / {entropies.min().item():.3f} / {entropies.max().item():.3f}")
+        print(f"  Advantages (mean/std/min/max): {advantages.mean().item():.3f} / {advantages.std().item():.3f} / {advantages.min().item():.3f} / {advantages.max().item():.3f}")
+        print(f"  Policy Loss: {policy_loss.item():.3f}, Value Loss: {value_loss.item():.3f}, Entropy Loss: {entropy_loss.item():.3f}")
+
+        # Backward pass with gradient clipping
         self.optimizer.zero_grad()
         total_loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=5.0)
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)  # Reduced from 5.0
         self.optimizer.step()
         self.scheduler.step()
         self.training_steps += 1
@@ -628,7 +650,9 @@ class SelfPlayTrainer:
             'total_loss': total_loss.item(),
             'policy_loss': policy_loss.item(),
             'value_loss':  value_loss.item(),
-            'entropy':     entropies.mean().item()
+            'entropy':     entropies.mean().item(),
+            'avg_advantage': advantages.mean().item(),
+            'avg_return': returns.mean().item()
         }
 
 
@@ -639,7 +663,7 @@ class SelfPlayTrainer:
         
         for game_idx in range(num_games):
             # Play game with temperature annealing
-            temperature = min(0.3, 3.0 -  (3.0 - 0.3) * game_idx / num_games)
+            temperature = min(0.1, 3.0 -  (3.0 - 0.3) * game_idx / num_games)
             experiences, episode_reward, episode_turns = self.play_game(temperature=temperature)
 
             # Store episode metrics
@@ -732,7 +756,7 @@ class SelfPlayTrainer:
 def main():
     """Main training function"""
     # Set device
-    device = 'cpu' if torch.backends.mps.is_available() else 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cpu' 
     logger.info(f"Using device: {device}")
     
     # Initialize model
@@ -752,7 +776,7 @@ def main():
         batch_size=32,
         value_loss_weight=1.0,
         policy_loss_weight=1.0,
-        entropy_weight=0.01
+        entropy_weight=0.0001
     )
     
     trainer.train(
