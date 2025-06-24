@@ -184,7 +184,7 @@ def plot_all_metrics(win_history, episode_rewards, episode_turns, episode_losses
     final_win_rate = cum_win_rate[-1]
     avg_turns = turns.mean()
     total_reward = rewards.sum()
-    final_loss = losses[-1]
+    final_loss = next((l for l in reversed(losses) if l != 0.0), losses[-1])
 
     plt.subplot(1, 2, 1)
     performance_data = [
@@ -596,7 +596,7 @@ class SelfPlayTrainer:
             seq_logits = torch.stack(seq_logits_list)  # [num_seqs]
 
             dist = Categorical(logits=seq_logits)
-            all_log_probs.append( dist.log_prob(torch.tensor(exp.action_idx, device=self.device)) )
+            all_log_probs.append( dist.log_prob(exp.action_idx.to(self.device)) )
             all_entropies.append( dist.entropy() )
             all_values.append( v_i )
 

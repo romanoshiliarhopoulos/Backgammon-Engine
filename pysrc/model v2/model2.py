@@ -106,8 +106,8 @@ class SeqBackgammonNet(nn.Module):
         bsz = x.size(0)
 
         # Initial conv + BN + ReLU
-        out = self.conv_input(x)       # [batch_size, 64, 24]
-        out = self.norm_input(self.conv_input(x))
+        out = self.conv_input(x)
+        out = self.norm_input(out)
         out = F.relu(out)
 
         # Pass through residual blocks
