@@ -17,6 +17,19 @@ from encode_state import encode_state
 from encode_state import build_sequence_mask
 from torch.distributions import Categorical
 
+def init_weights(m):
+    """
+    Conservative weight initialization to prevent -inf logits
+    """
+    if isinstance(m, nn.Linear):
+        # Use Xavier/Glorot initialization instead of Kaiming
+        nn.init.xavier_uniform_(m.weight, gain=0.1)  # Small gain to start conservative
+        if m.bias is not None:
+            nn.init.constant_(m.bias, 0.01)  # Small positive bias
+    elif isinstance(m, nn.Conv1d):
+        nn.init.xavier_uniform_(m.weight, gain=0.1)
+        if m.bias is not None:
+            nn.init.constant_(m.bias, 0.01)
 
 class ResidualBlock1D(nn.Module):
     """
@@ -58,79 +71,103 @@ class SeqBackgammonNet(nn.Module):
 
     def __init__(self,
                  n_channels: int = 9,
-                 hidden_dim: int = 128,
+                 hidden_dim: int = 128, # Adjusted from 64 to 128 for more capacity based on common practice
                  max_steps: int = 4,
                  num_res_blocks: int = 10):
         super().__init__()
-        # Initial convolution to map input channels to 64 feature maps
-        self.conv_input = nn.Conv1d(n_channels, 64, kernel_size=3, padding=1, bias=False)
-        self.norm_input = nn.GroupNorm(1, 64)
+        
+        self.n_channels = n_channels
+        self.hidden_dim = hidden_dim
+        self.max_steps = max_steps
+        self.num_res_blocks = num_res_blocks
+        
+        self.S = 26 # Number of possible points (including bar/borne-off for indexing)
+        self.output_dim_per_step = self.S * self.S # 26 * 26 = 676 possible (origin, dest) pairs
 
-        # Create `num_res_blocks` residual blocks, each preserving 64 channels
+        # --- Convolutional Front End (Common Encoder) ---
+        # Initial convolutional layer to map input channels to hidden_dim
+        self.initial_conv = nn.Conv1d(n_channels, hidden_dim, kernel_size=3, padding=1, bias=False)
+        self.initial_norm = nn.GroupNorm(1, hidden_dim) # Normalize after initial conv
+
+        # Stack of residual blocks
         self.res_blocks = nn.ModuleList([
-            ResidualBlock1D(channels=64) for _ in range(num_res_blocks)
+            ResidualBlock1D(hidden_dim) for _ in range(num_res_blocks)
         ])
 
-        # After convolutions, flatten and project to hidden dimension
-        # Input width is 24 (points on the board)
-        conv_output_size = 64 * 24
-        self.fc_feat = nn.Linear(conv_output_size, hidden_dim)
+        # Global average pooling to flatten spatial dimensions for heads
+        # This will transform [batch_size, hidden_dim, 24] to [batch_size, hidden_dim]
+        self.global_avg_pool = nn.AdaptiveAvgPool1d(1)
 
-        # Policy head parameters
-        self.max_steps = max_steps
-        self.S = 26
-        self.N = self.S * self.S  # 26 origins × 26 destinations = 676
 
-        # For each sub-step, predict logits over N possibilities
-        self.policy_logits = nn.Linear(hidden_dim, max_steps * self.N)
+        # --- Policy Head ---
+        # Takes the flattened feature vector from the encoder
+        # Outputs logits for each possible (origin, dest) pair for each sub-step
+        # Policy head needs to output `max_steps * output_dim_per_step` raw values
+        self.policy_head = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, self.max_steps * self.output_dim_per_step)
+        )
 
-        # Value head: raw scalar output (apply tanh externally if desired)
-        self.value_head = nn.Linear(hidden_dim, 1)
+        # --- Value Head ---
+        # Takes the flattened feature vector from the encoder
+        # Outputs a single scalar value prediction
+        self.value_head = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.LayerNorm(hidden_dim),      # Added LayerNorm here
+            nn.LeakyReLU(0.01), # Changed from ReLU to LeakyReLU
+            nn.Linear(hidden_dim, 1) # Output a single value
+            # NO ACTIVATION HERE for value head (e.g., Sigmoid) unless you're explicitly normalizing target returns
+        )
 
-    def forward(self,
-                x: torch.Tensor,
-                masks: torch.Tensor = None
-                ) -> (torch.Tensor, torch.Tensor):
+        # Apply custom weight initialization to all layers in the network
+        self.apply(init_weights)
+
+
+    def forward(self, x: torch.Tensor, mask: torch.Tensor):
         """
-        Forward pass.
-
-        Args:
-            x: Tensor of shape [batch_size, n_channels, 24]
-            masks: Boolean tensor of shape [batch_size, max_steps, N] indicating
-                   which logits are valid (True) vs. invalid (False). Invalid logits
-                   will be set to -inf before softmax.
-
-        Returns:
-            logits: Tensor of shape [batch_size, max_steps, N]
-            values: Tensor of shape [batch_size], raw scalar predictions
+        Forward pass through the network.
+        x: Input state tensor [batch_size, n_channels, 24]
+        mask: Mask tensor [batch_size, max_steps, N] for legal moves
         """
-        bsz = x.size(0)
+        batch_size = x.size(0)
 
-        # Initial conv + BN + ReLU
-        out = self.conv_input(x)
-        out = self.norm_input(out)
-        out = F.relu(out)
+        # --- Convolutional Front End ---
+        # Initial convolution and activation
+        x = F.relu(self.initial_norm(self.initial_conv(x)))
 
         # Pass through residual blocks
-        for block in self.res_blocks:
-            out = block(out)          # still [batch_size, 64, 24]
+        for res_block in self.res_blocks:
+            x = res_block(x) # x shape remains [batch_size, hidden_dim, 24]
 
-        # Flatten and project to hidden_dim
-        out = out.view(bsz, -1)        # [batch_size, 64*24]
-        feat = F.relu(self.fc_feat(out))  # [batch_size, hidden_dim]
+        # Global average pooling to get a fixed-size feature vector per batch item
+        # pooled_features shape: [batch_size, hidden_dim, 1] -> squeeze to [batch_size, hidden_dim]
+        pooled_features = self.global_avg_pool(x).squeeze(-1)
 
-        # Policy head
-        logits = self.policy_logits(feat)  # [batch_size, max_steps * N]
-        logits = logits.view(bsz, self.max_steps, self.N)  # [batch_size, 4, 676]
-        if masks is not None:
-            # masks: expected shape [batch_size, max_steps, N]; True for valid, False for invalid
-            NEG_INF = -1e9
-            logits = logits.masked_fill(~masks, NEG_INF)
 
-        # Value head (output raw scalar)
-        values = self.value_head(feat).squeeze(-1)  # [batch_size]
-        values = torch.tanh(values)
-        logits = torch.clamp(logits, min=-10.0, max=10.0) 
+        # --- Policy Head ---
+        # Pass pooled features through the policy head to get raw logits
+        # raw_policy_logits shape: [batch_size, max_steps * output_dim_per_step]
+        raw_policy_logits = self.policy_head(pooled_features)
+        
+        # Reshape policy logits to [batch_size, max_steps, output_dim_per_step]
+        logits = raw_policy_logits.view(batch_size, self.max_steps, self.output_dim_per_step)
+        
+        # Apply the mask to logits: set illegal moves to a very low value (-inf effectively)
+        # This is CRITICAL. The mask ensures that illegal moves have negligible probability.
+        # Ensure mask is broadcastable or of correct shape.
+        # It's better if mask matches logits shape: [batch_size, max_steps, output_dim_per_step]
+        # Or if mask is [batch_size, N] for each step, repeat it for max_steps.
+        # Assuming mask is already [batch_size, max_steps, output_dim_per_step]
+        logits = logits.masked_fill(~mask, float('-inf')) # Invert the mask for masked_fill
+        
+        # --- NO CLAMPING ON LOGITS HERE! Let the gradients flow freely.
+        # The `clip_grad_norm_` in the trainer will handle exploding gradients.
+
+        # --- Value Head ---
+        # Pass pooled features through the value head to get the value prediction
+        values = self.value_head(pooled_features)
 
         return logits, values
     

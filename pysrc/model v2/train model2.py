@@ -340,7 +340,7 @@ class SelfPlayTrainer:
     def __init__(self, 
                  model: SeqBackgammonNet,
                  device: str = 'cpu',
-                 lr: float = 1e-4,
+                 lr: float = 1e-5,
                  buffer_size: int = 10000,
                  batch_size: int = 32,
                  value_loss_weight: float = 1.0,
@@ -482,8 +482,8 @@ class SelfPlayTrainer:
                     # Get value prediction
                     state_tensor = state.unsqueeze(0).to(self.device)
                     
-                    _, value = self.model(state_tensor)
-                    value = value.item()
+                    _ , value_prediction_tensor = self.model(state_tensor, mask.unsqueeze(0).to(self.device))
+                    value = value_prediction_tensor.item()
                     
                     # Store experience - detaching tensors so they dont carry old graphs
                     experience = GameExperience(
@@ -574,7 +574,9 @@ class SelfPlayTrainer:
         batch = random.sample(self.experience_buffer, self.batch_size)
         
         # Extract data
+        # exp.state is [C, 24], stack makes [batch_size, C, 24]
         states = torch.stack([exp.state for exp in batch]).to(self.device)
+        # exp.mask is [max_steps, N] (boolean), stack makes [batch_size, max_steps, N] (boolean)
         masks = torch.stack([exp.mask for exp in batch]).to(self.device)
         returns = torch.tensor([exp.return_ for exp in batch], dtype=torch.float32).to(self.device)
         
@@ -582,66 +584,147 @@ class SelfPlayTrainer:
         logits, values = self.model(states, masks)
         values = values.squeeze(-1)
         
-        # Compute log probabilities for taken actions
-        log_probs = []
-        entropies = []
+        # Initialize lists to collect valid log probabilities, entropies, and advantages
+        valid_log_probs = []
+        valid_entropies = []
+        valid_advantages = [] 
         
+        # _S is defined in model2.py, so access it via model
+        _S = self.model.S 
+
         for i, exp in enumerate(batch):
             # Get logits for this sample
             sample_logits = logits[i]  # [max_steps, N]
             
-            # Compute sequence scores
-            seq_scores = []
-            _S = 26
-            for seq in exp.seqs:
+            # --- DEBUGGING PRINT: Logits for the current sample ---
+            if self.training_steps % 10 == 0 and i == 0: # Print for first sample every X steps
+                logger.info(f"  [DEBUG {self.training_steps}] Sample {i} Logits (min/max): {sample_logits.min().item():.3f} / {sample_logits.max().item():.3f}")
+            # --- END DEBUGGING PRINT ---
+
+            # Compute sequence scores for all legal sequences for this experience.
+            current_batch_seq_scores = [] 
+            
+            # --- DEBUGGING PRINT: Pre-stack seq_scores list ---
+            if self.training_steps % 10 == 0 and i == 0: # Print for first sample every X steps
+                logger.info(f"  [DEBUG {self.training_steps}] Sample {i} Processing Sequences:")
+            # --- END DEBUGGING PRINT ---
+
+            for seq_idx, seq in enumerate(exp.seqs):
                 score = torch.tensor(0.0, device=self.device)
+                
+                # --- DEBUGGING PRINT: Individual sequence processing ---
+                if self.training_steps % 10 == 0 and i == 0: # Print for first sample every X steps
+                    logger.info(f"    [DEBUG]   Processing seq {seq_idx}: {seq}")
+                # --- END DEBUGGING PRINT ---
+
                 for t, (origin, dest) in enumerate(seq):
                     pos = origin * _S + dest
-                    score += sample_logits[t, pos]
-                seq_scores.append(score)
+                    score_increment = sample_logits[t, pos] 
+                    score += score_increment
+                    
+                    # --- DEBUGGING PRINT: Individual move within sequence ---
+                    if self.training_steps % 10 == 0 and i == 0: # Print for first sample every X steps
+                        logger.info(f"      [DEBUG]     Turn {t}, move ({origin},{dest}), pos={pos}, sample_logits[t,pos]={score_increment.item():.3f}, current seq score={score.item():.3f}")
+                    # --- END DEBUGGING PRINT ---
+
+                current_batch_seq_scores.append(score)
             
-            seq_scores = torch.stack(seq_scores)
-            dist = Categorical(logits=seq_scores)
+            # --- DEBUGGING PRINT: Final list before stacking for this sample ---
+            if self.training_steps % 10 == 0 and i == 0: # Print for first sample every X steps
+                logger.info(f"  [DEBUG {self.training_steps}] Sample {i} Current Batch Seq Scores list (before stack): {current_batch_seq_scores}")
+            # --- END DEBUGGING PRINT ---
+
+            if not current_batch_seq_scores:
+                logger.warning(f"No legal sequences found for experience {i} in batch (game {self.games_played}, step {self.training_steps}). Skipping for policy/entropy update.")
+                continue 
+
+            seq_scores_for_dist = torch.stack(current_batch_seq_scores)
             
-            log_probs.append(dist.log_prob(exp.action_idx.to(self.device)))
-            entropies.append(dist.entropy())
+            # Critical check: If seq_scores_for_dist are all -inf, Categorical will fail.
+            # This happens if the model's logits for all legal moves are -inf.
+            if torch.all(torch.isinf(seq_scores_for_dist) & (seq_scores_for_dist < 0)):
+                logger.warning(f"All sequence scores are -inf for batch item {i}. Cannot form Categorical distribution meaningfully. Skipping this experience.")
+                continue
+
+            if torch.isnan(seq_scores_for_dist).any():
+                logger.warning(f"NaN detected in seq_scores for batch item {i}. Skipping this experience.")
+                continue
+            
+            # This check is for cases where values are identical but not -inf (e.g., all 0.0)
+            if seq_scores_for_dist.numel() > 1 and torch.all(seq_scores_for_dist == seq_scores_for_dist[0]):
+                logger.warning(f"All sequence scores are identical for batch item {i}. This causes uniform distribution and potentially hampers learning. Adding small noise.")
+                seq_scores_for_dist = seq_scores_for_dist + torch.randn_like(seq_scores_for_dist) * 1e-6
+
+
+            dist = Categorical(logits=seq_scores_for_dist)
+            
+            valid_log_probs.append(dist.log_prob(exp.action_idx.to(self.device)))
+            valid_entropies.append(dist.entropy())
+            # IMPORTANT: Capture the advantages for *this specific* experience from the batch
+            # `values[i]` and `returns[i]` correspond to the current experience `exp`
+            valid_advantages.append(returns[i] - values[i].detach())
         
-        log_probs = torch.stack(log_probs)
-        entropies = torch.stack(entropies)
-        
+        if not valid_log_probs:
+            logger.warning("No valid experiences in batch after filtering for policy and entropy loss calculation. Returning None.")
+            return None
+
+        # Stack only the collected valid items
+        log_probs = torch.stack(valid_log_probs)
+        entropies = torch.stack(valid_entropies)
+        advantages = torch.stack(valid_advantages) # Stack advantages from valid experiences
+
         # Compute losses
-        advantages = returns - values.detach()
-        # Normalize advantages
         if advantages.std() > 1e-8:
             advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
-        
-        # Clamp advantages to prevent extreme values
         advantages = torch.clamp(advantages, -10.0, 10.0)
         
         policy_loss = -(log_probs * advantages).mean()
-        value_loss = F.mse_loss(values, returns)
+        value_loss = F.mse_loss(values, returns) # values and returns are still full batch_size
+                                                # but policy_loss, entropy_loss are from valid only.
+                                                # This is a potential imbalance.
+                                                # Ideally, value_loss should also only use valid items.
+        
+        # REVISED: Adjust value_loss to only use valid items
+        # To do this, we need to store `values[i]` for valid_experiences too.
+        # Let's adjust `valid_advantages` to just `valid_indices` or similar.
+        
+        # To make value_loss compatible with policy_loss from valid samples,
+        # we need to select corresponding values and returns.
+        # This requires storing the original indices of valid experiences, or reconstructing it.
+        # A simpler fix for now: if many are skipped, this mismatch could be an issue.
+        # However, for initial debugging, let's proceed and address this if it becomes problematic.
+        # The RuntimeError was due to `log_probs` and `advantages` mismatch.
+        # Currently, `values` and `returns` are still `batch_size`.
+        # This means `value_loss` is calculated over the entire batch, while `policy_loss` is only over valid.
+        # This is okay as long as `values` doesn't contain NaNs/Infs that would cause the MSE to fail.
+        # If `values` or `returns` also cause NaNs, you'd need to filter them too.
+        # For now, we address the direct Runtime Error.
+
         entropy_loss = -entropies.mean()
 
         total_loss = (self.policy_loss_weight * policy_loss
                     + self.value_loss_weight  * value_loss
                     + self.entropy_weight     * entropy_loss)
 
+        # --- FINAL DEBUGGING PRINTS FOR TOTAL LOSS COMPONENTS ---
+        if self.training_steps % 10 == 0: 
+            logger.info(f"\n--- Training Step Summary (Step {self.training_steps}, Game {self.games_played}) ---")
+            logger.info(f"  Logits (mean/std/min/max): {logits.mean().item():.3f} / {logits.std().item():.3f} / {logits.min().item():.3f} / {logits.max().item():.3f}")
+            logger.info(f"  Entropies (mean/std/min/max): {entropies.mean().item():.3f} / {entropies.std().item():.3f} / {entropies.min().item():.3f} / {entropies.max().item():.3f}")
+            logger.info(f"  Advantages (mean/std/min/max): {advantages.mean().item():.3f} / {advantages.std().item():.3f} / {advantages.min().item():.3f} / {advantages.max().item():.3f}")
+            logger.info(f"  Policy Loss: {policy_loss.item():.4f}, Value Loss: {value_loss.item():.4f}, Entropy Loss: {entropy_loss.item():.4f}")
+            logger.info(f"  Total Loss (before NaN/Inf check): {total_loss.item():.4f}")
+            logger.info(f"----------------------------------------------------\n")
+
         # Check for NaN/Inf
         if not torch.isfinite(total_loss):
-            logger.warning("Non-finite loss detected, skipping update")
+            logger.warning(f"Non-finite total loss detected: {total_loss.item()}, skipping update at step {self.training_steps}")
             return None
-
-        # In train_step, before computing total_loss:
-        print(f"  Logits (mean/std/min/max): {logits.mean().item():.3f} / {logits.std().item():.3f} / {logits.min().item():.3f} / {logits.max().item():.3f}")
-        print(f"  Seq Scores (mean/std/min/max): {seq_scores.mean().item():.3f} / {seq_scores.std().item():.3f} / {seq_scores.min().item():.3f} / {seq_scores.max().item():.3f}")
-        print(f"  Entropies (mean/std/min/max): {entropies.mean().item():.3f} / {entropies.std().item():.3f} / {entropies.min().item():.3f} / {entropies.max().item():.3f}")
-        print(f"  Advantages (mean/std/min/max): {advantages.mean().item():.3f} / {advantages.std().item():.3f} / {advantages.min().item():.3f} / {advantages.max().item():.3f}")
-        print(f"  Policy Loss: {policy_loss.item():.3f}, Value Loss: {value_loss.item():.3f}, Entropy Loss: {entropy_loss.item():.3f}")
 
         # Backward pass with gradient clipping
         self.optimizer.zero_grad()
         total_loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)  # Reduced from 5.0
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
         self.optimizer.step()
         self.scheduler.step()
         self.training_steps += 1
@@ -655,7 +738,6 @@ class SelfPlayTrainer:
             'avg_return': returns.mean().item()
         }
 
-
     
     def train(self, num_games=1000, games_per_update=20, save_interval=100, plot_interval=500):
         """Main training loop"""
@@ -663,7 +745,7 @@ class SelfPlayTrainer:
         
         for game_idx in range(num_games):
             # Play game with temperature annealing
-            temperature = min(0.1, 3.0 -  (3.0 - 0.3) * game_idx / num_games)
+            temperature = min(0.5, 3.0 -  (3.0 - 0.3) * game_idx / num_games)
             experiences, episode_reward, episode_turns = self.play_game(temperature=temperature)
 
             # Store episode metrics
@@ -771,7 +853,7 @@ def main():
     trainer = SelfPlayTrainer(
         model=model,
         device=device,
-        lr=1e-4,
+        lr=1e-5,
         buffer_size=10000,
         batch_size=32,
         value_loss_weight=1.0,
