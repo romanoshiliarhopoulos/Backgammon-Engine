@@ -63,3 +63,10 @@ make bench:
 make train2:
 	clear
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v2/train model2.py"
+
+make train3:
+	clear
+	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v3/train3.py"
+
+make bench3:
+	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v3/bench3.py"

@@ -17,12 +17,12 @@ class TDGammonModel(nn.Module):
         # Input to a larger hidden layer
         self.fc1 = nn.Linear(input_size, hidden_size_1)
         # Batch Normalization 
-        self.bn1 = nn.BatchNorm1d(hidden_size_1)
+        self.ln1 = nn.LayerNorm(hidden_size_1)
         
         #Deeper hidden layer
         self.fc2 = nn.Linear(hidden_size_1, hidden_size_2)
         # Batch Normalization
-        self.bn2 = nn.BatchNorm1d(hidden_size_2)
+        self.ln2 = nn.LayerNorm(hidden_size_2)
         
         # Output Layer: win probability
         self.fc3 = nn.Linear(hidden_size_2, 1)
@@ -33,13 +33,13 @@ class TDGammonModel(nn.Module):
     def forward(self, x):
         #input layer pass
         x = self.fc1(x)
-        x = self.bn1(x) 
+        x = self.ln1(x) 
         x = F.relu(x) 
         x = self.dropout(x) 
 
         #hidden layer pass
         x = self.fc2(x)
-        x = self.bn2(x) 
+        x = self.ln2(x) 
         x = F.relu(x) 
         x = self.dropout(x) 
 
@@ -96,3 +96,64 @@ class TDGammonModel(nn.Module):
         encoded_state[197] = float(game.getBornOffCount(bg.PlayerType.PLAYER2))
 
         return torch.Tensor(encoded_state)
+    
+    def make_move(self, game):
+        """makes a moves based on a given state"""
+                # evaluation mode (turns off dropout)
+        self.eval()
+
+        # Reconstruct Python-side Player objects
+        p1 = game.getPlayers(bg.PlayerType.PLAYER1)
+        p2 = game.getPlayers(bg.PlayerType.PLAYER2)
+        turn_player = {
+            bg.PlayerType.PLAYER1: p1,
+            bg.PlayerType.PLAYER2: p2
+        }
+
+        # Get the dice that were rolled this turn
+        d1, d2 = game.get_last_dice()
+
+        # Enumerate all legal sequences
+        actions = game.legalTurnSequences(game.getTurn(), d1, d2)
+        if not actions:
+            return []
+
+        # Score each candidate by cloning + network evaluation
+        device = next(self.parameters()).device
+        values = []
+        for seq in actions:
+            sim = game.clone()
+            ok = True
+            for o, dst in seq:
+                die = abs(o - dst)
+                player = turn_player[sim.getTurn()]
+                success, _ = sim.tryMove(player, int(die), o, dst)
+                if not success:
+                    ok = False
+                    break
+            if not ok:
+                # illegal clone move → worst possible
+                if game.getTurn() == bg.PlayerType.PLAYER1:
+                    values.append(float('-inf'))
+                else:
+                    values.append(float('inf'))
+            else:
+                # encode & forward
+                rep = self.encode_state(sim).to(device)
+                with torch.no_grad():
+                    values.append(self(rep.unsqueeze(0)).item())
+
+        # Pick best or worst depending on side
+        if game.getTurn() == bg.PlayerType.PLAYER1:
+            idx = max(range(len(values)), key=lambda i: values[i])
+        else:
+            idx = min(range(len(values)), key=lambda i: values[i])
+        best_seq = actions[idx]
+
+        # Apply to game
+        for o, dst in best_seq:
+            die = abs(o - dst)
+            player = turn_player[game.getTurn()]
+            game.tryMove(player, int(die), o, dst)
+
+        return best_seq

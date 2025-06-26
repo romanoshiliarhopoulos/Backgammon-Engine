@@ -1,6 +1,8 @@
 import torch
 import torch.optim as optim
 from model3 import TDGammonModel
+from tqdm import trange
+import tqdm
 import backgammon_env as bg
 
 def play_game(model):
@@ -41,9 +43,10 @@ def play_game(model):
 
     # Main game loop
     while True:
-        game.printGameBoard()
+        #game.printGameBoard()
         # Roll dice for this turn
         dice = game.roll_dice()
+        #print(f"Dice: {dice} | Turn: {game.getTurn()}")
         # Get all legal move sequences for the current turn
         actions = game.legalTurnSequences(game.getTurn(), dice[0], dice[1])
 
@@ -93,7 +96,7 @@ def play_game(model):
         # Check for game end
         over, winner = game.is_game_over()
         if over:
-            print(f"Total moves: {total_moves}")
+            #print(f"Total moves: {total_moves}")
             return winner, states
 
         # Switch turn
@@ -117,7 +120,7 @@ def train(num_games=1000, lr=1e-2):
     optimizer = optim.SGD(model.parameters(), lr=lr)
 
     wins = 0
-    for i in range(1, num_games + 1):
+    for i in trange(1, num_games + 1, desc="Games"):
         winner, states = play_game(model)
         if winner == bg.PlayerType.PLAYER1:
             wins += 1
@@ -143,7 +146,9 @@ def train(num_games=1000, lr=1e-2):
             optimizer.step()
 
         if i % 100 == 0:
-            print(f"Game {i}, Win rate: {wins / i:.3f}")
+            #tqdm.write(f"Game {i}, Win rate: {wins/i:.3f}")
+            pass
+
 
     print(f"Training completed. Final win rate: {wins / num_games:.3f}")
     return model
@@ -151,7 +156,7 @@ def train(num_games=1000, lr=1e-2):
 
 def main():
     model = train(num_games=2000)
-    # Optionally save the model
+    # save the model
     torch.save(model.state_dict(), "tdgammon_model.pth")
     print("Model saved to tdgammon_model.pth")
 
