@@ -54,19 +54,19 @@ test: build
 clean:
 	rm -rf $(TARGET) *.o $(BUILD_DIR)
 
-make train:
+train:
 	clear
 	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/train.py
-make bench:
+bench:
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v2/benchmark.py"
 
-make train2:
+train2:
 	clear
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v2/train model2.py"
 
-make train3:
+train3:
 	clear
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v3/train3.py"
 
-make bench3:
+bench3:
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v3/bench3.py"

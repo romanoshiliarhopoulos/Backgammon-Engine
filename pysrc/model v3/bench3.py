@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 import backgammon_env as bg
 
 
-def random_move(game):
+def random_move(game, player):
     """makes a random move based on a give game state"""
     d1, d2 = game.get_last_dice()
     # Enumerate all legal sequences
@@ -41,7 +41,6 @@ def random_move(game):
     chosen_sequence = actions[selected_index]
     for o, dst in chosen_sequence:
         die = abs(o - dst)
-        player = bg.PlayerType.PLAYER2
         game.tryMove(player, int(die), o, dst)
 
     return chosen_sequence
@@ -50,15 +49,18 @@ def random_move(game):
 def play_random(model, num_games):
     """benchmarks against a random player"""
     num_wins = 0
+    games_length = []
 
     for i in trange(num_games, desc="Games"):
         game = bg.Game(i%2) #50/50 on who starts first
         p1 = bg.Player("RL agent", bg.PlayerType.PLAYER1)
         p2 = bg.Player("Random player", bg.PlayerType.PLAYER2)
         game.setPlayers(p1, p2)
-
+        game_length = 0
         #main game loop
         while True:
+            
+            #game.printGameBoard()
             dice = game.roll_dice()
             turn = game.getTurn()
             
@@ -67,18 +69,23 @@ def play_random(model, num_games):
                 model.make_move(game)
             else:
                 """Random agent's move"""
-                random_move(game=game)
+                random_move(game=game, player=p2)
             
             # Check for game end
             over, winner = game.is_game_over()
             if over:
                 #print(f"Total moves: {total_moves}")
                 num_wins = num_wins + 1 if winner == bg.PlayerType.PLAYER1 else num_wins
+                games_length.append(game_length)
+                break
 
             # Switch turn
             next_turn = bg.PlayerType.PLAYER2 if game.getTurn() == bg.PlayerType.PLAYER1 else bg.PlayerType.PLAYER1
             game.setTurn(next_turn)
-            
+            game_length +=1
+        
+        avg_game_length = sum(games_length) / len(games_length)
+    print(f"Average game length: {avg_game_length}")
     return num_wins/num_games
 
 def main():
@@ -90,7 +97,7 @@ def main():
     model.load_state_dict(state_dict)
     model.eval()
 
-    num_games = 500
+    num_games = 1000
     win_rate_random = play_random(model=model, num_games=num_games)
     print(f"Against random bot: {win_rate_random*100:.1f}%")
 
