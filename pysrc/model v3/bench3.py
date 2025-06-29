@@ -88,18 +88,69 @@ def play_random(model, num_games):
     print(f"Average game length: {avg_game_length}")
     return num_wins/num_games
 
+
+
+def play_itself(model1, model2, num_games):
+    """Plays two TDGAMMON models against each other"""
+    num_wins = 0
+    games_length = []
+
+    for i in trange(num_games, desc="Games"):
+        game = bg.Game(i%2) #50/50 on who starts first
+        p1 = bg.Player("Model1", bg.PlayerType.PLAYER1)
+        p2 = bg.Player("Model2", bg.PlayerType.PLAYER2)
+        game.setPlayers(p1, p2)
+        game_length = 0
+        #main game loop
+        while True:
+            
+            game.printGameBoard()
+            dice = game.roll_dice()
+            turn = game.getTurn()
+            
+            if turn % 2 == bg.PlayerType.PLAYER1:
+                """model1 move"""
+                model1.make_move(game)
+            else:
+                """model2 move"""
+                print("MODEL2 MOVE!!")
+                model2.make_move(game)
+            
+            # Check for game end
+            over, winner = game.is_game_over()
+            if over:
+                #print(f"Total moves: {total_moves}")
+                num_wins = num_wins + 1 if winner == bg.PlayerType.PLAYER1 else num_wins
+                games_length.append(game_length)
+                break
+
+            # Switch turn
+            next_turn = bg.PlayerType.PLAYER2 if game.getTurn() == bg.PlayerType.PLAYER1 else bg.PlayerType.PLAYER1
+            game.setTurn(next_turn)
+            game_length +=1
+        
+        avg_game_length = sum(games_length) / len(games_length)
+    print(f"Average game length: {avg_game_length}")
+    return num_wins/num_games
+
 def main():
     print("Starting Benchmarking tests:")
     
     model = TDGammonModel()
     # load raw state dict
-    state_dict = torch.load("tdgammon_model.pth", map_location="cpu")
+    state_dict = torch.load("tdgammon_model1500.pth", map_location="cpu")
     model.load_state_dict(state_dict)
     model.eval()
 
-    num_games = 1000
-    win_rate_random = play_random(model=model, num_games=num_games)
-    print(f"Against random bot: {win_rate_random*100:.1f}%")
+    num_games = 100
+    #win_rate_random = play_random(model=model, num_games=num_games)
+    #print(f"Against random bot: {win_rate_random*100:.1f}%")
 
+    model2 = TDGammonModel()
+    state_dict2 = torch.load("tdgammon_model10000.pth", map_location="cpu")
+    model2.load_state_dict(state_dict2)
+    model2.eval()
+    win_rate_against_previous = play_itself(model1=model, model2=model2, num_games=1)
+    print(f"Against previous version: {win_rate_against_previous*100:.1f}%")
 if __name__ == "__main__":
     main()

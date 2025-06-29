@@ -30,6 +30,17 @@ class TDGammonModel(nn.Module):
         # Dropout for regularization
         self.dropout = nn.Dropout(p=dropout_rate)
 
+        self._initialize_weights()
+
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                # Use smaller initialization to prevent saturation
+                nn.init.xavier_uniform_(m.weight, gain=0.1)
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+
     def forward(self, x):
         #input layer pass
         x = self.fc1(x)
@@ -44,7 +55,10 @@ class TDGammonModel(nn.Module):
         x = self.dropout(x) 
 
         #output layer pass
-        x = torch.sigmoid(self.fc3(x))
+
+        x = self.fc3(x)
+        # Apply sigmoid only at the very end, with proper scaling
+        x = torch.sigmoid(x * 0.1)  # Scale down to prevent saturation
         return x
 
 
@@ -111,14 +125,14 @@ class TDGammonModel(nn.Module):
         }
 
         # Get the dice that were rolled this turn
-        
-        d = game.roll_dice()
+        d = game.get_last_dice()
         d1 = d[0]
         d2 = d[1]
-
+        print(f"Dice: {d} ")
         # Enumerate all legal sequences
         actions = game.legalTurnSequences(game.getTurn(), d1, d2)
         if not actions:
+            print("NO ACTIONS!!!")
             return []
 
         # Score each candidate by cloning + network evaluation
@@ -133,6 +147,7 @@ class TDGammonModel(nn.Module):
                 success, _ = sim.tryMove(player, int(die), o, dst)
                 if not success:
                     ok = False
+                    print("NOT SUCCESS")
                     break
             if not ok:
                 # illegal clone move → worst possible

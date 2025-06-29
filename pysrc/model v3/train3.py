@@ -41,6 +41,7 @@ def play_game(model):
     Returns:
         winner: bg.PlayerType of the winning player
         states: list of torch.Tensor state encodings for PLAYER1's turns
+        total_moves: Number of turns until end of game
     """
     device = next(model.parameters()).device
     model.eval()
@@ -67,18 +68,18 @@ def play_game(model):
     else:
         game.setTurn(bg.PlayerType.PLAYER2)
 
-    states = []
+    states = [] # Store (state, player) tuples
     total_moves = 0
 
     # Main game loop
     while True:
         #game.printGameBoard()
+        current_player = game.getTurn()
+        state_encoding = model.encode_state(game).to(device)
+        states.append((state_encoding, current_player))
+        
         # Roll dice for this turn
         best_seq = model.make_move(game)
-        if best_seq !=[]:
-            # Record state for PLAYER1 after move
-            if game.getTurn() == bg.PlayerType.PLAYER1:
-                states.append(model.encode_state(game).to(device))
 
         # Check for game end
         over, winner = game.is_game_over()
@@ -115,6 +116,30 @@ def train(num_games=1000, lr=1e-2):
 
     for i in trange(1, num_games + 1, desc="Games"):
         winner, states, total_moves = play_game(model)
+
+         # Debug: Check network outputs
+        # In your training loop, add more detailed monitoring:
+        """if i % 100 == 0:
+            model.eval()
+            with torch.no_grad():
+                sample_outputs = []
+                sample_td_errors = []
+                
+                for j, (state, _) in enumerate(states[:5]):
+                    output = model(state.unsqueeze(0))
+                    sample_outputs.append(output.item())
+                    
+                    # Check TD errors too
+                    if j < len(states) - 1:
+                        next_output = model(states[j+1][0].unsqueeze(0))
+                        td_err = abs(next_output.item() - output.item())
+                        sample_td_errors.append(td_err)
+                
+                print(f"Episode {i}: Sample outputs: {sample_outputs}")
+                print(f"Output range: {min(sample_outputs):.6f} - {max(sample_outputs):.6f}")
+                print(f"Sample TD errors: {sample_td_errors}")
+                print(f"Max TD error: {max(sample_td_errors) if sample_td_errors else 0:.6f}")
+"""
         number_of_turns.append(total_moves)
         if winner == bg.PlayerType.PLAYER1:
             wins += 1
@@ -122,44 +147,67 @@ def train(num_games=1000, lr=1e-2):
         # Perform TD updates
         model.train()
         losses_this_episode = []
-        # Update for intermediate states
-        for t in range(len(states) - 1):
-            v_t = model(states[t].unsqueeze(0))
-            v_tp1 = model(states[t + 1].unsqueeze(0)).detach()
-            loss = (v_tp1 - v_t).pow(2).mean()
-            losses_this_episode.append(loss.item())
 
+        # Update for intermediate states
+        # Process all states in sequence
+        for t in range(len(states) - 1):
+            current_state, current_player = states[t]
+            next_state, next_player = states[t + 1]
+            
+            v_current = model(current_state.unsqueeze(0))
+            
+            with torch.no_grad():
+                v_next = model(next_state.unsqueeze(0))
+            
+            # TD error: next prediction - current prediction
+            td_error = v_next - v_current
+            
+            # Adjust sign based on player perspective
+            if current_player == bg.PlayerType.PLAYER2:
+                td_error = -td_error
+            
+            loss = td_error.pow(2)
+            losses_this_episode.append(loss.item())
+            
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
         # Update for terminal state
         if states:
-            terminal_value = torch.tensor([[1.0]]) if winner == bg.PlayerType.PLAYER1 else torch.tensor([[0.0]])
-            v_t = model(states[-1].unsqueeze(0))
-            loss = (terminal_value - v_t).pow(2).mean()
+            final_state, final_player = states[-1]
+            v_final = model(final_state.unsqueeze(0))
+            
+            # Determine terminal reward
+            if winner == bg.PlayerType.PLAYER1:
+                terminal_reward = 1.0 if final_player == bg.PlayerType.PLAYER1 else 0.0
+            else:
+                terminal_reward = 0.0 if final_player == bg.PlayerType.PLAYER1 else 1.0
+            
+            terminal_target = torch.tensor([[terminal_reward]])
+            td_error = terminal_target - v_final
+            
+            loss = td_error.pow(2)
             losses_this_episode.append(loss.item())
+            
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
-        if i % 100 == 0:
-            #tqdm.write(f"Game {i}, Win rate: {wins/i:.3f}")
-            pass
-
         # record losses
         all_losses.extend(losses_this_episode)
-        episode_losses.append(sum(losses_this_episode) / len(losses_this_episode))
-
+        if losses_this_episode:
+            episode_losses.append(sum(losses_this_episode) / len(losses_this_episode))
+    
     print(f"Training completed. Final win rate: {wins / num_games:.3f}")
-    plot_all_metrics(number_of_turns, number_of_turns, "plots.png")
+    plot_all_metrics(number_of_turns, episode_losses, "plots.png")
     return model
 
 
 def main():
-    model = train(num_games=5000)
+    model = train(num_games=10000, lr=0.1)
     # save the model
-    torch.save(model.state_dict(), "tdgammon_model5000.pth")
+    torch.save(model.state_dict(), "tdgammon_model10000.pth")
     print("Model saved to tdgammon_model.pth")
 
 if __name__ == "__main__":
