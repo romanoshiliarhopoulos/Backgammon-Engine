@@ -111,7 +111,10 @@ class TDGammonModel(nn.Module):
         }
 
         # Get the dice that were rolled this turn
-        d1, d2 = game.get_last_dice()
+        
+        d = game.roll_dice()
+        d1 = d[0]
+        d2 = d[1]
 
         # Enumerate all legal sequences
         actions = game.legalTurnSequences(game.getTurn(), d1, d2)

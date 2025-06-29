@@ -4,6 +4,35 @@ from model3 import TDGammonModel
 from tqdm import trange
 import tqdm
 import backgammon_env as bg
+import matplotlib.pyplot as plt
+
+def plot_all_metrics(game_length, td_loss, save_path=None):
+    """Plots learning metrics """
+    # Create figure with two subplots
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 4))
+    
+    # Plot game length
+    axes[0].plot(game_length)
+    axes[0].set_title("Game Length Over Episodes")
+    axes[0].set_xlabel("Episode")
+    axes[0].set_ylabel("Game Length")
+    
+    # Plot TD loss
+    axes[1].plot(td_loss)
+    axes[1].set_title("TD Loss Over Episodes")
+    axes[1].set_xlabel("Episode")
+    axes[1].set_ylabel("TD Loss")
+    
+    plt.tight_layout()
+    
+    # Save to PNG if requested
+    if save_path:
+        fig.savefig(save_path, dpi=150)
+        print(f"Metrics plot saved to {save_path}")
+    
+    plt.show()
+
+
 
 def play_game(model):
     """
@@ -45,50 +74,8 @@ def play_game(model):
     while True:
         #game.printGameBoard()
         # Roll dice for this turn
-        dice = game.roll_dice()
-        #print(f"Dice: {dice} | Turn: {game.getTurn()}")
-        # Get all legal move sequences for the current turn
-        actions = game.legalTurnSequences(game.getTurn(), dice[0], dice[1])
-
-        if actions:
-            values = []
-            # Evaluate each action by cloning and using the model
-            for seq in actions:
-                clone = game.clone()
-                okay = True
-                for origin, dest in seq:
-                    die_used = abs(origin - dest)
-                    player_obj = turn_player[clone.getTurn()]
-                    success, _ = clone.tryMove(player_obj, int(die_used), origin, dest)
-                    if not success:
-                        okay = False
-                        break
-                if not okay:
-                    # if clone move illegal, assign worst value
-                    if game.getTurn() == bg.PlayerType.PLAYER1:
-                        values.append(float('-inf'))
-                    else:
-                        values.append(float('inf'))
-                    continue
-                # encode and evaluate
-                rep = model.encode_state(clone).to(device)
-                with torch.no_grad():
-                    val = model(rep.unsqueeze(0)).item()
-                values.append(val)
-
-            # Choose best move for each player
-            if game.getTurn() == bg.PlayerType.PLAYER1:
-                idx = max(range(len(values)), key=lambda i: values[i])
-            else:
-                idx = min(range(len(values)), key=lambda i: values[i])
-            best_seq = actions[idx]
-
-            # Apply best move to the actual game
-            for origin, dest in best_seq:
-                die_used = abs(origin - dest)
-                player_obj = turn_player[game.getTurn()]
-                game.tryMove(player_obj, int(die_used), origin, dest)
-
+        best_seq = model.make_move(game)
+        if best_seq !=[]:
             # Record state for PLAYER1 after move
             if game.getTurn() == bg.PlayerType.PLAYER1:
                 states.append(model.encode_state(game).to(device))
@@ -97,12 +84,13 @@ def play_game(model):
         over, winner = game.is_game_over()
         if over:
             #print(f"Total moves: {total_moves}")
-            return winner, states
+            return winner, states, total_moves
 
         # Switch turn
         next_turn = bg.PlayerType.PLAYER2 if game.getTurn() == bg.PlayerType.PLAYER1 else bg.PlayerType.PLAYER1
         game.setTurn(next_turn)
         total_moves+=1
+
 
 
 def train(num_games=1000, lr=1e-2):
@@ -120,18 +108,27 @@ def train(num_games=1000, lr=1e-2):
     optimizer = optim.SGD(model.parameters(), lr=lr)
 
     wins = 0
+    #statistics for learning evaluation
+    all_losses = []          # collects every single TD‐loss
+    episode_losses = []      # collects one average loss per game
+    number_of_turns = []     #holds the number of moves at each game
+
     for i in trange(1, num_games + 1, desc="Games"):
-        winner, states = play_game(model)
+        winner, states, total_moves = play_game(model)
+        number_of_turns.append(total_moves)
         if winner == bg.PlayerType.PLAYER1:
             wins += 1
 
         # Perform TD updates
         model.train()
+        losses_this_episode = []
         # Update for intermediate states
         for t in range(len(states) - 1):
             v_t = model(states[t].unsqueeze(0))
             v_tp1 = model(states[t + 1].unsqueeze(0)).detach()
             loss = (v_tp1 - v_t).pow(2).mean()
+            losses_this_episode.append(loss.item())
+
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -141,6 +138,7 @@ def train(num_games=1000, lr=1e-2):
             terminal_value = torch.tensor([[1.0]]) if winner == bg.PlayerType.PLAYER1 else torch.tensor([[0.0]])
             v_t = model(states[-1].unsqueeze(0))
             loss = (terminal_value - v_t).pow(2).mean()
+            losses_this_episode.append(loss.item())
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -149,15 +147,19 @@ def train(num_games=1000, lr=1e-2):
             #tqdm.write(f"Game {i}, Win rate: {wins/i:.3f}")
             pass
 
+        # record losses
+        all_losses.extend(losses_this_episode)
+        episode_losses.append(sum(losses_this_episode) / len(losses_this_episode))
 
     print(f"Training completed. Final win rate: {wins / num_games:.3f}")
+    plot_all_metrics(number_of_turns, number_of_turns, "plots.png")
     return model
 
 
 def main():
-    model = train(num_games=2000)
+    model = train(num_games=5000)
     # save the model
-    torch.save(model.state_dict(), "tdgammon_model.pth")
+    torch.save(model.state_dict(), "tdgammon_model5000.pth")
     print("Model saved to tdgammon_model.pth")
 
 if __name__ == "__main__":
