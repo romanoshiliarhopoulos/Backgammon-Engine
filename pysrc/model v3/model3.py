@@ -144,10 +144,12 @@ class TDGammonModel(nn.Module):
             for o, dst in seq:
                 die = abs(o - dst)
                 player = turn_player[sim.getTurn()]
+                print(f"PLAYER: {player.getNum()}")
+                print(f"origin {o}, destination: {dst}")
                 success, _ = sim.tryMove(player, int(die), o, dst)
                 if not success:
                     ok = False
-                    print("NOT SUCCESS")
+                    print(f"NOT SUCCESS {_}")
                     break
             if not ok:
                 # illegal clone move → worst possible
