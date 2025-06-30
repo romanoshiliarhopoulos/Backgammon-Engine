@@ -149,7 +149,6 @@ class TDGammonModel(nn.Module):
                 success, _ = sim.tryMove(player, int(die), o, dst)
                 if not success:
                     ok = False
-                    print(f"NOT SUCCESS {_}")
                     break
             if not ok:
                 # illegal clone move → worst possible
@@ -167,13 +166,18 @@ class TDGammonModel(nn.Module):
         if game.getTurn() == bg.PlayerType.PLAYER1:
             idx = max(range(len(values)), key=lambda i: values[i])
         else:
+            print("MINIMIZING")
             idx = min(range(len(values)), key=lambda i: values[i])
         best_seq = actions[idx]
+        print(best_seq)
 
         # Apply to game
         for o, dst in best_seq:
             die = abs(o - dst)
             player = turn_player[game.getTurn()]
-            game.tryMove(player, int(die), o, dst)
+            print(game.getTurn())
+            print(turn_player)
+            print(player)
+            print(game.tryMove(player, int(die), o, dst))
 
         return best_seq

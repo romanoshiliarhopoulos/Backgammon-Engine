@@ -383,7 +383,7 @@ void Game::setPlayers(Player *p1, Player *p2)
 
 // helper function to determing if an index is a valid origin (move pieces from that index to somewhere else)
 bool Game::isValidOrigin(int multi, int idx)
-{
+{    
     // check for jailed pieces first
     if (multi == -1)
     {
