@@ -128,11 +128,9 @@ class TDGammonModel(nn.Module):
         d = game.get_last_dice()
         d1 = d[0]
         d2 = d[1]
-        print(f"Dice: {d} ")
         # Enumerate all legal sequences
         actions = game.legalTurnSequences(game.getTurn(), d1, d2)
         if not actions:
-            print("NO ACTIONS!!!")
             return []
 
         # Score each candidate by cloning + network evaluation
@@ -144,8 +142,6 @@ class TDGammonModel(nn.Module):
             for o, dst in seq:
                 die = abs(o - dst)
                 player = turn_player[sim.getTurn()]
-                print(f"PLAYER: {player.getNum()}")
-                print(f"origin {o}, destination: {dst}")
                 success, _ = sim.tryMove(player, int(die), o, dst)
                 if not success:
                     ok = False
@@ -166,18 +162,13 @@ class TDGammonModel(nn.Module):
         if game.getTurn() == bg.PlayerType.PLAYER1:
             idx = max(range(len(values)), key=lambda i: values[i])
         else:
-            print("MINIMIZING")
             idx = min(range(len(values)), key=lambda i: values[i])
         best_seq = actions[idx]
-        print(best_seq)
 
         # Apply to game
         for o, dst in best_seq:
             die = abs(o - dst)
             player = turn_player[game.getTurn()]
-            print(game.getTurn())
-            print(turn_player)
-            print(player)
-            print(game.tryMove(player, int(die), o, dst))
+            game.tryMove(player, int(die), o, dst)
 
         return best_seq

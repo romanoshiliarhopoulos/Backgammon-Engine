@@ -18,10 +18,10 @@ project(pybind11-populate NONE)
 
 # Pass through things we've already detected in the main project to avoid
 # paying the cost of redetecting them again in ExternalProject_Add()
-set(GIT_EXECUTABLE [==[/usr/local/bin/git]==])
-set(GIT_VERSION_STRING [==[2.15.0]==])
+set(GIT_EXECUTABLE [==[/opt/homebrew/bin/git]==])
+set(GIT_VERSION_STRING [==[2.50.0]==])
 set_property(GLOBAL PROPERTY _CMAKE_FindGit_GIT_EXECUTABLE_VERSION
-  [==[/usr/local/bin/git;2.15.0]==]
+  [==[/opt/homebrew/bin/git;2.50.0]==]
 )
 
 

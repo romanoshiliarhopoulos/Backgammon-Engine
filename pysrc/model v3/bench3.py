@@ -52,23 +52,32 @@ def play_random(model, num_games):
     games_length = []
 
     for i in trange(num_games, desc="Games"):
-        game = bg.Game(i%2) #50/50 on who starts first
+        game = bg.Game(0) #50/50 on who starts first
         p1 = bg.Player("RL agent", bg.PlayerType.PLAYER1)
         p2 = bg.Player("Random player", bg.PlayerType.PLAYER2)
         game.setPlayers(p1, p2)
         game_length = 0
+
+        # start 50/50
+        if i % 2 == 0:
+            game.setTurn(bg.PlayerType.PLAYER1)
+        else:
+            game.setTurn(bg.PlayerType.PLAYER2)
+
+
         #main game loop
         while True:
             
-            #game.printGameBoard()
             dice = game.roll_dice()
             turn = game.getTurn()
             
             if turn % 2 == bg.PlayerType.PLAYER1:
                 """RL agents move"""
+                #print("Model1 moving")
                 model.make_move(game)
             else:
                 """Random agent's move"""
+                #print("Model2 moving")
                 random_move(game=game, player=p2)
             
             # Check for game end
@@ -89,7 +98,6 @@ def play_random(model, num_games):
     return num_wins/num_games
 
 
-
 def play_itself(model1, model2, num_games):
     """Plays two TDGAMMON models against each other"""
     num_wins = 0
@@ -103,8 +111,7 @@ def play_itself(model1, model2, num_games):
         game_length = 0
         #main game loop
         while True:
-            
-            game.printGameBoard()
+            #game.printGameBoard()
             dice = game.roll_dice()
             turn = game.getTurn()
             
@@ -113,7 +120,6 @@ def play_itself(model1, model2, num_games):
                 model1.make_move(game)
             else:
                 """model2 move"""
-                print("MODEL2 MOVE!!")
                 model2.make_move(game)
             
             # Check for game end
@@ -138,19 +144,21 @@ def main():
     
     model = TDGammonModel()
     # load raw state dict
-    state_dict = torch.load("tdgammon_model1500.pth", map_location="cpu")
+    state_dict = torch.load("tdgammon_model10000.pth", map_location="cpu", weights_only=True)
     model.load_state_dict(state_dict)
     model.eval()
 
     num_games = 100
-    #win_rate_random = play_random(model=model, num_games=num_games)
-    #print(f"Against random bot: {win_rate_random*100:.1f}%")
+    win_rate_random = play_random(model=model, num_games=num_games)
+    print(f"Against random bot: {win_rate_random*100:.1f}%")
 
     model2 = TDGammonModel()
-    state_dict2 = torch.load("tdgammon_model10000.pth", map_location="cpu")
+    state_dict2 = torch.load("tdgammon_model1500.pth", map_location="cpu",  weights_only=True)
     model2.load_state_dict(state_dict2)
     model2.eval()
-    win_rate_against_previous = play_itself(model1=model, model2=model2, num_games=1)
+    win_rate_against_previous = play_itself(model1=model, model2=model2, num_games=num_games)
     print(f"Against previous version: {win_rate_against_previous*100:.1f}%")
+
+
 if __name__ == "__main__":
     main()

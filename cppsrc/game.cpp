@@ -507,7 +507,8 @@ bool Game::tryMove(Player *currentPlayer,
                    int destination,
                    std::string &err)
 {
-    int multi = (currentPlayer == p2) ? -1 : +1;
+    int playerNum = currentPlayer->getNum();  
+    int multi      = (playerNum == Player::PLAYER2) ? -1 : +1;
 
     // jailed‑piece checks:
     if (!isValidOrigin(multi, origin))

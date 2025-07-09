@@ -35,7 +35,7 @@ set(error_code 1)
 set(number_of_tries 0)
 while(error_code AND number_of_tries LESS 3)
   execute_process(
-    COMMAND "/usr/local/bin/git"
+    COMMAND "/opt/homebrew/bin/git"
             clone --no-checkout --config "advice.detachedHead=false" "https://github.com/pybind/pybind11.git" "pybind11-src"
     WORKING_DIRECTORY "/Users/romanos/Backgammon_Engine/build/_deps"
     RESULT_VARIABLE error_code
@@ -51,7 +51,7 @@ if(error_code)
 endif()
 
 execute_process(
-  COMMAND "/usr/local/bin/git"
+  COMMAND "/opt/homebrew/bin/git"
           checkout "v2.11.1" --
   WORKING_DIRECTORY "/Users/romanos/Backgammon_Engine/build/_deps/pybind11-src"
   RESULT_VARIABLE error_code
@@ -64,7 +64,7 @@ endif()
 set(init_submodules TRUE)
 if(init_submodules)
   execute_process(
-    COMMAND "/usr/local/bin/git" 
+    COMMAND "/opt/homebrew/bin/git" 
             submodule update --recursive --init 
     WORKING_DIRECTORY "/Users/romanos/Backgammon_Engine/build/_deps/pybind11-src"
     RESULT_VARIABLE error_code

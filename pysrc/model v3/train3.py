@@ -79,6 +79,7 @@ def play_game(model):
         states.append((state_encoding, current_player))
         
         # Roll dice for this turn
+        game.roll_dice()
         best_seq = model.make_move(game)
 
         # Check for game end
@@ -119,27 +120,7 @@ def train(num_games=1000, lr=1e-2):
 
          # Debug: Check network outputs
         # In your training loop, add more detailed monitoring:
-        """if i % 100 == 0:
-            model.eval()
-            with torch.no_grad():
-                sample_outputs = []
-                sample_td_errors = []
-                
-                for j, (state, _) in enumerate(states[:5]):
-                    output = model(state.unsqueeze(0))
-                    sample_outputs.append(output.item())
-                    
-                    # Check TD errors too
-                    if j < len(states) - 1:
-                        next_output = model(states[j+1][0].unsqueeze(0))
-                        td_err = abs(next_output.item() - output.item())
-                        sample_td_errors.append(td_err)
-                
-                print(f"Episode {i}: Sample outputs: {sample_outputs}")
-                print(f"Output range: {min(sample_outputs):.6f} - {max(sample_outputs):.6f}")
-                print(f"Sample TD errors: {sample_td_errors}")
-                print(f"Max TD error: {max(sample_td_errors) if sample_td_errors else 0:.6f}")
-"""
+        
         number_of_turns.append(total_moves)
         if winner == bg.PlayerType.PLAYER1:
             wins += 1
@@ -205,9 +186,9 @@ def train(num_games=1000, lr=1e-2):
 
 
 def main():
-    model = train(num_games=10000, lr=0.1)
+    model = train(num_games=500, lr=0.1)
     # save the model
-    torch.save(model.state_dict(), "tdgammon_model10000.pth")
+    torch.save(model.state_dict(), "tdgammon_model100.pth")
     print("Model saved to tdgammon_model.pth")
 
 if __name__ == "__main__":
