@@ -1,3 +1,20 @@
+import os, sys
+
+_here = os.path.dirname(os.path.abspath(__file__))
+
+# Places where the compiled extension might live
+_search_paths = [
+    os.path.join(_here, "..", "build"),          # Unix-style build
+    os.path.join(_here, "..", "build", "Release"), # MSVC/Ninja Release
+    os.path.join(_here, "..", "build", "Debug"),   # MSVC/Ninja Debug
+]
+
+for p in _search_paths:
+    p = os.path.normpath(p)
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
+        break
+# ──────────────────────────────────────────────────────────────────────────────────
 import sys
 import os
 
