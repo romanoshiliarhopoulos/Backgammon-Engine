@@ -144,7 +144,7 @@ def main():
     
     model = TDGammonModel()
     # load raw state dict
-    state_dict = torch.load("tdgammon_model10000.pth", map_location="cpu", weights_only=True)
+    state_dict = torch.load("tdgammon_model100.pth", map_location="cpu", weights_only=True)
     model.load_state_dict(state_dict)
     model.eval()
 

@@ -1,10 +1,33 @@
+# ─── path bootstrap: must precede "import backgammon_env" ─────────────────────────
+import os, sys
+
+_here = os.path.dirname(os.path.abspath(__file__))
+
+# Places where the compiled extension might live
+_search_paths = [
+    os.path.join(_here, "..", "build"),          # Unix-style build
+    os.path.join(_here, "..", "build", "Release"), # MSVC/Ninja Release
+    os.path.join(_here, "..", "build", "Debug"),   # MSVC/Ninja Debug
+]
+
+for p in _search_paths:
+    p = os.path.normpath(p)
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
+        break
+# ──────────────────────────────────────────────────────────────────────────────────
+
+
 import torch
 import torch.optim as optim
 from model3 import TDGammonModel
 from tqdm import trange
 import tqdm
-import backgammon_env as bg
 import matplotlib.pyplot as plt
+
+
+import backgammon_env as bg
+
 
 def plot_all_metrics(game_length, td_loss, save_path=None):
     """Plots learning metrics """
@@ -186,7 +209,7 @@ def train(num_games=1000, lr=1e-2):
 
 
 def main():
-    model = train(num_games=500, lr=0.1)
+    model = train(num_games=4000, lr=0.1)
     # save the model
     torch.save(model.state_dict(), "tdgammon_model100.pth")
     print("Model saved to tdgammon_model.pth")

@@ -57,16 +57,13 @@ clean:
 train:
 	clear
 	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/train.py
-bench:
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v2/benchmark.py"
-
 train2:
 	clear
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v2/train model2.py"
 
 train3:
 	clear
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v3/train3.py"
+	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/modelTD/train3.py"
 
-bench3:
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v3/bench3.py"
+bench:
+	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/modelTD/benchmark.py"
