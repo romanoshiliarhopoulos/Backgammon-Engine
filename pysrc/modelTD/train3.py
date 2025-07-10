@@ -1,33 +1,10 @@
-# ─── path bootstrap: must precede "import backgammon_env" ─────────────────────────
-import os, sys
-
-_here = os.path.dirname(os.path.abspath(__file__))
-
-# Places where the compiled extension might live
-_search_paths = [
-    os.path.join(_here, "..", "build"),          # Unix-style build
-    os.path.join(_here, "..", "build", "Release"), # MSVC/Ninja Release
-    os.path.join(_here, "..", "build", "Debug"),   # MSVC/Ninja Debug
-]
-
-for p in _search_paths:
-    p = os.path.normpath(p)
-    if os.path.isdir(p) and p not in sys.path:
-        sys.path.insert(0, p)
-        break
-# ──────────────────────────────────────────────────────────────────────────────────
-
-
 import torch
 import torch.optim as optim
 from model3 import TDGammonModel
 from tqdm import trange
 import tqdm
-import matplotlib.pyplot as plt
-
-
 import backgammon_env as bg
-
+import matplotlib.pyplot as plt
 
 def plot_all_metrics(game_length, td_loss, save_path=None):
     """Plots learning metrics """
@@ -57,7 +34,7 @@ def plot_all_metrics(game_length, td_loss, save_path=None):
 
 
 
-def play_game(model):
+def play_game(model, game_idx):
     """
     Plays a single game of backgammon using the provided model for move selection.
 
@@ -103,7 +80,7 @@ def play_game(model):
         
         # Roll dice for this turn
         game.roll_dice()
-        best_seq = model.make_move(game)
+        best_seq = model.make_move(game, game_idx)
 
         # Check for game end
         over, winner = game.is_game_over()
@@ -124,7 +101,7 @@ def train(num_games=1000, lr=1e-2):
 
     Args:
         num_games: Number of self-play games to simulate
-        lr: Learning rate for the SGD optimizer
+        lr: Learning rate 
 
     Returns:
         model: The trained TDGammonModel instance
@@ -139,7 +116,7 @@ def train(num_games=1000, lr=1e-2):
     number_of_turns = []     #holds the number of moves at each game
 
     for i in trange(1, num_games + 1, desc="Games"):
-        winner, states, total_moves = play_game(model)
+        winner, states, total_moves = play_game(model, i)
 
          # Debug: Check network outputs
         # In your training loop, add more detailed monitoring:
@@ -158,18 +135,19 @@ def train(num_games=1000, lr=1e-2):
             current_state, current_player = states[t]
             next_state, next_player = states[t + 1]
             
-            v_current = model(current_state.unsqueeze(0))
-            
+            model.eval()
             with torch.no_grad():
                 v_next = model(next_state.unsqueeze(0))
+
+            model.train()
+            v_current = model(current_state.unsqueeze(0))
             
             # TD error: next prediction - current prediction
-            td_error = v_next - v_current
-            
+            td_error = v_next - v_current 
             # Adjust sign based on player perspective
-            if current_player == bg.PlayerType.PLAYER2:
+            """if current_player == bg.PlayerType.PLAYER2:
                 td_error = -td_error
-            
+            """
             loss = td_error.pow(2)
             losses_this_episode.append(loss.item())
             
@@ -180,15 +158,13 @@ def train(num_games=1000, lr=1e-2):
         # Update for terminal state
         if states:
             final_state, final_player = states[-1]
+
+            model.eval()
             v_final = model(final_state.unsqueeze(0))
-            
+            model.train()
+
             # Determine terminal reward
-            if winner == bg.PlayerType.PLAYER1:
-                terminal_reward = 1.0 if final_player == bg.PlayerType.PLAYER1 else 0.0
-            else:
-                terminal_reward = 0.0 if final_player == bg.PlayerType.PLAYER1 else 1.0
-            
-            terminal_target = torch.tensor([[terminal_reward]])
+            terminal_target = torch.tensor([[1.0 if winner == bg.PlayerType.PLAYER1 else 0.0]])
             td_error = terminal_target - v_final
             
             loss = td_error.pow(2)
@@ -209,9 +185,9 @@ def train(num_games=1000, lr=1e-2):
 
 
 def main():
-    model = train(num_games=4000, lr=0.1)
+    model = train(num_games=2000, lr=3e-4)
     # save the model
-    torch.save(model.state_dict(), "tdgammon_model100.pth")
+    torch.save(model.state_dict(), "tdgammon_model3000nosigmoid.pth")
     print("Model saved to tdgammon_model.pth")
 
 if __name__ == "__main__":

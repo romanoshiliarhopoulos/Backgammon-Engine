@@ -153,7 +153,7 @@ def main():
     print(f"Against random bot: {win_rate_random*100:.1f}%")
 
     model2 = TDGammonModel()
-    state_dict2 = torch.load("tdgammon_model1500.pth", map_location="cpu",  weights_only=True)
+    state_dict2 = torch.load("tdgammon_model100.pth", map_location="cpu",  weights_only=True)
     model2.load_state_dict(state_dict2)
     model2.eval()
     win_rate_against_previous = play_itself(model1=model, model2=model2, num_games=num_games)
