@@ -148,7 +148,7 @@ def main():
     model.load_state_dict(state_dict)
     model.eval()
 
-    num_games = 100
+    num_games = 400
     win_rate_random = play_random(model=model, num_games=num_games)
     print(f"Against random bot: {win_rate_random*100:.1f}%")
 
