@@ -1,6 +1,7 @@
 // tests.cpp
 #include <gtest/gtest.h>
 #include "game.hpp"
+#include <algorithm>
 #include "player.hpp"
 
 // Note: these tests assume that Game::gameboard is accessible for setup.

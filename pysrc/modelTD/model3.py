@@ -1,3 +1,4 @@
+import random
 import os, sys
 
 _here = os.path.dirname(os.path.abspath(__file__))
@@ -26,7 +27,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'pysrc')))
 
 import backgammon_env as bg # type: ignore
-
 class TDGammonModel(nn.Module):
     def __init__(self, input_size=198, hidden_size_1=128, hidden_size_2=64, dropout_rate=0.2):
         super().__init__()
@@ -75,7 +75,7 @@ class TDGammonModel(nn.Module):
 
         x = self.fc3(x)
         # Apply sigmoid only at the very end, with proper scaling
-        x = torch.sigmoid(x * 0.1)  # Scale down to prevent saturation
+        #x = torch.sigmoid(x * 0.5)  # Scale down to prevent saturation
         return x
 
 
@@ -128,7 +128,34 @@ class TDGammonModel(nn.Module):
 
         return torch.Tensor(encoded_state)
     
-    def make_move(self, game):
+    def _greedy_sequence(self, game, actions):
+        device = next(self.parameters()).device
+        values = []
+        for seq in actions:
+            sim = game.clone()
+            if not self._simulate_sequence(sim, seq):
+                # assign worst value if sequence illegal in clone
+                values.append(float('-inf') if game.getTurn()==bg.PlayerType.PLAYER1 else float('inf'))
+                continue
+            rep = self.encode_state(sim).to(device)
+            with torch.no_grad():
+                values.append(self(rep.unsqueeze(0)).item())
+
+        idx = max(range(len(values)), key=values.__getitem__) \
+            if game.getTurn()==bg.PlayerType.PLAYER1 else \
+            min(range(len(values)), key=values.__getitem__)
+        return actions[idx]
+    
+    def _simulate_sequence(self, sim_game, seq):
+        for o, dst in seq:
+            die = abs(o - dst)
+            player = sim_game.getPlayers(sim_game.getTurn())
+            ok, _ = sim_game.tryMove(player, int(die), o, dst)
+            if not ok:
+                return False
+        return True
+
+    def make_move(self, game, game_idx:int = 1):
         """makes a moves based on a given state"""
                 # evaluation mode (turns off dropout)
         self.eval()
@@ -181,6 +208,13 @@ class TDGammonModel(nn.Module):
         else:
             idx = min(range(len(values)), key=lambda i: values[i])
         best_seq = actions[idx]
+
+        # -------- ε-greedy exploration block --------
+        ε = max(0.2 * (1 - game_idx / 5000), 0.02)   # linear decay
+        if random.random() < ε:
+            best_seq = random.choice(actions)        # explore
+        else:
+            best_seq = self._greedy_sequence(game, actions)  # exploit
 
         # Apply to game
         for o, dst in best_seq:

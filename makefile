@@ -1,69 +1,90 @@
-# --- Source directory (where all your .cpp/.hpp now live) ---
+# --- Source directory ---
 SRCDIR       := cppsrc
 
-# --- Pull in pybind11’s include flags via: python3 -m pybind11 --includes ---
-PYBIND11_INC := $(shell python3 -m pybind11 --includes)
+# Use the system Python where pybind11 is installed
+PYTHON_CMD := "C:/Users/roman/AppData/Local/Programs/Python/Python310/python.exe"
+PYBIND11_INC := $(shell $(PYTHON_CMD) -m pybind11 --includes)
+
+# --- Detect OS for cross-platform commands ---
+ifeq ($(OS),Windows_NT)
+    CLEAR_CMD := cls
+    RM_CMD := del /Q
+    MKDIR_CMD := mkdir
+else
+    CLEAR_CMD := clear
+    RM_CMD := rm -rf
+    MKDIR_CMD := mkdir -p
+endif
 
 # --- Compiler settings ---
 CXX          := g++
 CXXFLAGS     := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function \
                  -I$(SRCDIR) $(PYBIND11_INC)
 
-# --- Collect all .cpp files under cppsrc/ except tests.cpp and the pybind bindings ---
+# --- Collect all .cpp files ---
 SRCS         := $(filter-out \
                    $(SRCDIR)/tests.cpp \
                    $(SRCDIR)/backgammon_bindings.cpp, \
                  $(wildcard $(SRCDIR)/*.cpp))
 TARGET       := a.out
 
-# --- CMake build variables ---
+# --- CMake build variables with explicit Python ---
 BUILD_DIR    := build
-CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug
+CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug \
+                -G "MinGW Makefiles" \
+                -DCMAKE_C_COMPILER=C:/msys64/ucrt64/bin/gcc.exe \
+                -DCMAKE_CXX_COMPILER=C:/msys64/ucrt64/bin/g++.exe \
+                -DPYTHON_EXECUTABLE=$(PYTHON_CMD) \
+                -DPython_EXECUTABLE=$(PYTHON_CMD) \
+                -Dpybind11_DIR="$(shell $(PYTHON_CMD) -m pybind11 --cmakedir)"
 
 .PHONY: all run build test clean cmake_configure cmake_build
 
-# Default: build both the CLI  the CMake 
 all: $(TARGET) build
 
-# 1) Direct build of your CLI executable (excludes tests.cpp)
 $(TARGET): $(SRCS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
 run: $(TARGET)
-	clear
+	cls
 	./$(TARGET)
 
-# 2) CMake configure step
 cmake_configure:
-	mkdir -p $(BUILD_DIR)
+	if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
 	cmake -S . -B $(BUILD_DIR) $(CMAKE_FLAGS)
 
-# 3) CMake build step (depends on configure)
 cmake_build: cmake_configure
 	cmake --build $(BUILD_DIR)
 
 build: cmake_build
 
-
-# 4) Run all GoogleTest cases via 
 test: build
 	cd $(BUILD_DIR) && ctest --output-on-failure
 
-
-# Cleans both the direct build artifacts and the CMake 
 clean:
+ifeq ($(OS),Windows_NT)
+	if exist $(TARGET) del $(TARGET)
+	if exist *.o del *.o
+	if exist $(BUILD_DIR) rmdir /S /Q $(BUILD_DIR)
+else
 	rm -rf $(TARGET) *.o $(BUILD_DIR)
+endif
 
 train:
-	clear
-	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/train.py
-train2:
-	clear
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v2/train model2.py"
+	$(CLEAR_CMD)
+	python train.py
 
-train3:
-	clear
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/modelTD/train3.py"
+train2:
+	$(CLEAR_CMD)
+	python "pysrc/model v2/train model2.py"
+
+# Add this new target
+install_module: build
+	if exist build\backgammon_env.cp310-win_amd64.pyd copy build\backgammon_env.cp310-win_amd64.pyd .\backgammon_env.pyd
+
+train3: install_module
+	cmd /c "set PATH=C:\msys64\ucrt64\bin;C:\msys64\ucrt64\lib;C:\msys64\usr\bin;%PATH% && set PYTHONPATH=C:\Users\roman\Documents\Backgammon-Engine;C:\Users\roman\Documents\Backgammon-Engine && C:/Users/roman/AppData/Local/Programs/Python/Python310/python.exe pysrc/modelTD/train3.py"
+
 
 bench:
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/modelTD/benchmark.py"
+	python "pysrc/modelTD/benchmark.py"

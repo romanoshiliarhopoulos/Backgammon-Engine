@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <unordered_set>
 #include <random>
+#include <array>
 
 using namespace std;
 class Game
@@ -24,7 +25,7 @@ public:
     Player *p2;
     int turn;
 
-    array<int, 2> last_dice{1, 1}; // default to {1,1}
+    array<int, 2> last_dice; // default to {1,1}
     mt19937_64 rng{std::random_device{}()};
     uniform_int_distribution<int> die{1, 6};
 
@@ -83,7 +84,7 @@ public:
     /// Each element is a vector of (origin→dest) pairs in the order they must be played.
     vector<vector<pair<int, int>>> legalTurnSequences(int player, int die1, int die2);
 
-    //creates a dice pair: rolling dice through the API
+    // creates a dice pair: rolling dice through the API
     array<int, 2> rollDice();
     array<int, 2> getLastDice() const;
 

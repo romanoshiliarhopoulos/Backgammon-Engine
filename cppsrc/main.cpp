@@ -2,7 +2,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include <cstdlib> // for arc4random_uniform
+// #include <cstdlib> // for arc4random_uniform
 #include <array>
 #include <utility>
 #include <string>
@@ -27,7 +27,10 @@ void printBanner()
 int rollDice()
 {
     // original logic: returns 1..5
-    return arc4random_uniform(5) + 1;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(1, 6);
+    return dis(gen);
 }
 
 /// Prompt for two ints (origin, destination) on one line.
@@ -213,4 +216,3 @@ int main()
     game.printGameBoard();
     return 0;
 }
-
