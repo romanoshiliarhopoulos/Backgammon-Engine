@@ -211,7 +211,7 @@ class TDGammonModel(nn.Module):
         best_seq = actions[idx]
 
         # -------- ε-greedy exploration block --------
-        ε = max(0.2 * (1 - game_idx / 5000), 0.02)   # linear decay
+        ε = max(0.2 * (1 - game_idx / 5000), 0.00)   # linear decay
         if random.random() < ε:
             best_seq = random.choice(actions)        # explore
         else:
