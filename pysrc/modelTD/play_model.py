@@ -100,7 +100,9 @@ def play_model(player_name, model_name, model):
 
         if turn == 1:
              #model's turn
-             model.make_move(game)
+             print(f"CPU rolled {dice[0]}, {dice[1]}")
+             best_sequence = model.make_move(game)
+             print(f"Played: {best_sequence}")
         else:
              #player move
             print(f"You rolled a {dice[0]}, {dice[1]}")
@@ -109,20 +111,37 @@ def play_model(player_name, model_name, model):
                 second = dice[1] if first==dice[0] else dice[0]
 
                 o1, dest1 = prompt_pair(f"Move for die {first}")
-                success_first_move, err = game.try_move(current_player, first, o1, dest1)
+                success_first_move, err = game.tryMove(current_player, first, o1, dest1)
                 if not success_first_move:
                     print(f"Error: {err}")
 
                 game.printGameBoard()
                 # second move
                 o2, dest2 = prompt_pair(f"Move for die {second}")
-                success_second_move, err = game.try_move(current_player, second, o2, dest2)
+                success_second_move, err = game.tryMove(current_player, second, o2, dest2)
                 if not success_second_move:
                     print(f"Error: {err}")
             
             else:
                 #case where you rolled a double
-                pass
+                for i in range(4):
+                    while True:
+                        o, dst = prompt_pair(f"Move {i + 1} of 4 (die={dice[0]})")
+
+                        err = "" # Initialize error message
+                        if not game.tryMove(current_player, dice[0], o, dst):
+                            print(f"Error: {err}")
+                            continue 
+                        else:
+                            game.printGameBoard()
+                            break # Move successful
+        #change turn
+        if game.getTurn() == 0:
+            game.setTurn(1)
+        else:
+            game.setTurn(0)
+        #game-over comparison
+        game.printGameBoard()
         game_over, winner =game.is_game_over()
 
     print(f"GAME OVER! winner: {winner}")
