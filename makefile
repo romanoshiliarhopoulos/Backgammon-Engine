@@ -67,3 +67,6 @@ train3:
 
 bench:
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/modelTD/benchmark.py"
+
+play:
+	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/pysrc/modelTD/play_model.py
