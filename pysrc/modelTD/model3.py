@@ -119,8 +119,8 @@ class TDGammonModel(nn.Module):
         encoded_state[194] = game.getJailedCount(bg.PlayerType.PLAYER1) / 2
         encoded_state[195] = game.getJailedCount(bg.PlayerType.PLAYER2) / 2
 
-        encoded_state[196] = float(game.getBornOffCount(bg.PlayerType.PLAYER1))
-        encoded_state[197] = float(game.getBornOffCount(bg.PlayerType.PLAYER2))
+        encoded_state[196] = game.getBornOffCount(bg.PlayerType.PLAYER1) / 15.0
+        encoded_state[197] = game.getBornOffCount(bg.PlayerType.PLAYER2) / 15.0
 
         return torch.Tensor(encoded_state)
     
