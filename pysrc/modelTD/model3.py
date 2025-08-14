@@ -33,12 +33,9 @@ class TDGammonModel(nn.Module):
         
         # Input to a larger hidden layer
         self.fc1 = nn.Linear(input_size, hidden_size_1)
-        # Batch Normalization 
         self.ln1 = nn.LayerNorm(hidden_size_1)
         
-        #Deeper hidden layer
         self.fc2 = nn.Linear(hidden_size_1, hidden_size_2)
-        # Batch Normalization
         self.ln2 = nn.LayerNorm(hidden_size_2)
         
         # Output Layer: win probability
@@ -53,7 +50,6 @@ class TDGammonModel(nn.Module):
     def _initialize_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                # Use smaller initialization to prevent saturation
                 nn.init.xavier_uniform_(m.weight, gain=0.1)
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
