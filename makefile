@@ -70,3 +70,8 @@ bench:
 
 play:
 	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/pysrc/modelTD/play_model.py
+
+git:
+	git add .
+	git commit -m "new"
+	git push
