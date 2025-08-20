@@ -25,7 +25,7 @@ import torch.nn.functional as F
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'build')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'pysrc')))
 
-import backgammon_env as bg # type: ignore
+import backgammon_env as bg # type: ign
 
 class TDGammonModel(nn.Module):
     def __init__(self, input_size=198, hidden_size_1=128, hidden_size_2=64, dropout_rate=0.2):
