@@ -38,7 +38,7 @@ class TDGammonModel(nn.Module):
         self.fc2 = nn.Linear(hidden_size_1, hidden_size_2)
         self.ln2 = nn.LayerNorm(hidden_size_2)
         
-        # Output Layer: win probability
+        # Output layer: win prob
         self.fc3 = nn.Linear(hidden_size_2, 1)
         
         # Dropout for regularization
