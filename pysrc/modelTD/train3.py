@@ -130,7 +130,6 @@ def train(num_games=1000, lr=1e-2):
         losses_this_episode = []
 
         # Update for intermediate states
-        # Process all states in sequence
         for t in range(len(states) - 1):
             current_state, current_player = states[t]
             next_state, next_player = states[t + 1]
