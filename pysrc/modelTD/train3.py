@@ -110,7 +110,7 @@ def train(num_games=1000, lr=1e-2):
     optimizer = optim.SGD(model.parameters(), lr=lr)
 
     wins = 0
-    #statistics for learning evaluation
+
     all_losses = []          # collects every single TD‐loss
     episode_losses = []      # collects one average loss per game
     number_of_turns = []     #holds the number of moves at each game
@@ -185,9 +185,9 @@ def train(num_games=1000, lr=1e-2):
 
 
 def main():
-    model = train(num_games=2000, lr=3e-4)
+    model = train(num_games=1000, lr=3e-4)
     # save the model
-    torch.save(model.state_dict(), "tdgammon_model3000nosigmoid.pth")
+    torch.save(model.state_dict(), "tdgammon1000.pth")
     print("Model saved to tdgammon_model.pth")
 
 if __name__ == "__main__":
