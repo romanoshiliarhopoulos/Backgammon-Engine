@@ -5,4 +5,3 @@ This is a project is a game engine for Backgammon. Part of this project involves
 Planning to add multiplayer functionality
 
 Planning to improve model performance!
-
