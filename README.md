@@ -6,4 +6,4 @@ Planning to add multiplayer functionality
 
 Planning to improve model performance
 
-planning for GUIa
+planning for GUI using 
