@@ -6,4 +6,4 @@ Planning to add multiplayer functionality
 
 Planning to improve model performance
 
-GUI?
+GUI? possibly through react and APIs
