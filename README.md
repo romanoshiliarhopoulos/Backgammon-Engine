@@ -6,4 +6,4 @@ Planning to add multiplayer functionality
 
 Planning to improve model performance
 
-planning for GUI using React
+planning for GUI using 
