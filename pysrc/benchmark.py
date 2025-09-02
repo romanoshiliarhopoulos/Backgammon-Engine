@@ -150,7 +150,7 @@ def main():
     
     model = TDLGammonModel()
     # load raw state dict
-    state_dict = torch.load("tdgammonNEW10k.pth", map_location="cpu", weights_only=True)
+    state_dict = torch.load("tdgammonNEW20k.pth", map_location="cpu", weights_only=True)
     model.load_state_dict(state_dict)
     model.eval()
 
@@ -158,8 +158,8 @@ def main():
     #win_rate_random = play_random(model=model, num_games=num_games)
     #print(f"Against random bot: {win_rate_random*100:.1f}%")
 
-    model2 = TDGammonModel()
-    state_dict2 = torch.load("bestModel.pth", map_location="cpu",  weights_only=True)
+    model2 = TDLGammonModel()
+    state_dict2 = torch.load("tdgammonNEW10k.pth", map_location="cpu",  weights_only=True)
     model2.load_state_dict(state_dict2)
     model2.eval()
     win_rate_against_previous = play_itself(model1=model, model2=model2, num_games=num_games)

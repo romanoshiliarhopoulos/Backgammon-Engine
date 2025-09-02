@@ -222,9 +222,9 @@ def train(num_games = 1000, initial_lr = 0.1, checkpoint_path="tdgammonNEW10k.pt
 
 
 def main():
-    model = train(num_games=100000)
+    model = train(num_games=20000)
     # save the model
-    torch.save(model.state_dict(), "tdgammonNEW100k.pth")
+    torch.save(model.state_dict(), "tdgammonNEW20k.pth")
     print("Model saved to tdgammon_model.pth")
 
 if __name__ == "__main__":
