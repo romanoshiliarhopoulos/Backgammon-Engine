@@ -63,6 +63,8 @@
         "algorithm": "cpp"
     },
     "python.analysis.extraPaths": [
-        "./pysrc"
+        "./pysrc",
+        "./pysrc/TD(λ) model",
+        "./pysrc/modelTD"
     ]
 }

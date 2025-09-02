@@ -139,6 +139,7 @@ def train(num_games=1000, lr=1e-2):
                 v_next = model(next_state.unsqueeze(0))
 
             model.train()
+            
             v_current = model(current_state.unsqueeze(0))
             
             # TD error: next prediction - current prediction

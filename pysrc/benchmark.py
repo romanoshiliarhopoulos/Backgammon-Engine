@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from model3 import TDGammonModel
 import torch
 import random
 import torch
@@ -20,8 +19,15 @@ from tqdm import trange
 import datetime
 import matplotlib.pyplot as plt
 
+
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'build')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'pysrc')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'modelTD')))
+from model3 import TDGammonModel
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),  'TD(λ) model')))
+from model import TDLGammonModel
 
 import backgammon_env as bg
 
@@ -115,7 +121,7 @@ def play_itself(model1, model2, num_games):
             dice = game.roll_dice()
             turn = game.getTurn()
             
-            if turn % 2 == bg.PlayerType.PLAYER1:
+            if turn == bg.PlayerType.PLAYER1:
                 """model1 move"""
                 model1.make_move(game)
             else:
@@ -142,18 +148,18 @@ def play_itself(model1, model2, num_games):
 def main():
     print("Starting Benchmarking tests:")
     
-    model = TDGammonModel()
+    model = TDLGammonModel()
     # load raw state dict
-    state_dict = torch.load("tdgammonNEW.pth", map_location="cpu", weights_only=True)
+    state_dict = torch.load("tdgammonNEW10k.pth", map_location="cpu", weights_only=True)
     model.load_state_dict(state_dict)
     model.eval()
 
     num_games = 400
-    win_rate_random = play_random(model=model, num_games=num_games)
-    print(f"Against random bot: {win_rate_random*100:.1f}%")
+    #win_rate_random = play_random(model=model, num_games=num_games)
+    #print(f"Against random bot: {win_rate_random*100:.1f}%")
 
     model2 = TDGammonModel()
-    state_dict2 = torch.load("tdgammon_model100.pth", map_location="cpu",  weights_only=True)
+    state_dict2 = torch.load("bestModel.pth", map_location="cpu",  weights_only=True)
     model2.load_state_dict(state_dict2)
     model2.eval()
     win_rate_against_previous = play_itself(model1=model, model2=model2, num_games=num_games)

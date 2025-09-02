@@ -1,4 +1,4 @@
-from model3 import TDGammonModel
+
 import torch
 import random
 import torch
@@ -22,6 +22,11 @@ import matplotlib.pyplot as plt
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'build')))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'pysrc')))
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'modelTD')))
+from model3 import TDGammonModel
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),  'TD(λ) model')))
+from model import TDLGammonModel
 
 import backgammon_env as bg
 
@@ -157,7 +162,7 @@ def main():
     while not os.path.isfile(path+model_name+'.pth'):
          model_name = input("Enter a correct model name, file does not exist: ")
 
-    model = TDGammonModel()
+    model = TDLGammonModel()
     # load raw state dict
     state_dict = torch.load(path+model_name+'.pth', map_location="cpu", weights_only=True)
     model.load_state_dict(state_dict)

@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 import backgammon_env as bg # type: ignore
 
-class TDGammonModel(nn.Module):
+class TDLGammonModel(nn.Module):
     def __init__(self, input_size=198, hidden_size=128):
         super().__init__()
         
@@ -37,10 +37,21 @@ class TDGammonModel(nn.Module):
         
         self.learning_rate = 0.1
 
-        self._initialize_weights()
+        self.initialize_weights()
 
+        self.eligibility_traces = {}
+        self.initialize_traces()
 
-    def _initialize_weights(self):
+        self.lambda_decay = 0.7
+
+    def initialize_traces(self):
+        """Initialize eligibility traces for all parameters"""
+        self.eligibility_traces = {}
+        for name, param in self.named_parameters():
+            if param.requires_grad:
+                self.eligibility_traces[name] = torch.zeros_like(param.data)
+
+    def initialize_weights(self):
         """Randomly initializes model weights"""
         for m in self.modules():
             if isinstance(m, nn.Linear):
@@ -112,8 +123,9 @@ class TDGammonModel(nn.Module):
     def select_best_action(self, game, actions):
         """Evaluates all possible action sequences using the neural 
         net and returns the one leading to the most favorable action"""
+
         device = next(self.parameters()).device
-        values = []
+        values = [] #holds the values of each action
         for seq in actions:
             sim = game.clone()
             if not self._simulate_sequence(sim, seq):
@@ -127,6 +139,7 @@ class TDGammonModel(nn.Module):
         idx = max(range(len(values)), key=values.__getitem__) \
             if game.getTurn()==bg.PlayerType.PLAYER1 else \
             min(range(len(values)), key=values.__getitem__)
+        
         return actions[idx]
     
     def _simulate_sequence(self, sim_game, seq):
