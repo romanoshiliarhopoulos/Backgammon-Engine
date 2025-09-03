@@ -105,7 +105,7 @@ vector<pair<int, int>> Game::legalMoves(int player, int die)
 }
 
 // faster way to collect all possible moves when rolling a double die:
-// You only generate as many branches as remain legal after each simulated move.
+// only generate as many branches as remain legal after each simulated move.
 void collectDoubles(Player *player,
                     int die,
                     int depth,
@@ -384,7 +384,6 @@ void Game::setPlayers(Player *p1, Player *p2)
 // helper function to determing if an index is a valid origin (move pieces from that index to somewhere else)
 bool Game::isValidOrigin(int multi, int idx)
 {    
-    // check for jailed pieces first
     if (multi == -1)
     {
         // it is player 2's move
@@ -409,6 +408,7 @@ bool Game::isValidOrigin(int multi, int idx)
             return true;
         }
     }
+
     // Check bounds for regular board positions
     if (idx < 1 || idx > 24)
     {
