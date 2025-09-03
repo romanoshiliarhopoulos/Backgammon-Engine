@@ -155,8 +155,8 @@ def main():
     model.eval()
 
     num_games = 400
-    #win_rate_random = play_random(model=model, num_games=num_games)
-    #print(f"Against random bot: {win_rate_random*100:.1f}%")
+    win_rate_random = play_random(model=model, num_games=num_games)
+    print(f"Against random bot: {win_rate_random*100:.1f}%")
 
     model2 = TDLGammonModel()
     state_dict2 = torch.load("tdgammonNEW10k.pth", map_location="cpu",  weights_only=True)
