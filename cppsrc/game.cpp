@@ -95,7 +95,7 @@ vector<pair<int, int>> Game::legalMoves(int player, int die)
             {
                 dest = 0;
             }
-            if (isValidDestination(multi, dest))
+            if (isValidDestination(multi, dest, die, i))
             {
                 toReturn.emplace_back(i, dest);
             }
@@ -383,7 +383,7 @@ void Game::setPlayers(Player *p1, Player *p2)
 
 // helper function to determing if an index is a valid origin (move pieces from that index to somewhere else)
 bool Game::isValidOrigin(int multi, int idx)
-{    
+{
     if (multi == -1)
     {
         // it is player 2's move
@@ -425,12 +425,13 @@ bool Game::isValidOrigin(int multi, int idx)
     }
 }
 // helper function to see if a player can move a piece there
-bool Game::isValidDestination(int multi, int idx)
+bool Game::isValidDestination(int multi, int idx, int dice, int origin)
 {
+
     if (idx == 0 || idx >= 25)
     {
         // if player want to "free" a piece.
-        return canFreePiece(multi);
+        return canFreePiece(multi, dice, origin);
     }
     // Check bounds for regular board positions
     if (idx < 1 || idx > 24)
@@ -453,7 +454,7 @@ bool Game::isValidDestination(int multi, int idx)
 }
 
 // helper function to see if a player can free a piece!
-bool Game::canFreePiece(int multi)
+bool Game::canFreePiece(int multi, int dice, int origin)
 {
     int player = (multi == +1) ? Player::PLAYER1  // enum value 0
                                : Player::PLAYER2; // enum value 1
@@ -484,6 +485,41 @@ bool Game::canFreePiece(int multi)
             }
         }
     }
+
+    // at this point we want to see if a dice is bigger than the origin that there are no pieces before there!
+    if (player == Player::PLAYER1)
+    {
+        // ensure that p1 has all their pieces in the last  slots
+        if (dice > origin - 25)
+        {
+            // we want to make sure that the origin is the last available piece
+            for (int i = origin; i >= 20; i--)
+            {
+
+                if (this->gameboard[i] != 0)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    else
+    {
+        // ensure that p2 has all their peices in their last 5 slots
+        if (dice > origin)
+        {
+            // we want to make sure that the origin is the last available piece
+
+            for (int i = origin; i <= 6; i++)
+            {
+                if (this->gameboard[i] != 0)
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
     return true;
 }
 
@@ -507,8 +543,8 @@ bool Game::tryMove(Player *currentPlayer,
                    int destination,
                    std::string &err)
 {
-    int playerNum = currentPlayer->getNum();  
-    int multi      = (playerNum == Player::PLAYER2) ? -1 : +1;
+    int playerNum = currentPlayer->getNum();
+    int multi = (playerNum == Player::PLAYER2) ? -1 : +1;
 
     // jailed‑piece checks:
     if (!isValidOrigin(multi, origin))
@@ -545,7 +581,7 @@ bool Game::tryMove(Player *currentPlayer,
             err = "Move does not match dice.";
             return false;
         }
-        if (!isValidDestination(multi, destination))
+        if (!isValidDestination(multi, destination, dice, origin))
         {
             err = "Invalid destination.";
             return false;

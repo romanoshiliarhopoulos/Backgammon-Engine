@@ -66,9 +66,9 @@ public:
 
     // helper functions for movePieces
     bool isValidOrigin(int multi, int idx);
-    bool isValidDestination(int multi, int idx);
+    bool isValidDestination(int multi, int idx, int dice = 0, int origin = 0);
 
-    bool canFreePiece(int player);
+    bool canFreePiece(int player, int dice, int origin);
 
     // some more helper functions to expose game-state to RL model
     int getJailedCount(int player);
@@ -83,7 +83,7 @@ public:
     /// Each element is a vector of (origin→dest) pairs in the order they must be played.
     vector<vector<pair<int, int>>> legalTurnSequences(int player, int die1, int die2);
 
-    //creates a dice pair: rolling dice through the API
+    // creates a dice pair: rolling dice through the API
     array<int, 2> rollDice();
     array<int, 2> getLastDice() const;
 
