@@ -1,11 +1,36 @@
+import os
+import sys
+# ─── DLL fix: must be FIRST ─────────────────────────────────────────────────────
+os.add_dll_directory("C:\\msys64\\ucrt64\\bin")
+
+# ─── path bootstrap ─────────────────────────────────────────────────────────────
+_here = os.path.dirname(os.path.abspath(__file__))
+
+_search_paths = [
+    os.path.join(_here, "..", "build"),
+    os.path.join(_here, "..", "build", "Release"),
+    os.path.join(_here, "..", "build", "Debug"),
+]
+
+for p in _search_paths:
+    p = os.path.normpath(p)
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
+        break
+
+# ─── Now safe to import everything ─────────────────────────────────────────────
 import torch
 import torch.optim as optim
 from model import TDLGammonModel
 from tqdm import trange
 import tqdm
-import os
-import backgammon_env as bg #type: ignore
 import matplotlib.pyplot as plt
+import backgammon_env as bg
+
+
+os.add_dll_directory("C:\\msys64\\ucrt64\\bin")
+import backgammon_env as bg
+
 
 def plot_all_metrics(game_length, td_loss, save_path=None):
     """Plots learning metrics """
