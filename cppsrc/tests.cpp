@@ -423,10 +423,10 @@ TEST(LegalTurnSeq, trying_replicate_another)
     Game game(0);
     Player p1("A", Player::PLAYER1), p2("B", Player::PLAYER2);
     game.setPlayers(&p1, &p2);
-    game.gameboard.assign({-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1});
-
-    EXPECT_NE(game.legalMoves(0, 6).size(), 0);
-    EXPECT_EQ(game.legalMoves(0, 6).size(), 1);
+    game.gameboard.assign({-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1});
+    cout << "Legal moves |" << game.legalMoves(1, 6).size() << "||||"<<endl;
+    EXPECT_NE(game.legalMoves(1, 6).size(), 0);
+    EXPECT_EQ(game.legalMoves(1, 6).size(), 1);
     EXPECT_EQ(game.legalTurnSequences(0, 6, 3).size(), 2);
 }
 
@@ -487,7 +487,7 @@ TEST(LegalTurnSeq, Player2SingleCheckerCanBearOffWithBothDice)
     }
 }
 
-// 1) A single ◯ on pip 1, rolling doubles (1,1) should still give you
+// 1) A single ◯ on pip 1, rolling doubles (1,1) should still give
 //    a one‐step bear‐off sequence – not zero.
 TEST(LegalTurnSeq, Player2FinalBearOffDouble1)
 {
@@ -543,6 +543,33 @@ TEST(LegalTurnSeq, Player2TwoCheckersDouble2)
         }
     }
     EXPECT_TRUE(saw_valid) << "Expected a 2-step double-bear-off sequence for pips {1,2}";
+}
+
+// case to handle correctly freeing pieces
+
+TEST(LegalTurnSeq, FREEINGCORRECTLY)
+{
+    // Arrange: one Black (player2) checker on pip 1, nothing else on board
+    Game g(0);
+    Player white("W", Player::PLAYER1),
+        black("B", Player::PLAYER2);
+    g.setPlayers(&white, &black);
+
+    g.gameboard.assign({-5, -4, -4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5});
+
+    vector<vector<pair<int, int>>> legal_moves = g.legalTurnSequences(0, 6, 5);
+
+    for (const auto &seq : legal_moves)
+    {
+        std::cout << "[ ";
+        for (const auto &move : seq)
+        {
+            std::cout << "(" << move.first << "," << move.second << ") ";
+        }
+        std::cout << "]\n";
+    }
+
+    ASSERT_LE(legal_moves.size(), 2);
 }
 
 int main(int argc, char **argv)
