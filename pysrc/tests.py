@@ -34,6 +34,7 @@ import backgammon_env as bg
 def main():
     game = bg.Game(0)
     game.setGameBoard([-5,-4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,5])
+    game.printGameBoard()
     print(game.legalTurnSequences(1, 6, 5))
     assert 1==1
 
