@@ -18,4 +18,3 @@ training: add TD(lambda)
 
 use a 1-ply for training and then switch to a 2-ply for playing/benchmarking. 
 
-fix canFreePiece() to resolve the bug!!
