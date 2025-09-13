@@ -10,7 +10,7 @@ GUI?
 
 ------- - - - - - - - - - - -
 
-some notes on v2!
+some notes on v2
 
 use a 1-ply for training and then switch to a 2-ply for playing/benchmarking. 
 
