@@ -8,7 +8,7 @@ Planning to improve model performance
 
 GUI? 
 
-------- - - - - -
+------- - - - - 
 
 some notes on v2
 
