@@ -1,4 +1,4 @@
-# A Reinforcement Learning Backgammon agent and game environment!
+# A Reinforcement Learning Backgammon agent
 
 A  backgammon game engine with reinforcement learning capabilities, featuring a C++ game implementation with Python bindings and a neural network trained using TD(λ) learning algorithms.
 
