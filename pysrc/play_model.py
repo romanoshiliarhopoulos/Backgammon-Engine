@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'pysrc')))
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'modelTD')))
-from model3 import TDGammonModel
+#from model3 import TDGammonModel
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),  'TD(λ) model')))
 from model import TDLGammonModel
 

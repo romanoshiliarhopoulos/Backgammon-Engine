@@ -483,6 +483,7 @@ bool Game::canFreePiece(int multi, int dice, int origin)
                     return false;
                 }
             }
+            //
         }
     }
 
