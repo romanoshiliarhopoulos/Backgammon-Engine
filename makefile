@@ -69,7 +69,7 @@ bench:
 	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/modelTD/benchmark.py"
 
 play:
-	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/pysrc/play_model.py
+	poetry run python /Users/romanos/Backgammon_Engine/pysrc/play_model.py
 
 git:
 	git add .
