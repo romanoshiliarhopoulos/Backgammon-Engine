@@ -14,7 +14,7 @@ MODELS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'mode
 
 
 def printBanner():
-    print("""
+    print(r"""
 ·············································································
 : ____    _    ____ _  ______    _    __  __ __  __  ___  _   _             :
 :| __ )  / \  / ___| |/ / ___|  / \  |  \/  |  \/  |/ _ \| \ | |            :
@@ -25,12 +25,24 @@ def printBanner():
 """)
 
 
+def _model_compatible(path):
+    try:
+        sd = torch.load(path, map_location='cpu', weights_only=True)
+        dummy = TDLGammonModel()
+        dummy.load_state_dict(sd)
+        return True
+    except Exception:
+        return False
+
+
 def list_models():
     files = sorted(f for f in os.listdir(MODELS_DIR) if f.endswith('.pth'))
     choices = []
     for f in files:
-        size_kb = os.path.getsize(os.path.join(MODELS_DIR, f)) // 1024
-        choices.append(questionary.Choice(title=f"{f[:-4]}  ({size_kb} KB)", value=f[:-4]))
+        path = os.path.join(MODELS_DIR, f)
+        size_kb = os.path.getsize(path) // 1024
+        if _model_compatible(path):
+            choices.append(questionary.Choice(title=f"{f[:-4]}  ({size_kb} KB)", value=f[:-4]))
     return choices
 
 
