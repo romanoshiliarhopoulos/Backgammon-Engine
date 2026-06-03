@@ -13,3 +13,13 @@ Makefile
 *.dylib
 *.dll
 *.pyd
+
+# Compiled binaries
+a.out
+a.out.dSYM/
+cppsrc/tests
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
