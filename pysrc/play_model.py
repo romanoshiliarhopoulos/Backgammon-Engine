@@ -1,34 +1,20 @@
-
-import torch
-import random
 import os
 import sys
-import torch.nn.functional as F
-from torch.distributions import Categorical
-from torch import optim
-import numpy as np
-from collections import deque
-import pickle
-from dataclasses import dataclass
-from typing import List, Tuple, Optional
-import logging
-from tqdm import trange
-import os.path
 import random
-
-import datetime
-import matplotlib.pyplot as plt
+import torch
+import questionary
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'build')))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'pysrc')))
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'TD(λ) model')))
-from model import TDLGammonModel
 
+from model import TDLGammonModel
 import backgammon_env as bg
 
+MODELS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'models'))
+
+
 def printBanner():
-        print("""
+    print("""
 ·············································································
 : ____    _    ____ _  ______    _    __  __ __  __  ___  _   _             :
 :| __ )  / \  / ___| |/ / ___|  / \  |  \/  |  \/  |/ _ \| \ | |            :
@@ -37,142 +23,163 @@ def printBanner():
 :|____/_/   \_\____|_|\_\____/_/   \_|_|  |_|_|  |_|\___/|_| \_| (_) (_) (_):
 ·············································································
 """)
+
+
+def list_models():
+    files = sorted(f for f in os.listdir(MODELS_DIR) if f.endswith('.pth'))
+    choices = []
+    for f in files:
+        size_kb = os.path.getsize(os.path.join(MODELS_DIR, f)) // 1024
+        choices.append(questionary.Choice(title=f"{f[:-4]}  ({size_kb} KB)", value=f[:-4]))
+    return choices
+
+
+def load_model(model_name):
+    path = os.path.join(MODELS_DIR, model_name + '.pth')
+    model = TDLGammonModel()
+    state_dict = torch.load(path, map_location='cpu', weights_only=True)
+    model.load_state_dict(state_dict)
+    model.eval()
+    return model
+
+
 def prompt_die_choice(d1, d2):
-    """
-    Prompts the user to choose between two die values and ensures a valid choice.
-    """
     while True:
         try:
-            c = int(input(f"Choose which die to play first ({d1} or {d2}): "))
-            if c == d1 or c == d2:
+            c = int(input(f"  Choose which die to play first ({d1} or {d2}): "))
+            if c in (d1, d2):
                 return c
-            else:
-                print(f"Invalid. Enter {d1} or {d2}: ")
+            print(f"  Invalid — enter {d1} or {d2}.")
         except ValueError:
-            print("Invalid input. Please enter a number.")
+            print("  Invalid input.")
+
 
 def prompt_pair(prompt):
-    """
-    Prompts the user to enter two integers (origin and destination) and returns them as a tuple.
-    """
     while True:
         try:
-            user_input = input(f"{prompt} (origin dest): ")
-            parts = user_input.split()
+            parts = input(f"  {prompt} (origin dest): ").split()
             if len(parts) == 2:
-                o = int(parts[0])
-                d = int(parts[1])
-                return (o, d)
-            else:
-                print("Invalid input. Please enter two numbers separated by a space (e.g., '1 5').")
+                return int(parts[0]), int(parts[1])
+            print("  Enter two numbers, e.g.  3 8")
         except ValueError:
-            print("Invalid input. Please ensure both values are integers.")
+            print("  Both values must be integers.")
 
-def roll_dice():
-    return random.randint(1, 6)
 
-def play_model(player_name, model_name, model):
-    #rolling dice to determine who goes first
-    button_pressed = input("Press r to roll Dice ")
-    while( button_pressed !="r"):
-         button_pressed = input("Press r! ")
+def play_game(player_name, model_name, model):
+    print("\n  Press Enter to roll dice and determine who goes first...")
+    input()
 
-    agent_roll = roll_dice()
-    player_roll = roll_dice()
+    agent_roll = random.randint(1, 6)
+    player_roll = random.randint(1, 6)
+    while agent_roll == player_roll:
+        agent_roll = random.randint(1, 6)
+        player_roll = random.randint(1, 6)
 
-    while(agent_roll == player_roll):
-        agent_roll = roll_dice()
-        player_roll = roll_dice()
-    
-    print(f"You rolled a {player_roll} and the agent rolled a {agent_roll}")
-    turn = 0 if player_roll>agent_roll else 1
-    game = bg.Game(turn)
+    print(f"  You rolled {player_roll}, CPU rolled {agent_roll}.")
+    first = "You go first!" if player_roll > agent_roll else "CPU goes first!"
+    print(f"  {first}\n")
+
+    turn_code = 0 if player_roll > agent_roll else 1
+    game = bg.Game(turn_code)
     p1 = bg.Player(player_name, bg.PlayerType.PLAYER1)
-    p2 = bg.Player("CPU", bg.PlayerType.PLAYER2)
+    p2 = bg.Player(f"CPU ({model_name})", bg.PlayerType.PLAYER2)
     game.setPlayers(p1, p2)
     game.printGameBoard()
 
-    game_over = False
-    winner = -1
-
-    while not game_over:
+    while True:
         turn = game.getTurn()
         dice = game.roll_dice()
         current_player = game.getPlayers(turn)
 
-        if turn == 1:
-             #model's turn
-             print(f"CPU rolled {dice[0]}, {dice[1]}")
-             best_sequence = model.make_move(game)
-             print(f"Played: {best_sequence}")
-        else:
-             #player move
-            print(f"You rolled a {dice[0]}, {dice[1]}")
-
-            if len(game.legalTurnSequences(0,dice[0], dice[1])) != 0:
-                #making sure that you can play
-                if dice[0] != dice[1]:
-                    first = prompt_die_choice(dice[0], dice[1])
-                    second = dice[1] if first==dice[0] else dice[0]
-
-                    o1, dest1 = prompt_pair(f"Move for die {first}")
-                    success_first_move, err = game.tryMove(current_player, first, o1, dest1)
-                    if not success_first_move:
-                        print(f"Error: {err}")
-
-                    game.printGameBoard()
-                    # second move
-                    o2, dest2 = prompt_pair(f"Move for die {second}")
-                    success_second_move, err = game.tryMove(current_player, second, o2, dest2)
-                    if not success_second_move:
-                        print(f"Error: {err}")
-                
-                else:
-                    #case where you rolled a double
-                    for i in range(4):
-                        while True:
-                            o, dst = prompt_pair(f"Move {i + 1} of 4 (die={dice[0]})")
-
-                            err = "" # Initialize error message
-                            if not game.tryMove(current_player, dice[0], o, dst):
-                                print(f"Error: {err}")
-                                continue 
-                            else:
-                                game.printGameBoard()
-                                break # Move successful
+        if turn == bg.PlayerType.PLAYER2:
+            print(f"\n  CPU rolled {dice[0]}, {dice[1]}")
+            seq = model.make_move(game)
+            if seq:
+                moves_str = "  ".join(f"{o}→{d}" for o, d in seq)
+                print(f"  CPU played: {moves_str}")
             else:
-                print("No possible moves!")
-
-        #change turn
-        if game.getTurn() == 0:
-            game.setTurn(1)
+                print("  CPU has no legal moves.")
         else:
-            game.setTurn(0)
+            print(f"\n  You rolled {dice[0]}, {dice[1]}")
+            legal = game.legalTurnSequences(bg.PlayerType.PLAYER1, dice[0], dice[1])
 
-        #game-over comparison
+            if not legal:
+                print("  No legal moves — skipping your turn.")
+            elif dice[0] != dice[1]:
+                first_die = prompt_die_choice(dice[0], dice[1])
+                second_die = dice[1] if first_die == dice[0] else dice[0]
+
+                o1, d1 = prompt_pair(f"Move for die {first_die}")
+                ok, err = game.tryMove(current_player, first_die, o1, d1)
+                if not ok:
+                    print(f"  Illegal move: {err}")
+                else:
+                    game.printGameBoard()
+                    o2, d2 = prompt_pair(f"Move for die {second_die}")
+                    ok2, err2 = game.tryMove(current_player, second_die, o2, d2)
+                    if not ok2:
+                        print(f"  Illegal move: {err2}")
+            else:
+                for i in range(4):
+                    while True:
+                        o, d = prompt_pair(f"Move {i+1}/4  (die={dice[0]})")
+                        ok, err = game.tryMove(current_player, dice[0], o, d)
+                        if not ok:
+                            print(f"  Illegal move: {err}")
+                        else:
+                            game.printGameBoard()
+                            break
+
+        # switch turn
+        next_turn = (bg.PlayerType.PLAYER2
+                     if game.getTurn() == bg.PlayerType.PLAYER1
+                     else bg.PlayerType.PLAYER1)
+        game.setTurn(next_turn)
+
         game.printGameBoard()
-        game_over, winner = game.is_game_over()
+        over, winner = game.is_game_over()
+        if over:
+            if winner == bg.PlayerType.PLAYER1:
+                print("\n  YOU WIN! 🎉")
+            else:
+                print("\n  CPU wins. Better luck next time.")
+            return
 
-    print(f"GAME OVER! winner: {winner}")
 
 def main():
-
     printBanner()
-    
-    player_name = input("Enter player name: ")
-    model_name = input("Enter model name: ")
 
-    models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'models'))
-    while not os.path.isfile(os.path.join(models_dir, model_name + '.pth')):
-        model_name = input("Enter a correct model name, file does not exist: ")
+    models = list_models()
+    if not models:
+        print("No .pth models found in models/. Train one first with  make train")
+        sys.exit(1)
 
-    model = TDLGammonModel()
-    state_dict = torch.load(os.path.join(models_dir, model_name + '.pth'), map_location="cpu", weights_only=True)
-    model.load_state_dict(state_dict)
-    model.eval()
+    player_name = questionary.text("Your name:").ask()
+    if not player_name:
+        sys.exit(0)
+
+    model_name = questionary.select(
+        "Select a model to play against:",
+        choices=models,
+    ).ask()
+    if not model_name:
+        sys.exit(0)
+
+    print(f"\n  Loading {model_name}...")
+    try:
+        model = load_model(model_name)
+    except Exception as e:
+        print(f"  Failed to load model: {e}")
+        sys.exit(1)
+    print("  Ready.\n")
 
     while True:
-         play_model(player_name, model_name, model)
-    
+        play_game(player_name, model_name, model)
+        again = questionary.confirm("Play again?", default=True).ask()
+        if not again:
+            print("  Thanks for playing!")
+            break
+
+
 if __name__ == "__main__":
     main()
