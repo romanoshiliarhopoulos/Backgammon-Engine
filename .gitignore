@@ -23,3 +23,7 @@ cppsrc/tests
 __pycache__/
 *.pyc
 *.pyo
+
+.venv/
+.vscode/
+.pytest_cache/
