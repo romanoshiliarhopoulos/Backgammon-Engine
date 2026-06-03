@@ -55,17 +55,6 @@ def load_model(model_name):
     return model
 
 
-def prompt_die_choice(d1, d2):
-    while True:
-        try:
-            c = int(input(f"  Choose which die to play first ({d1} or {d2}): "))
-            if c in (d1, d2):
-                return c
-            print(f"  Invalid — enter {d1} or {d2}.")
-        except ValueError:
-            print("  Invalid input.")
-
-
 def prompt_pair(prompt):
     while True:
         try:
@@ -117,30 +106,36 @@ def play_game(player_name, model_name, model):
 
             if not legal:
                 print("  No legal moves — skipping your turn.")
-            elif dice[0] != dice[1]:
-                first_die = prompt_die_choice(dice[0], dice[1])
-                second_die = dice[1] if first_die == dice[0] else dice[0]
-
-                o1, d1 = prompt_pair(f"Move for die {first_die}")
-                ok, err = game.tryMove(current_player, first_die, o1, d1)
-                if not ok:
-                    print(f"  Illegal move: {err}")
-                else:
-                    game.printGameBoard()
-                    o2, d2 = prompt_pair(f"Move for die {second_die}")
-                    ok2, err2 = game.tryMove(current_player, second_die, o2, d2)
-                    if not ok2:
-                        print(f"  Illegal move: {err2}")
-            else:
+            elif dice[0] == dice[1]:
                 for i in range(4):
                     while True:
                         o, d = prompt_pair(f"Move {i+1}/4  (die={dice[0]})")
                         ok, err = game.tryMove(current_player, dice[0], o, d)
-                        if not ok:
-                            print(f"  Illegal move: {err}")
-                        else:
+                        if ok:
                             game.printGameBoard()
                             break
+                        print(f"  Illegal move: {err or 'invalid'}. Try again.")
+            else:
+                remaining = [dice[0], dice[1]]
+                for move_num in range(2):
+                    while True:
+                        o, d = prompt_pair(f"Move {move_num+1}/2")
+                        # Try the naturally inferred die first, then the other (covers bearing-off)
+                        inferred = abs(o - d)
+                        candidates = sorted(remaining, key=lambda x: x != inferred)
+                        moved = False
+                        last_err = "invalid move"
+                        for die in candidates:
+                            ok, err = game.tryMove(current_player, die, o, d)
+                            if ok:
+                                remaining.remove(die)
+                                game.printGameBoard()
+                                moved = True
+                                break
+                            last_err = err or "invalid move"
+                        if moved:
+                            break
+                        print(f"  Illegal move: {last_err}. Try again.")
 
         # switch turn
         next_turn = (bg.PlayerType.PLAYER2
