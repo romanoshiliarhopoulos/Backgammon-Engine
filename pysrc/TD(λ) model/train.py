@@ -33,21 +33,24 @@ def plot_all_metrics(game_length, td_loss, save_path=None):
     
     plt.show()
 
+_models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'models'))
+
 def load_previous_model(checkpoint_path="tdgammonNEW10k.pth"):
     """Load previous model weights if they exist, otherwise start fresh"""
     model = TDLGammonModel()
     
-    if os.path.exists(checkpoint_path):
-        print(f" Loading previous model from {checkpoint_path}")
+    full_path = os.path.join(_models_dir, checkpoint_path)
+    if os.path.exists(full_path):
+        print(f" Loading previous model from {full_path}")
         try:
-            state_dict = torch.load(checkpoint_path, map_location='cpu', weights_only=True)
+            state_dict = torch.load(full_path, map_location='cpu', weights_only=True)
             model.load_state_dict(state_dict)
             print(" Successfully loaded previous model weights")
         except Exception as e:
             print(f"⚠️  Error loading model: {e}")
             print("Starting with fresh weights instead")
     else:
-        print(f"No previous model found at {checkpoint_path}")
+        print(f"No previous model found at {full_path}")
         print("Starting training from scratch")
     
     return model
@@ -223,9 +226,9 @@ def train(num_games = 1000, initial_lr = 0.1, checkpoint_path="tdgammonNEW10k.pt
 
 def main():
     model = train(num_games=20000)
-    # save the model
-    torch.save(model.state_dict(), "tdgammonNEW20k.pth")
-    print("Model saved to tdgammon_model.pth")
+    out_path = os.path.join(_models_dir, "tdgammonNEW20k.pth")
+    torch.save(model.state_dict(), out_path)
+    print(f"Model saved to {out_path}")
 
 if __name__ == "__main__":
     main()

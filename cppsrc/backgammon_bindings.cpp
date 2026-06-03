@@ -4,7 +4,7 @@
 #include <pybind11/numpy.h>
 #include "game.hpp"
 #include "player.hpp"
-#include "pieces.hpp"
+#include "Pieces.hpp"
 
 namespace py = pybind11;
 

@@ -19,12 +19,10 @@ import random
 import datetime
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'build')))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'pysrc')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'build')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'pysrc')))
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),'modelTD')))
-#from model3 import TDGammonModel
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),  'TD(λ) model')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'TD(λ) model')))
 from model import TDLGammonModel
 
 import backgammon_env as bg
@@ -164,13 +162,12 @@ def main():
     player_name = input("Enter player name: ")
     model_name = input("Enter model name: ")
 
-    path = '/Users/romanos/Backgammon_Engine/'
-    while not os.path.isfile(path+model_name+'.pth'):
-         model_name = input("Enter a correct model name, file does not exist: ")
+    models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'models'))
+    while not os.path.isfile(os.path.join(models_dir, model_name + '.pth')):
+        model_name = input("Enter a correct model name, file does not exist: ")
 
     model = TDLGammonModel()
-    # load raw state dict
-    state_dict = torch.load(path+model_name+'.pth', map_location="cpu", weights_only=True)
+    state_dict = torch.load(os.path.join(models_dir, model_name + '.pth'), map_location="cpu", weights_only=True)
     model.load_state_dict(state_dict)
     model.eval()
 

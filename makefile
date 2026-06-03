@@ -1,31 +1,27 @@
-# --- Source directory (where all your .cpp/.hpp now live) ---
-SRCDIR       := cppsrc
+SRCDIR    := cppsrc
+BUILD_DIR := build
+TARGET    := a.out
 
-# --- Pull in pybind11’s include flags via: python3 -m pybind11 --includes ---
-PYBIND11_INC := $(shell python3 -m pybind11 --includes)
+CXX      := g++
+CXXFLAGS := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function -I$(SRCDIR)
 
-# --- Compiler settings ---
-CXX          := g++
-CXXFLAGS     := -std=c++17 -g -Wall -Wno-unused-variable -Wno-unused-function \
-                 -I$(SRCDIR) $(PYBIND11_INC)
+# All nvidia libs bundled with torch (needed for dlopen at import time)
+NVIDIA_LIBS := $(shell find .venv/lib/python3.12/site-packages/nvidia -maxdepth 2 -name "lib" -type d 2>/dev/null | tr '\n' ':')
+export LD_LIBRARY_PATH := $(NVIDIA_LIBS)$(LD_LIBRARY_PATH)
 
-# --- Collect all .cpp files under cppsrc/ except tests.cpp and the pybind bindings ---
-SRCS         := $(filter-out \
-                   $(SRCDIR)/tests.cpp \
-                   $(SRCDIR)/backgammon_bindings.cpp, \
-                 $(wildcard $(SRCDIR)/*.cpp))
-TARGET       := a.out
+PYTHON     := poetry run python
+CMAKE_FLAGS := -DCMAKE_BUILD_TYPE=Debug \
+               -DPYTHON_EXECUTABLE=$(shell poetry run which python)
 
-# --- CMake build variables ---
-BUILD_DIR    := build
-CMAKE_FLAGS  := -DCMAKE_BUILD_TYPE=Debug
+SRCS := $(filter-out \
+           $(SRCDIR)/tests.cpp \
+           $(SRCDIR)/backgammon_bindings.cpp, \
+         $(wildcard $(SRCDIR)/*.cpp))
 
-.PHONY: all run build test clean cmake_configure cmake_build
+.PHONY: all run build test pytest clean cmake_configure cmake_build train bench play git
 
-# Default: build both the CLI  the CMake 
 all: $(TARGET) build
 
-# 1) Direct build of your CLI executable (excludes tests.cpp)
 $(TARGET): $(SRCS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
@@ -33,49 +29,34 @@ run: $(TARGET)
 	clear
 	./$(TARGET)
 
-# 2) CMake configure step
 cmake_configure:
 	mkdir -p $(BUILD_DIR)
 	cmake -S . -B $(BUILD_DIR) $(CMAKE_FLAGS)
 
-# 3) CMake build step (depends on configure)
 cmake_build: cmake_configure
-	cmake --build $(BUILD_DIR)
+	cmake --build $(BUILD_DIR) -- -j$(shell nproc)
 
 build: cmake_build
 
-
-# 4) Run all GoogleTest cases via 
 test: build
 	cd $(BUILD_DIR) && ctest --output-on-failure
 
-
-# Cleans both the direct build artifacts and the CMake 
-clean:
-	rm -rf $(TARGET) *.o $(BUILD_DIR)
+pytest:
+	$(PYTHON) -m pytest pysrc/tests.py -v
 
 train:
-	clear
-	/Users/romanos/miniconda3/bin/python /Users/romanos/Backgammon_Engine/train.py
-train2:
-	clear
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/model v2/train model2.py"
-
-train3:
-	clear
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/modelTD/train3.py"
+	cd "pysrc/TD(λ) model" && $(PYTHON) train.py
 
 bench:
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/modelTD/benchmark.py"
+	$(PYTHON) pysrc/benchmark.py
 
 play:
-	poetry run python /Users/romanos/Backgammon_Engine/pysrc/play_model.py
+	$(PYTHON) pysrc/play_model.py
 
 git:
 	git add .
 	git commit -m "new"
 	git push
 
-
-bench2:
-	/Users/romanos/miniconda3/bin/python "/Users/romanos/Backgammon_Engine/pysrc/TD(λ) model/benchmark.py"
+clean:
+	rm -rf $(TARGET) *.o $(BUILD_DIR)
