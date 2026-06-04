@@ -1,5 +1,6 @@
 import random
 import os, sys
+import numpy as np
 
 _here = os.path.dirname(os.path.abspath(__file__))
 
@@ -95,34 +96,59 @@ class TDLGammonModel(nn.Module):
             (note: if it has 8 pieces [1,1,1,2.5]
         """
 
-        encoded_state = [0.0] * 198 
-        raw_gameboard = game.getGameBoard()
+        return torch.from_numpy(self.encode_state_np(game))
 
-        #populate positions 0-191 through gamebaord
-        for i in range(len(raw_gameboard)):
-            if raw_gameboard[i] != 0:
-                offset = 0 if raw_gameboard[i]>0 else 4
-                num_pieces = abs(raw_gameboard[i])
-                encoded_state[8*i + 0 +offset] = 1 
-                encoded_state[8*i + 1 +offset] = 1 if num_pieces >=2 else 0
-                encoded_state[8*i + 2 +offset] = 1 if num_pieces >=3 else 0
-                encoded_state[8*i + 3 +offset] = (num_pieces-3)/2 if num_pieces >=4 else 0
-        
-        #populate 192-197
-        encoded_state[192] = 1 if game.getTurn() == bg.PlayerType.PLAYER1 else 0
-        encoded_state[193] = 1 if game.getTurn() == bg.PlayerType.PLAYER2 else 0
+    def encode_state_np(self, game):
+        """NumPy float32[198] encoding of the live game (see encode_state docstring)."""
+        row = np.empty((1, 28), dtype=np.int64)
+        row[0, :24] = game.getGameBoard()
+        row[0, 24] = game.getJailedCount(bg.PlayerType.PLAYER1)
+        row[0, 25] = game.getJailedCount(bg.PlayerType.PLAYER2)
+        row[0, 26] = game.getBornOffCount(bg.PlayerType.PLAYER1)
+        row[0, 27] = game.getBornOffCount(bg.PlayerType.PLAYER2)
+        return self._encode_states_np(row, game.getTurn())[0]
 
-        encoded_state[194] = game.getJailedCount(bg.PlayerType.PLAYER1) / 2
-        encoded_state[195] = game.getJailedCount(bg.PlayerType.PLAYER2) / 2
+    def _encode_states_np(self, states, turn):
+        """Vectorized encoder (global PLAYER1/PLAYER2 frame, matches the original
+        scheme so existing checkpoints stay compatible). `states` is an (N, 28)
+        int array (board[24] + jailed_p1, jailed_p2, freed_p1, freed_p2); `turn`
+        is the current player. Slots 0-3 of each point are PLAYER1's checkers,
+        4-7 PLAYER2's. Returns an (N, 198) float32 array, identical per row to the
+        original encode_state."""
+        states = np.asarray(states)
+        N = states.shape[0]
+        board = states[:, :24]
+        X = np.zeros((N, 198), dtype=np.float32)
 
-        encoded_state[196] = game.getBornOffCount(bg.PlayerType.PLAYER1) / 15.0
-        encoded_state[197] = game.getBornOffCount(bg.PlayerType.PLAYER2) / 15.0
+        rows = np.arange(N)
+        for i in range(24):
+            col = board[:, i]
+            n = np.abs(col)
+            base = 8 * i + np.where(col > 0, 0, 4)  # offset 0 for p1, 4 for p2
+            m = n >= 1
+            X[rows[m], base[m] + 0] = 1.0
+            m = n >= 2
+            X[rows[m], base[m] + 1] = 1.0
+            m = n >= 3
+            X[rows[m], base[m] + 2] = 1.0
+            m = n >= 4
+            X[rows[m], base[m] + 3] = (n[m] - 3) / 2
 
-        return torch.Tensor(encoded_state)
-    
+        p1_turn = (turn == bg.PlayerType.PLAYER1)
+        X[:, 192] = 1.0 if p1_turn else 0.0
+        X[:, 193] = 0.0 if p1_turn else 1.0
+        X[:, 194] = states[:, 24] / 2
+        X[:, 195] = states[:, 25] / 2
+        X[:, 196] = states[:, 26] / 15.0
+        X[:, 197] = states[:, 27] / 15.0
+        return X
+
     def select_best_action(self, game, actions):
-        """Evaluates all possible action sequences using the neural 
-        net and returns the one leading to the most favorable action"""
+        """Evaluates all possible action sequences using the neural
+        net and returns the one leading to the most favorable action.
+
+        Kept for compatibility; the fast path is make_move(), which uses the
+        fused C++ evaluateTurnSequences + a single batched forward pass."""
 
         device = next(self.parameters()).device
         values = [] #holds the values of each action
@@ -139,9 +165,9 @@ class TDLGammonModel(nn.Module):
         idx = max(range(len(values)), key=values.__getitem__) \
             if game.getTurn()==bg.PlayerType.PLAYER1 else \
             min(range(len(values)), key=values.__getitem__)
-        
+
         return actions[idx]
-    
+
     def _simulate_sequence(self, sim_game, seq):
         for o, dst in seq:
             die = abs(o - dst)
@@ -151,8 +177,10 @@ class TDLGammonModel(nn.Module):
                 return False
         return True
 
-    def make_move(self, game, game_idx:int = 1):
-        """makes a moves based on a given state"""
+    def make_move(self, game, game_idx:int = 1, epsilon: float = 0.0):
+        """Selects and applies a move. Candidate afterstates are scored with V (≈
+        P(PLAYER1 wins)); PLAYER1 maximizes it, PLAYER2 minimizes it. `epsilon` > 0
+        enables ε-greedy exploration (training only; evaluation passes epsilon=0)."""
         # evaluation mode (turns off dropout)
         self.eval()
 
@@ -166,20 +194,29 @@ class TDLGammonModel(nn.Module):
 
         # Get the dice that were rolled this turn
         d = game.get_last_dice()
-        d1 = d[0]
-        d2 = d[1]
+        turn = game.getTurn()
 
-        # Enumerate all legal sequences
-        actions = game.legalTurnSequences(game.getTurn(), d1, d2)
+        # Enumerate every legal sequence AND its resulting state in one C++ call,
+        # then score them all with a single batched forward pass.
+        actions, states = game.evaluateTurnSequences(turn, d[0], d[1])
         if not actions:
             return []
 
-        best_seq = self.select_best_action(game, actions)
+        if epsilon > 0.0 and random.random() < epsilon:
+            idx = random.randrange(len(actions))
+        else:
+            device = next(self.parameters()).device
+            X = torch.from_numpy(self._encode_states_np(states, turn)).to(device)
+            with torch.inference_mode():
+                values = self(X).squeeze(1)
+            idx = int(torch.argmax(values) if turn == bg.PlayerType.PLAYER1
+                      else torch.argmin(values))
+        best_seq = actions[idx]
 
         # Apply to game
         for o, dst in best_seq:
             die = abs(o - dst)
-            player = turn_player[game.getTurn()]
+            player = turn_player[turn]
             game.tryMove(player, int(die), o, dst)
 
         return best_seq

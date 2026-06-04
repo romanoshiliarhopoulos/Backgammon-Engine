@@ -22,6 +22,22 @@ std::pair<bool, std::string> tryMoveWrapper(Game &game, Player *player, int dice
     return std::make_pair(success, err);
 }
 
+// Returns (sequences, states) where `states` is an (N, 28) int32 numpy array.
+// One crossing replaces N per-candidate clone()/tryMove crossings.
+py::tuple evaluateTurnSequencesWrapper(Game &game, int player, int die1, int die2)
+{
+    TurnEval ev = game.evaluateTurnSequences(player, die1, die2);
+    const py::ssize_t n = static_cast<py::ssize_t>(ev.states.size());
+
+    py::array_t<int> states({n, static_cast<py::ssize_t>(28)});
+    auto buf = states.mutable_unchecked<2>();
+    for (py::ssize_t i = 0; i < n; i++)
+        for (py::ssize_t j = 0; j < 28; j++)
+            buf(i, j) = ev.states[i][j];
+
+    return py::make_tuple(ev.sequences, states);
+}
+
 PYBIND11_MODULE(backgammon_env, m)
 {
     m.doc() = "Backgammon game environment for Reinforcement Learning";
@@ -55,6 +71,9 @@ PYBIND11_MODULE(backgammon_env, m)
         // Core RL methods
         .def("legalMoves", &Game::legalMoves)
         .def("legalTurnSequences", &Game::legalTurnSequences)
+        .def("evaluateTurnSequences", &evaluateTurnSequencesWrapper,
+             "Enumerate all legal turn sequences and their resulting states in one call. "
+             "Returns (sequences, states[N,28]).")
         .def("tryMove", &tryMoveWrapper)
         .def("is_game_over", &gameOverStatus)
         .def("clone", &Game::clone)

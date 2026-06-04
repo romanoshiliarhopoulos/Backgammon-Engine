@@ -8,8 +8,25 @@
 #include <cstdlib>
 #include <unordered_set>
 #include <random>
+#include <array>
+#include <utility>
 
 using namespace std;
+
+/// Result of evaluating every legal turn sequence at once.
+/// `sequences[k]` is the k-th legal turn (a list of origin->dest moves).
+/// `states[k]` is the resulting game state after playing sequence k:
+///   indices 0..23  = resulting gameboard
+///   index   24     = jailed count player 1
+///   index   25     = jailed count player 2
+///   index   26     = borne-off count player 1
+///   index   27     = borne-off count player 2
+struct TurnEval
+{
+    std::vector<std::vector<std::pair<int, int>>> sequences;
+    std::vector<std::array<int, 28>> states;
+};
+
 class Game
 {
 
@@ -82,6 +99,11 @@ public:
     /// Returns all legal turn sequences for this player and the two dice.
     /// Each element is a vector of (origin→dest) pairs in the order they must be played.
     vector<vector<pair<int, int>>> legalTurnSequences(int player, int die1, int die2);
+
+    /// Enumerate all legal turn sequences AND the resulting state for each, in
+    /// one call. Lets the RL model evaluate every candidate move with a single
+    /// Python<->C++ crossing instead of one clone()+tryMove per candidate.
+    TurnEval evaluateTurnSequences(int player, int die1, int die2);
 
     // creates a dice pair: rolling dice through the API
     array<int, 2> rollDice();

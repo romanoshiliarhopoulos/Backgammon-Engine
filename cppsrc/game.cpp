@@ -190,6 +190,37 @@ vector<vector<pair<int, int>>> Game::legalTurnSequences(int player, int die1, in
     return sequences;
 }
 
+TurnEval Game::evaluateTurnSequences(int player, int die1, int die2)
+{
+    TurnEval result;
+    result.sequences = legalTurnSequences(player, die1, die2);
+    result.states.reserve(result.sequences.size());
+
+    Player *curr_player = (player == 0) ? this->p1 : this->p2;
+
+    for (const auto &seq : result.sequences)
+    {
+        Game sim = this->clone();
+        string err;
+        for (const auto &mv : seq)
+        {
+            // die is inferred from the move exactly as the Python caller does
+            int die = std::abs(mv.first - mv.second);
+            sim.tryMove(curr_player, die, mv.first, mv.second, err);
+        }
+
+        std::array<int, 28> s{};
+        for (int i = 0; i < 24; i++)
+            s[i] = sim.gameboard[i];
+        s[24] = sim.pieces.numJailed(Player::PLAYER1);
+        s[25] = sim.pieces.numJailed(Player::PLAYER2);
+        s[26] = sim.pieces.numFreed(Player::PLAYER1);
+        s[27] = sim.pieces.numFreed(Player::PLAYER2);
+        result.states.push_back(s);
+    }
+    return result;
+}
+
 vector<int> Game::getGameBoard()
 {
     return this->gameboard;
@@ -487,17 +518,18 @@ bool Game::canFreePiece(int multi, int dice, int origin)
         }
     }
 
-    // at this point we want to see if a dice is bigger than the origin that there are no pieces before there!
+    // If the die is larger than the exact pips needed to bear off, that overrun
+    // is only legal when no checker sits farther from the off.
     if (player == Player::PLAYER1)
     {
-        // ensure that p1 has all their pieces in the last  slots
-        if (dice > origin - 25)
+        // P1 bears off toward 25, so exact pips from `origin` is (25 - origin).
+        if (dice > 25 - origin)
         {
-            // we want to make sure that the origin is the last available piece
-            for (int i = origin; i >= 20; i--)
+            // Overrun legal only if no P1 checker is on a higher point
+            // (points origin+1..24 == gameboard indices origin..23).
+            for (int i = origin; i <= 23; i++)
             {
-
-                if (this->gameboard[i] != 0)
+                if (this->gameboard[i] > 0)
                 {
                     return false;
                 }
