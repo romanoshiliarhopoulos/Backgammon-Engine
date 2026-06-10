@@ -62,7 +62,7 @@ def _random_move(game, player):
 
 
 def play_vs_random(model, num_games):
-    """Model (P1) vs random (P2), alternating who starts. Returns model win rate.."""
+    """Model (P1) vs random (P2), alternating who starts. Returns model win rate"""
     wins = 0
     total_len = 0
     p1 = bg.Player("RL agent", bg.PlayerType.PLAYER1)
